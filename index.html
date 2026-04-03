@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão DigiArt</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        h1 { color: #004d40; }
+        input { width: 80%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
+        button { background: #e65100; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 85%; font-weight: bold; }
+        #adminPanel { display: none; background: #fffde7; border: 2px dashed #fbc02d; margin-top: 20px; padding: 15px; border-radius: 10px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Bolão DigiArt ⚽</h1>
+    
+    <div id="loginArea">
+        <input type="text" id="userName" placeholder="Seu Nome">
+        <input type="tel" id="userPhone" placeholder="Seu Telefone (Ex: 24981035118)">
+        <button onclick="solicitarAcesso()">ENTRAR NO BOLÃO</button>
+    </div>
+
+    <div id="otpArea" class="hidden">
+        <p>Enviamos um código para seu celular...</p>
+        <h2 id="timer">00:60</h2>
+        <input type="number" id="otpCode" placeholder="Código de 6 dígitos">
+        <button onclick="validarCodigo()">CONFIRMAR CÓDIGO</button>
+    </div>
+
+    <div id="masterPassArea" class="hidden">
+        <h3>Acesso Master Detectado</h3>
+        <input type="password" id="masterPass" placeholder="Digite a Senha de 6 Dígitos">
+        <button onclick="acessarPainel()">LIBERAR PAINEL</button>
+    </div>
+
+    <div id="adminPanel">
+        <h2>🛠️ Painel Master</h2>
+        <button onclick="document.getElementById('uploadImg').click()">📸 SUBIR FOTO DA RODADA</button>
+        <input type="file" id="uploadImg" style="display:none" accept="image/*">
+        <p>Apostas fecham em: <input type="datetime-local" id="lockTime"></p>
+        <button style="background: #d32f2f;">ZERAR RODADA</button>
+    </div>
+</div>
+
+<script>
+    const MASTER_PHONE = "24981035118";
+    const MASTER_PASS = "931480"; // Sua senha configurada
+
+    function solicitarAcesso() {
+        const phone = document.getElementById('userPhone').value.replace(/\D/g,'');
+        if(!phone) return alert("Digite o telefone!");
+        
+        document.getElementById('loginArea').classList.add('hidden');
+        document.getElementById('otpArea').classList.remove('hidden');
+        iniciarCronometro();
+    }
+
+    function iniciarCronometro() {
+        let timeLeft = 60;
+        const timerElem = document.getElementById('timer');
+        const interval = setInterval(() => {
+            timeLeft--;
+            timerElem.innerText = 00:${timeLeft < 10 ? '0' : ''}${timeLeft};
+            if(timeLeft <= 0) clearInterval(interval);
+        }, 1000);
+    }
+
+    function validarCodigo() {
+        const phone = document.getElementById('userPhone').value.replace(/\D/g,'');
+        // Se for o seu número, pede a senha secreta
+        if(phone === MASTER_PHONE) {
+            document.getElementById('otpArea').classList.add('hidden');
+            document.getElementById('masterPassArea').classList.remove('hidden');
+        } else {
+            alert("Bem-vindo ao Bolão! (Aguarde a liberação do Mestre)");
+            // Aqui entraria a tela de apostas comum
+        }
+    }
+
+    function acessarPainel() {
+        const pass = document.getElementById('masterPass').value;
+        if(pass === MASTER_PASS) {
+            document.getElementById('masterPassArea').classList.add('hidden');
+            document.getElementById('adminPanel').style.display = 'block';
+            alert("Acesso Master Liberado, Maumau!");
+        } else {
+            alert("Senha Incorreta!");
+        }
+    }
+</script>
+
+</body>
+</html>

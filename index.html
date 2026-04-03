@@ -3,93 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bolão DigiArt</title>
+    <title>Bolão DigiArt ⚽</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
-        body { font-family: sans-serif; background: #f4f4f4; text-align: center; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
-        h1 { color: #004d40; }
-        input { width: 80%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; font-size: 16px; }
-        button { background: #e65100; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 85%; font-weight: bold; }
-        #adminPanel { display: none; background: #fffde7; border: 2px dashed #fbc02d; margin-top: 20px; padding: 15px; border-radius: 10px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #004d40; color: #fff; text-align: center; padding: 20px; }
+        .card { background: white; color: #333; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-width: 400px; margin: auto; }
+        h1 { color: #e65100; margin-bottom: 10px; }
+        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; }
+        input:focus { border-color: #e65100; }
+        button { background: #e65100; color: white; border: none; padding: 15px 20px; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        button:hover { background: #bf360c; }
         .hidden { display: none; }
+        #adminPanel { background: #fff3e0; border: 2px dashed #e65100; padding: 15px; border-radius: 15px; margin-top: 20px; color: #333; }
+        #recaptcha-container { margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Bolão DigiArt ⚽</h1>
-    
+    <h1>DigiArt Bolão ⚽</h1>
+    <p id="statusMsg" style="color: #666;">Entre para dar seus palpites!</p>
+
     <div id="loginArea">
-        <input type="text" id="userName" placeholder="Seu Nome">
-        <input type="tel" id="userPhone" placeholder="Seu Telefone (Ex: 24981035118)">
-        <button onclick="solicitarAcesso()">ENTRAR NO BOLÃO</button>
+        <input type="text" id="userName" placeholder="Seu Nome Completo">
+        <input type="tel" id="userPhone" placeholder="+55 24 98103-5118">
+        <div id="recaptcha-container"></div>
+        <button onclick="enviarSMS()">RECEBER CÓDIGO SMS</button>
     </div>
 
     <div id="otpArea" class="hidden">
-        <p>Enviamos um código para seu celular...</p>
-        <h2 id="timer">00:60</h2>
+        <p>Aguardando SMS...</p>
+        <h2 id="timer" style="color: #e65100;">01:00</h2>
         <input type="number" id="otpCode" placeholder="Código de 6 dígitos">
-        <button onclick="validarCodigo()">CONFIRMAR CÓDIGO</button>
+        <button onclick="confirmarCodigo()">VALIDAR ACESSO</button>
     </div>
 
     <div id="masterPassArea" class="hidden">
-        <h3>Acesso Master Detectado</h3>
-        <input type="password" id="masterPass" placeholder="Digite a Senha de 6 Dígitos">
-        <button onclick="acessarPainel()">LIBERAR PAINEL</button>
+        <h3 style="color: #d32f2f;">🔐 ACESSO MASTER</h3>
+        <p>Olá Maumau, digite sua senha secreta:</p>
+        <input type="password" id="masterPass" placeholder="Senha de 6 dígitos">
+        <button onclick="validarSenhaMaster()" style="background: #333;">ENTRAR NO PAINEL</button>
     </div>
 
-    <div id="adminPanel">
-        <h2>🛠️ Painel Master</h2>
-        <button onclick="document.getElementById('uploadImg').click()">📸 SUBIR FOTO DA RODADA</button>
-        <input type="file" id="uploadImg" style="display:none" accept="image/*">
-        <p>Apostas fecham em: <input type="datetime-local" id="lockTime"></p>
-        <button style="background: #d32f2f;">ZERAR RODADA</button>
+    <div id="adminPanel" class="hidden">
+        <h3>🛠️ GERENCIAR RODADA</h3>
+        <button onclick="alert('IA de leitura em breve!')" style="background: #00796b;">📸 LER PRINT DA RODADA</button>
+        <hr>
+        <p>Trava de apostas:</p>
+        <input type="datetime-local" id="lockTime">
+        <button style="background: #c62828; margin-top: 10px;">🔴 ZERAR TUDO</button>
     </div>
 </div>
 
 <script>
-    const MASTER_PHONE = "24981035118";
-    const MASTER_PASS = "931480"; // Sua senha configurada
+    // CONFIGURAÇÃO DO SEU FIREBASE (O QUE VOCÊ ME MANDOU)
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
+      authDomain: "bolao-d2baf.firebaseapp.com",
+      projectId: "bolao-d2baf",
+      storageBucket: "bolao-d2baf.firebasestorage.app",
+      messagingSenderId: "955171998764",
+      appId: "1:955171998764:web:2ccf8f2b6f23c300755589"
+    };
 
-    function solicitarAcesso() {
-        const phone = document.getElementById('userPhone').value.replace(/\D/g,'');
-        if(!phone) return alert("Digite o telefone!");
-        
-        document.getElementById('loginArea').classList.add('hidden');
-        document.getElementById('otpArea').classList.remove('hidden');
-        iniciarCronometro();
+    // Inicializa Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    let confirmationResult;
+    const MASTER_PHONE = "+5524981035118";
+    const MASTER_PASS_SECRET = "931480"; // Sua senha Master
+
+    // Configura o Recaptcha invisível para o SMS
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+        'size': 'invisible'
+    });
+
+    function enviarSMS() {
+        const phoneNumber = document.getElementById('userPhone').value.trim();
+        const appVerifier = window.recaptchaVerifier;
+
+        auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+            .then((result) => {
+                confirmationResult = result;
+                document.getElementById('loginArea').classList.add('hidden');
+                document.getElementById('otpArea').classList.remove('hidden');
+                document.getElementById('statusMsg').innerText = "Código enviado!";
+                startTimer();
+            }).catch((error) => {
+                alert("Erro ao enviar SMS: " + error.message);
+            });
     }
 
-    function iniciarCronometro() {
-        let timeLeft = 60;
+    function startTimer() {
+        let time = 60;
         const timerElem = document.getElementById('timer');
-        const interval = setInterval(() => {
-            timeLeft--;
-            timerElem.innerText = 00:${timeLeft < 10 ? '0' : ''}${timeLeft};
-            if(timeLeft <= 0) clearInterval(interval);
+        const countdown = setInterval(() => {
+            time--;
+            timerElem.innerText = 00:${time < 10 ? '0' : ''}${time};
+            if(time <= 0) clearInterval(countdown);
         }, 1000);
     }
 
-    function validarCodigo() {
-        const phone = document.getElementById('userPhone').value.replace(/\D/g,'');
-        // Se for o seu número, pede a senha secreta
+    function confirmarCodigo() {
+        const code = document.getElementById('otpCode').value;
+        confirmationResult.confirm(code).then((result) => {
+            const user = result.user;
+            verificarPerfil(user.phoneNumber);
+        }).catch((error) => {
+            alert("Código inválido!");
+        });
+    }
+
+    function verificarPerfil(phone) {
+        // Se for o seu número oficial
         if(phone === MASTER_PHONE) {
             document.getElementById('otpArea').classList.add('hidden');
             document.getElementById('masterPassArea').classList.remove('hidden');
+            document.getElementById('statusMsg').innerText = "Identidade confirmada.";
         } else {
-            alert("Bem-vindo ao Bolão! (Aguarde a liberação do Mestre)");
-            // Aqui entraria a tela de apostas comum
+            document.getElementById('otpArea').classList.add('hidden');
+            document.getElementById('statusMsg').innerText = "Bem-vindo ao Bolão!";
+            alert("Você entrou como apostador!");
         }
     }
 
-    function acessarPainel() {
+    function validarSenhaMaster() {
         const pass = document.getElementById('masterPass').value;
-        if(pass === MASTER_PASS) {
+        if(pass === MASTER_PASS_SECRET) {
             document.getElementById('masterPassArea').classList.add('hidden');
-            document.getElementById('adminPanel').style.display = 'block';
-            alert("Acesso Master Liberado, Maumau!");
+            document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('statusMsg').innerText = "MODO ADMINISTRADOR ATIVO";
         } else {
-            alert("Senha Incorreta!");
+            alert("Senha Master Incorreta!");
         }
     }
 </script>

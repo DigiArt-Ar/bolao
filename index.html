@@ -3,31 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigiArt Bolão ⚽</title>
+    <title>MauBet - O Bolão do Mestre ⚽</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #004d40; color: #fff; text-align: center; padding: 20px; }
-        .card { background: white; color: #333; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-width: 400px; margin: auto; }
-        h1 { color: #e65100; margin-bottom: 5px; }
-        p { margin-bottom: 20px; font-size: 14px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; text-align: center; }
-        input:focus { border-color: #e65100; }
-        button { background: #e65100; color: white; border: none; padding: 15px 20px; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #bf360c; }
-        .btn-resend { background: #555 !important; margin-top: 10px; }
+        :root {
+            --primary: #00ff88; /* Verde Neon Apostas */
+            --bg-dark: #121212;
+            --card-bg: #1e1e1e;
+            --accent: #ffb300; /* Dourado MauBet */
+        }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 20px; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 15px; border-top: 5px solid var(--primary); box-shadow: 0 15px 35px rgba(0,0,0,0.5); max-width: 400px; margin: auto; }
+        
+        /* Estilo Casa de Aposta */
+        h1 { margin-bottom: 5px; font-weight: 900; letter-spacing: -1px; }
+        .logo-mau { color: #fff; }
+        .logo-bet { color: var(--accent); background: #333; padding: 2px 8px; border-radius: 5px; margin-left: 2px; }
+        
+        p { color: #aaa; font-size: 14px; }
+        input { width: 90%; padding: 14px; margin: 12px 0; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; color: #fff; font-size: 16px; outline: none; }
+        input:focus { border-color: var(--primary); }
+        
+        button { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 95%; font-weight: 800; font-size: 16px; text-transform: uppercase; transition: 0.3s; }
+        button:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        
+        .btn-resend { background: transparent !important; color: var(--primary) !important; border: 1px solid var(--primary) !important; margin-top: 10px; }
+        .btn-secondary { background: #333; color: #fff; margin-top: 10px; }
+        
         .hidden { display: none; }
-        #adminPanel { background: #fff3e0; border: 2px dashed #e65100; padding: 15px; border-radius: 15px; margin-top: 20px; color: #333; }
+        #adminPanel { background: #1a1a1a; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-top: 20px; }
         #recaptcha-container { margin: 10px 0; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>DigiArt Bolão ⚽</h1>
-    <p id="statusMsg">Faça login para participar</p>
+    <h1><span class="logo-mau">Bolão</span><span class="logo-bet">MauBet</span></h1>
+    <p id="statusMsg">Plataforma Exclusiva de Apostas</p>
 
     <div id="loginArea">
         <input type="text" id="userName" placeholder="Seu Nome">
@@ -37,26 +52,43 @@
     </div>
 
     <div id="otpArea" class="hidden">
-        <p id="otpInstruction">Insira o código de 6 dígitos:</p>
-        <h2 id="timer" style="color: #e65100;">01:00</h2>
+        <p>Aguardando validação do código...</p>
+        <h2 id="timer" style="color: var(--primary);">01:00</h2>
         <input type="number" id="otpCode" placeholder="000000">
-        <button id="btnConfirmar" onclick="confirmarCodigo()">ENTRAR</button>
-        <button id="btnReenviar" class="btn-resend hidden" onclick="enviarSMS(true)">REENVIAR CÓDIGO AGORA</button>
+        <button id="btnConfirmar" onclick="confirmarCodigo()">VALIDAR ACESSO</button>
+        <button id="btnReenviar" class="btn-resend hidden" onclick="enviarSMS(true)">REENVIAR CÓDIGO</button>
+    </div>
+
+    <div id="mestreChoiceArea" class="hidden">
+        <h3 style="color: var(--accent);">BEM-VINDO, MAUMAU!</h3>
+        <p>O que deseja fazer hoje?</p>
+        <button onclick="irParaAposta()" style="background: var(--accent);">FAZER MINHA APOSTA</button>
+        <button onclick="exibirSenhaMaster()" class="btn-secondary">ABRIR PAINEL GESTOR</button>
     </div>
 
     <div id="masterPassArea" class="hidden">
-        <h3 style="color: #d32f2f;">🔐 ACESSO RESTRITO</h3>
-        <p>Maumau, digite sua senha:</p>
+        <h3 style="color: #ff5252;">🔐 SEGURANÇA MESTRE</h3>
         <input type="password" id="masterPass" placeholder="Senha Master">
-        <button onclick="validarSenhaMaster()" style="background: #333;">ABRIR PAINEL</button>
+        <button onclick="validarSenhaMaster()" style="background: #fff; color: #000;">DESBLOQUEAR PAINEL</button>
+        <button onclick="voltarEscolha()" class="btn-resend" style="border:none !important;">Voltar</button>
     </div>
 
     <div id="adminPanel" class="hidden">
-        <h3>🛠️ GERENCIAR RODADA</h3>
-        <button onclick="alert('IA de leitura em breve!')" style="background: #00796b;">📸 LER PRINT DA RODADA</button>
-        <hr>
+        <h3 style="color: var(--primary);">🛠️ GESTÃO MAUBET</h3>
+        <button onclick="alert('IA de leitura em breve!')" style="background: #00796b; color: white;">📸 LER PRINT DA RODADA</button>
+        <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+        <p>Definir fechamento:</p>
         <input type="datetime-local" id="lockTime">
-        <button style="background: #c62828; margin-top: 10px;">🔴 REINICIAR BOLÃO</button>
+        <button style="background: #d32f2f; color: white; margin-top: 10px; font-size: 12px;">REINICIAR SISTEMA</button>
+    </div>
+
+    <div id="apostaArea" class="hidden">
+        <h3 style="color: var(--primary);">MINHA APOSTA</h3>
+        <p>Selecione seus palpites abaixo:</p>
+        <div style="background: #2a2a2a; padding: 15px; border-radius: 10px; border: 1px dashed #444;">
+            <p>Aguardando liberação da rodada pelo administrador...</p>
+        </div>
+        <button onclick="location.reload()" class="btn-secondary">SAIR</button>
     </div>
 </div>
 
@@ -74,7 +106,7 @@
     const auth = firebase.auth();
     let confirmationResult;
     let countdownInterval;
-    let numeroSalvo = ""; // MEMÓRIA PARA O REENVIO
+    let numeroSalvo = "";
 
     const MASTER_PHONE = "+5524981035118";
     const MASTER_PASS_SECRET = "931480";
@@ -83,15 +115,14 @@
 
     function enviarSMS(isResend = false) {
         let finalPhone = "";
-        
         if (isResend) {
-            finalPhone = numeroSalvo; // Usa o número que guardamos
+            finalPhone = numeroSalvo;
         } else {
             let phoneInput = document.getElementById('userPhone').value.trim();
             let cleaned = phoneInput.replace(/\D/g, ''); 
             if (cleaned.length === 11) cleaned = '55' + cleaned;
             finalPhone = '+' + cleaned;
-            numeroSalvo = finalPhone; // Salva para o futuro
+            numeroSalvo = finalPhone;
         }
 
         auth.signInWithPhoneNumber(finalPhone, window.recaptchaVerifier)
@@ -101,11 +132,10 @@
                 document.getElementById('otpArea').classList.remove('hidden');
                 document.getElementById('btnConfirmar').classList.remove('hidden');
                 document.getElementById('btnReenviar').classList.add('hidden');
-                document.getElementById('statusMsg').innerText = isResend ? "Novo código enviado!" : "Código enviado!";
+                document.getElementById('statusMsg').innerText = "Verifique seu SMS";
                 startTimer();
             }).catch((err) => {
-                alert("Erro ao enviar: Tente novamente em alguns minutos.");
-                console.error(err);
+                alert("Erro ao enviar. Tente novamente.");
             });
     }
 
@@ -113,16 +143,13 @@
         clearInterval(countdownInterval);
         let time = 60;
         const timerElem = document.getElementById('timer');
-        
         countdownInterval = setInterval(() => {
             time--;
             timerElem.innerText = `00:${time < 10 ? '0' : ''}${time}`;
-            
             if(time <= 0) {
                 clearInterval(countdownInterval);
                 document.getElementById('btnConfirmar').classList.add('hidden');
                 document.getElementById('btnReenviar').classList.remove('hidden');
-                document.getElementById('statusMsg').innerText = "O tempo acabou!";
             }
         }, 1000);
     }
@@ -131,22 +158,42 @@
         const code = document.getElementById('otpCode').value;
         confirmationResult.confirm(code).then((result) => {
             verificarAcesso(result.user.phoneNumber);
-        }).catch(() => alert("Código SMS inválido!"));
+        }).catch(() => alert("Código inválido!"));
     }
 
     function verificarAcesso(phone) {
+        document.getElementById('otpArea').classList.add('hidden');
         if(phone === MASTER_PHONE) {
-            document.getElementById('otpArea').classList.add('hidden');
-            document.getElementById('masterPassArea').classList.remove('hidden');
+            // SE FOR VOCÊ, ABRE A ESCOLHA
+            document.getElementById('mestreChoiceArea').classList.remove('hidden');
+            document.getElementById('statusMsg').innerText = "Olá, MauBet!";
         } else {
-            alert("Sucesso! Aguarde a rodada.");
+            // SE FOR CLIENTE, VAI DIRETO PARA APOSTA
+            irParaAposta();
         }
+    }
+
+    function irParaAposta() {
+        document.getElementById('mestreChoiceArea').classList.add('hidden');
+        document.getElementById('apostaArea').classList.remove('hidden');
+        document.getElementById('statusMsg').innerText = "Área do Jogador";
+    }
+
+    function exibirSenhaMaster() {
+        document.getElementById('mestreChoiceArea').classList.add('hidden');
+        document.getElementById('masterPassArea').classList.remove('hidden');
+    }
+
+    function voltarEscolha() {
+        document.getElementById('masterPassArea').classList.add('hidden');
+        document.getElementById('mestreChoiceArea').classList.remove('hidden');
     }
 
     function validarSenhaMaster() {
         if(document.getElementById('masterPass').value === MASTER_PASS_SECRET) {
             document.getElementById('masterPassArea').classList.add('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('statusMsg').innerText = "MODO GESTOR ATIVO";
         } else {
             alert("Senha incorreta!");
         }

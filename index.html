@@ -30,7 +30,7 @@
 
     <div id="loginArea">
         <input type="text" id="userName" placeholder="Seu Nome">
-        <input type="text" id="userPhone" placeholder="Ex: 24 99314-8000">
+        <input type="text" id="userPhone" placeholder="Ex: 24 98103-5118">
         <div id="recaptcha-container"></div>
         <button onclick="enviarSMS()">RECEBER SMS</button>
     </div>
@@ -73,8 +73,7 @@
     const auth = firebase.auth();
     let confirmationResult;
 
-    // ATENÇÃO: Ajustei para o seu número real 8000
-    const MASTER_PHONE = "+5524993148000";
+    const MASTER_PHONE = "+5524981035118";
     const MASTER_PASS_SECRET = "931480";
 
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
@@ -97,7 +96,7 @@
                 document.getElementById('statusMsg').innerText = "Código enviado para " + finalPhone;
                 startTimer();
             }).catch((err) => {
-                alert("Erro: Verifique o domínio autorizado no Firebase.");
+                alert("Erro no Firebase: Verifique o domínio autorizado.");
                 console.error(err);
             });
     }
@@ -107,8 +106,8 @@
         const timerElem = document.getElementById('timer');
         const countdown = setInterval(() => {
             time--;
-            // CORRIGIDO: Agora com as crases para não dar erro de sintaxe
-            timerElem.innerText = 00:${time < 10 ? '0' : ''}${time};
+            // AQUI ESTAVA O ERRO! Ajustei com as crases (`)
+            timerElem.innerText = `00:${time < 10 ? '0' : ''}${time}`;
             if(time <= 0) clearInterval(countdown);
         }, 1000);
     }

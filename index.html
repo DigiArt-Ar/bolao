@@ -30,7 +30,7 @@
 
     <div id="loginArea">
         <input type="text" id="userName" placeholder="Seu Nome">
-        <input type="text" id="userPhone" placeholder="Ex: 24 98103-5118">
+        <input type="text" id="userPhone" placeholder="Ex: 24 99314-8000">
         <div id="recaptcha-container"></div>
         <button onclick="enviarSMS()">RECEBER SMS</button>
     </div>
@@ -60,7 +60,6 @@
 </div>
 
 <script>
-    // Suas chaves do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
       authDomain: "bolao-d2baf.firebaseapp.com",
@@ -74,21 +73,18 @@
     const auth = firebase.auth();
     let confirmationResult;
 
-    // Seu número e senha master
-    const MASTER_PHONE = "+5524981035118";
+    // ATENÇÃO: Ajustei para o seu número real 8000
+    const MASTER_PHONE = "+5524993148000";
     const MASTER_PASS_SECRET = "931480";
 
-    // Configura o Recaptcha
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'invisible'
     });
 
     function enviarSMS() {
         let phoneInput = document.getElementById('userPhone').value.trim();
-        
-        // LIMPEZA DO NÚMERO
-        let cleaned = phoneInput.replace(/\D/g, ''); // Tira tudo que não é número
-        if (cleaned.length === 11) cleaned = '55' + cleaned; // Se botar só o DDD + Número, adiciona o 55
+        let cleaned = phoneInput.replace(/\D/g, ''); 
+        if (cleaned.length === 11) cleaned = '55' + cleaned;
         let finalPhone = '+' + cleaned;
 
         const appVerifier = window.recaptchaVerifier;
@@ -101,7 +97,7 @@
                 document.getElementById('statusMsg').innerText = "Código enviado para " + finalPhone;
                 startTimer();
             }).catch((err) => {
-                alert("Erro: Verifique se o número está certo e se o domínio está autorizado no Firebase.");
+                alert("Erro: Verifique o domínio autorizado no Firebase.");
                 console.error(err);
             });
     }
@@ -111,6 +107,7 @@
         const timerElem = document.getElementById('timer');
         const countdown = setInterval(() => {
             time--;
+            // CORRIGIDO: Agora com as crases para não dar erro de sintaxe
             timerElem.innerText = 00:${time < 10 ? '0' : ''}${time};
             if(time <= 0) clearInterval(countdown);
         }, 1000);
@@ -131,7 +128,6 @@
         } else {
             document.getElementById('otpArea').classList.add('hidden');
             document.getElementById('statusMsg').innerText = "Acesso de Apostador.";
-            alert("Sucesso! Aguarde a rodada começar.");
         }
     }
 

@@ -37,11 +37,11 @@
     </div>
 
     <div id="otpArea" class="hidden">
-        <p>Insira o código de 6 dígitos:</p>
+        <p id="otpInstruction">Insira o código de 6 dígitos:</p>
         <h2 id="timer" style="color: #e65100;">01:00</h2>
         <input type="number" id="otpCode" placeholder="000000">
         <button id="btnConfirmar" onclick="confirmarCodigo()">ENTRAR</button>
-        <button id="btnReenviar" class="btn-resend hidden" onclick="voltarParaLogin()">REENVIAR CÓDIGO</button>
+        <button id="btnReenviar" class="btn-resend hidden" onclick="enviarSMS(true)">REENVIAR CÓDIGO AGORA</button>
     </div>
 
     <div id="masterPassArea" class="hidden">
@@ -74,17 +74,25 @@
     const auth = firebase.auth();
     let confirmationResult;
     let countdownInterval;
+    let numeroSalvo = ""; // MEMÓRIA PARA O REENVIO
 
     const MASTER_PHONE = "+5524981035118";
     const MASTER_PASS_SECRET = "931480";
 
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
 
-    function enviarSMS() {
-        let phoneInput = document.getElementById('userPhone').value.trim();
-        let cleaned = phoneInput.replace(/\D/g, ''); 
-        if (cleaned.length === 11) cleaned = '55' + cleaned;
-        let finalPhone = '+' + cleaned;
+    function enviarSMS(isResend = false) {
+        let finalPhone = "";
+        
+        if (isResend) {
+            finalPhone = numeroSalvo; // Usa o número que guardamos
+        } else {
+            let phoneInput = document.getElementById('userPhone').value.trim();
+            let cleaned = phoneInput.replace(/\D/g, ''); 
+            if (cleaned.length === 11) cleaned = '55' + cleaned;
+            finalPhone = '+' + cleaned;
+            numeroSalvo = finalPhone; // Salva para o futuro
+        }
 
         auth.signInWithPhoneNumber(finalPhone, window.recaptchaVerifier)
             .then((result) => {
@@ -93,10 +101,10 @@
                 document.getElementById('otpArea').classList.remove('hidden');
                 document.getElementById('btnConfirmar').classList.remove('hidden');
                 document.getElementById('btnReenviar').classList.add('hidden');
-                document.getElementById('statusMsg').innerText = "Código enviado!";
+                document.getElementById('statusMsg').innerText = isResend ? "Novo código enviado!" : "Código enviado!";
                 startTimer();
             }).catch((err) => {
-                alert("Erro: Verifique o domínio no Firebase.");
+                alert("Erro ao enviar: Tente novamente em alguns minutos.");
                 console.error(err);
             });
     }
@@ -119,12 +127,6 @@
         }, 1000);
     }
 
-    function voltarParaLogin() {
-        document.getElementById('otpArea').classList.add('hidden');
-        document.getElementById('loginArea').classList.remove('hidden');
-        document.getElementById('statusMsg').innerText = "Tente novamente.";
-    }
-
     function confirmarCodigo() {
         const code = document.getElementById('otpCode').value;
         confirmationResult.confirm(code).then((result) => {
@@ -137,7 +139,7 @@
             document.getElementById('otpArea').classList.add('hidden');
             document.getElementById('masterPassArea').classList.remove('hidden');
         } else {
-            alert("Acesso de apostador!");
+            alert("Sucesso! Aguarde a rodada.");
         }
     }
 

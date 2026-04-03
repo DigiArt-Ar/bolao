@@ -17,6 +17,7 @@
         input:focus { border-color: #e65100; }
         button { background: #e65100; color: white; border: none; padding: 15px 20px; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; transition: 0.3s; }
         button:hover { background: #bf360c; }
+        .btn-resend { background: #555 !important; margin-top: 10px; }
         .hidden { display: none; }
         #adminPanel { background: #fff3e0; border: 2px dashed #e65100; padding: 15px; border-radius: 15px; margin-top: 20px; color: #333; }
         #recaptcha-container { margin: 10px 0; }
@@ -30,21 +31,22 @@
 
     <div id="loginArea">
         <input type="text" id="userName" placeholder="Seu Nome">
-        <input type="text" id="userPhone" placeholder="Ex: 24 98103-5118">
+        <input type="text" id="userPhone" placeholder="Ex: 24 99314-8000">
         <div id="recaptcha-container"></div>
         <button onclick="enviarSMS()">RECEBER SMS</button>
     </div>
 
     <div id="otpArea" class="hidden">
-        <p>Insira o código de 6 dígitos enviado:</p>
+        <p>Insira o código de 6 dígitos:</p>
         <h2 id="timer" style="color: #e65100;">01:00</h2>
         <input type="number" id="otpCode" placeholder="000000">
-        <button onclick="confirmarCodigo()">ENTRAR</button>
+        <button id="btnConfirmar" onclick="confirmarCodigo()">ENTRAR</button>
+        <button id="btnReenviar" class="btn-resend hidden" onclick="voltarParaLogin()">REENVIAR CÓDIGO</button>
     </div>
 
     <div id="masterPassArea" class="hidden">
         <h3 style="color: #d32f2f;">🔐 ACESSO RESTRITO</h3>
-        <p>Maumau, digite sua senha de administrador:</p>
+        <p>Maumau, digite sua senha:</p>
         <input type="password" id="masterPass" placeholder="Senha Master">
         <button onclick="validarSenhaMaster()" style="background: #333;">ABRIR PAINEL</button>
     </div>
@@ -53,7 +55,6 @@
         <h3>🛠️ GERENCIAR RODADA</h3>
         <button onclick="alert('IA de leitura em breve!')" style="background: #00796b;">📸 LER PRINT DA RODADA</button>
         <hr>
-        <p>Apostas encerram em:</p>
         <input type="datetime-local" id="lockTime">
         <button style="background: #c62828; margin-top: 10px;">🔴 REINICIAR BOLÃO</button>
     </div>
@@ -72,13 +73,12 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     let confirmationResult;
+    let countdownInterval;
 
     const MASTER_PHONE = "+5524981035118";
     const MASTER_PASS_SECRET = "931480";
 
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-        'size': 'invisible'
-    });
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
 
     function enviarSMS() {
         let phoneInput = document.getElementById('userPhone').value.trim();
@@ -86,30 +86,43 @@
         if (cleaned.length === 11) cleaned = '55' + cleaned;
         let finalPhone = '+' + cleaned;
 
-        const appVerifier = window.recaptchaVerifier;
-
-        auth.signInWithPhoneNumber(finalPhone, appVerifier)
+        auth.signInWithPhoneNumber(finalPhone, window.recaptchaVerifier)
             .then((result) => {
                 confirmationResult = result;
                 document.getElementById('loginArea').classList.add('hidden');
                 document.getElementById('otpArea').classList.remove('hidden');
-                document.getElementById('statusMsg').innerText = "Código enviado para " + finalPhone;
+                document.getElementById('btnConfirmar').classList.remove('hidden');
+                document.getElementById('btnReenviar').classList.add('hidden');
+                document.getElementById('statusMsg').innerText = "Código enviado!";
                 startTimer();
             }).catch((err) => {
-                alert("Erro no Firebase: Verifique o domínio autorizado.");
+                alert("Erro: Verifique o domínio no Firebase.");
                 console.error(err);
             });
     }
 
     function startTimer() {
+        clearInterval(countdownInterval);
         let time = 60;
         const timerElem = document.getElementById('timer');
-        const countdown = setInterval(() => {
+        
+        countdownInterval = setInterval(() => {
             time--;
-            // AQUI ESTAVA O ERRO! Ajustei com as crases (`)
-            timerElem.innerText = `00:${time < 10 ? '0' : ''}${time}`;
-            if(time <= 0) clearInterval(countdown);
+            timerElem.innerText = 00:${time < 10 ? '0' : ''}${time};
+            
+            if(time <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('btnConfirmar').classList.add('hidden');
+                document.getElementById('btnReenviar').classList.remove('hidden');
+                document.getElementById('statusMsg').innerText = "O tempo acabou!";
+            }
         }, 1000);
+    }
+
+    function voltarParaLogin() {
+        document.getElementById('otpArea').classList.add('hidden');
+        document.getElementById('loginArea').classList.remove('hidden');
+        document.getElementById('statusMsg').innerText = "Tente novamente.";
     }
 
     function confirmarCodigo() {
@@ -123,10 +136,8 @@
         if(phone === MASTER_PHONE) {
             document.getElementById('otpArea').classList.add('hidden');
             document.getElementById('masterPassArea').classList.remove('hidden');
-            document.getElementById('statusMsg').innerText = "Mestre Identificado.";
         } else {
-            document.getElementById('otpArea').classList.add('hidden');
-            document.getElementById('statusMsg').innerText = "Acesso de Apostador.";
+            alert("Acesso de apostador!");
         }
     }
 
@@ -134,12 +145,10 @@
         if(document.getElementById('masterPass').value === MASTER_PASS_SECRET) {
             document.getElementById('masterPassArea').classList.add('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
-            document.getElementById('statusMsg').innerText = "MODO MASTER ATIVO";
         } else {
-            alert("Senha Incorreta!");
+            alert("Senha incorreta!");
         }
     }
 </script>
-
 </body>
 </html>

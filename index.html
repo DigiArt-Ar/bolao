@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v13.0 - CADASTRO MANUAL</title>
+    <title>MAUBET v14.0 - PAINEL MASTER LIBERADO</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -12,23 +12,32 @@
     <style>
         :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --danger: #ff4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 500px; padding-bottom: 80px; }
+        .container { width: 100%; max-width: 500px; padding-bottom: 100px; }
         .card { background: var(--card); padding: 30px; border-radius: 25px; border-top: 6px solid var(--primary); box-shadow: 0 20px 60px rgba(0,0,0,0.9); text-align: center; margin-top: 20px; }
+        
         h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 900; }
         h1 span { color: var(--accent); }
-        #barra-status { font-size: 12px; padding: 15px; border-radius: 12px; margin-bottom: 25px; font-weight: 900; text-transform: uppercase; }
-        .aberto { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
-        .fechado { background: rgba(255, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+
+        #barra-status { font-size: 12px; padding: 15px; border-radius: 12px; margin-bottom: 25px; font-weight: 900; text-transform: uppercase; border: 1px solid #333; }
+        .aberto { background: rgba(0, 255, 136, 0.1); color: var(--primary); border-color: var(--primary); }
+        .fechado { background: rgba(255, 68, 68, 0.1); color: var(--danger); border-color: var(--danger); }
+
+        /* JOGOS */
         .jogo-card { background: #222; border-radius: 18px; padding: 18px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid var(--accent); }
         .time-info { width: 35%; font-size: 11px; font-weight: 800; text-transform: uppercase; }
         .placar-box { width: 55px; height: 50px; background: #333; border: 2px solid #444; color: #fff; border-radius: 12px; text-align: center; font-size: 26px; font-weight: bold; }
+
+        /* UI */
         .hidden { display: none !important; }
         input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; color: #fff; margin: 12px 0; box-sizing: border-box; font-size: 16px; text-align: center; }
         button { width: 100%; padding: 20px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-gray { background: #333; color: #fff; }
         .btn-danger { background: var(--danger); color: #fff; }
-        .btn-admin-fixo { position: fixed; bottom: 20px; width: 90%; max-width: 460px; background: rgba(20,20,20,0.9); border: 1px solid #333; color: #555; padding: 10px; font-size: 10px; border-radius: 10px; z-index: 100; }
+
+        /* BOTAO MASTER NO RODAPÉ */
+        .btn-master-fixo { position: fixed; bottom: 20px; width: 90%; max-width: 460px; background: rgba(30,30,30,0.9); border: 1px solid var(--primary); color: var(--primary); padding: 12px; font-size: 11px; border-radius: 12px; z-index: 100; font-weight: bold; }
+
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .modal-body { background: var(--card); padding: 35px; border-radius: 30px; border: 2px solid var(--accent); width: 90%; max-width: 400px; text-align: center; }
     </style>
@@ -41,58 +50,63 @@
         <div id="barra-status" class="aberto">SISTEMA ONLINE</div>
 
         <div id="tela-login">
+            <p style="color: #888;">Acesse com seu número para apostar:</p>
             <input type="text" id="input-nome" placeholder="NOME COMPLETO">
             <input type="tel" id="input-tel" placeholder="DDD + CELULAR">
             <div id="recaptcha-container"></div>
-            <button class="btn-green" onclick="enviarSMS()">ENTRAR COM SMS</button>
+            <button class="btn-green" onclick="enviarSMS()">RECEBER CÓDIGO SMS</button>
         </div>
 
         <div id="tela-codigo" class="hidden">
-            <input type="number" id="input-confirm" placeholder="CÓDIGO DE 6 DÍGITOS">
-            <button class="btn-green" onclick="validarEntrada()">CONFIRMAR</button>
+            <p>Digite o código de 6 dígitos:</p>
+            <input type="number" id="input-confirm" placeholder="000000">
+            <button class="btn-green" onclick="validarEntrada()">ENTRAR NO BOLÃO</button>
             <button class="btn-gray" onclick="location.reload()">VOLTAR</button>
         </div>
 
         <div id="tela-jogos" class="hidden">
             <div id="lista-jogos"></div>
-            <button id="btn-finalizar" class="btn-green" onclick="abrirModal()">🔒 ENVIAR MEU BILHETE</button>
+            <button id="btn-finalizar" class="btn-green" onclick="abrirModal()">🔒 FINALIZAR BILHETE</button>
         </div>
 
         <div id="tela-mestre-senha" class="hidden">
-            <h3>PAINEL DO GESTOR</h3>
-            <input type="password" id="pass-admin" placeholder="SENHA DO MESTRE">
-            <button class="btn-green" onclick="entrarPainel()">ENTRAR</button>
-            <button class="btn-gray" onclick="location.reload()">SAIR</button>
+            <h3 style="color:var(--primary)">ACESSO RESTRITO</h3>
+            <p>Digite a Senha Master para gerenciar:</p>
+            <input type="password" id="pass-admin" placeholder="SENHA MASTER">
+            <button class="btn-green" onclick="entrarPainel()">LIBERAR PAINEL</button>
+            <button class="btn-gray" onclick="location.reload()">CANCELAR</button>
         </div>
 
         <div id="tela-painel-admin" class="hidden">
-            <h2 style="color:var(--accent)">CONTROLE MANUAL</h2>
+            <h2 style="color:var(--accent)">PAINEL DO MESTRE</h2>
             
-            <div style="background: #111; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
-                <p style="color:var(--primary); font-weight:bold;">1. ADICIONAR NOVO JOGO</p>
-                <input type="text" id="add-casa" placeholder="TIME DA CASA">
-                <input type="text" id="add-fora" placeholder="TIME DE FORA">
+            <div style="background: #111; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #222;">
+                <p style="color:var(--primary); font-weight:bold; margin-top:0;">ADICIONAR JOGOS DA RODADA</p>
+                <input type="text" id="add-casa" placeholder="TIME CASA">
+                <p style="margin:0; color:var(--accent)">X</p>
+                <input type="text" id="add-fora" placeholder="TIME FORA">
                 <button class="btn-green" onclick="cadastrarJogoNoBanco()">➕ ADICIONAR JOGO</button>
-                <button class="btn-danger" style="margin-top:10px; font-size:12px;" onclick="limparTodaRodada()">🗑️ LIMPAR TODOS OS JOGOS</button>
+                <button class="btn-danger" style="margin-top:15px; font-size:11px;" onclick="limparTodaRodada()">🗑️ APAGAR RODADA ATUAL</button>
             </div>
 
-            <div style="background: #111; padding: 20px; border-radius: 20px;">
-                <p style="color:var(--primary); font-weight:bold;">2. LIMITE DE HORÁRIO</p>
+            <div style="background: #111; padding: 20px; border-radius: 20px; border: 1px solid #222;">
+                <p style="color:var(--primary); font-weight:bold; margin-top:0;">FECHAMENTO AUTOMÁTICO</p>
                 <input type="time" id="config-horario">
                 <button class="btn-green" onclick="salvarTrava()">SALVAR HORÁRIO</button>
             </div>
-            <button class="btn-gray" onclick="location.reload()">VOLTAR AO INÍCIO</button>
+
+            <button class="btn-gray" style="margin-top:30px;" onclick="location.reload()">SAIR DO PAINEL</button>
         </div>
     </div>
 </div>
 
-<button class="btn-admin-fixo" onclick="mostrarLoginMestre()">⚙️ CONFIGURAÇÕES DO GESTOR</button>
+<button class="btn-master-fixo" onclick="mostrarLoginMestre()">⚙️ ACESSAR PAINEL MASTER</button>
 
 <div id="modal-confirma" class="overlay">
     <div class="modal-body">
         <h3>CONFIRMAR ENVIO?</h3>
-        <button class="btn-green" onclick="salvarAposta()">SIM, ENVIAR!</button>
-        <button class="btn-gray" onclick="fecharModal()">REVISAR</button>
+        <button class="btn-green" onclick="salvarAposta()">ENVIAR AGORA!</button>
+        <button class="btn-gray" onclick="fecharModal()">VOLTAR</button>
     </div>
 </div>
 
@@ -118,10 +132,10 @@
         const atual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
         const st = document.getElementById('barra-status');
         if(atual >= hLim) {
-            st.innerText = "🚨 RODADA ENCERRADA ÀS " + hLim; st.className = "fechado";
+            st.innerText = "🚨 ENCERRADO ÀS " + hLim; st.className = "fechado";
             document.getElementById('btn-finalizar')?.classList.add('hidden');
         } else {
-            st.innerText = "⏳ APOSTAS ABERTAS ATÉ " + hLim; st.className = "aberto";
+            st.innerText = "⏳ ABERTO ATÉ " + hLim; st.className = "aberto";
         }
     }
     setInterval(checarRelogio, 5000);
@@ -132,11 +146,13 @@
     function enviarSMS() {
         nUser = document.getElementById('input-nome').value;
         tUser = document.getElementById('input-tel').value.replace(/\D/g, '');
+        if(nUser.length < 3 || tUser.length < 10) return alert("Preencha Nome e Telefone corretamente!");
         auth.signInWithPhoneNumber("+55" + tUser, window.recaptchaVerifier).then(res => {
             resSMS = res;
             document.getElementById('tela-login').classList.add('hidden');
             document.getElementById('tela-codigo').classList.remove('hidden');
-        }).catch(e => alert("Erro: " + e.message));
+            alert("Código enviado!");
+        }).catch(e => alert("Erro SMS: " + e.message));
     }
     function validarEntrada() {
         const c = document.getElementById('input-confirm').value;
@@ -152,7 +168,7 @@
         const div = document.getElementById('lista-jogos');
         db.collection("jogos").onSnapshot(snap => {
             div.innerHTML = "";
-            if(snap.empty) { div.innerHTML = "<p style='color:orange;'>Aguardando jogos serem cadastrados...</p>"; return; }
+            if(snap.empty) { div.innerHTML = "<p style='color:orange;'>Aguardando o mestre cadastrar os jogos...</p>"; return; }
             snap.forEach(doc => {
                 const j = doc.data();
                 div.innerHTML += `<div class="jogo-card"><div class="time-info">${j.home}</div><div><input type="number" class="placar-box" id="${doc.id}-h"> x <input type="number" class="placar-box" id="${doc.id}-a"></div><div class="time-info">${j.away}</div></div>`;
@@ -160,9 +176,26 @@
         });
     }
 
-    // FUNÇÕES DO MESTRE
-    function mostrarLoginMestre() { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('tela-mestre-senha').classList.remove('hidden'); }
-    function entrarPainel() { if(document.getElementById('pass-admin').value === "2026") { document.getElementById('tela-mestre-senha').classList.add('hidden'); document.getElementById('tela-painel-admin').classList.remove('hidden'); } }
+    // FUNÇÕES MASTER (O CORAÇÃO DO SISTEMA)
+    function mostrarLoginMestre() { 
+        document.getElementById('tela-login').classList.add('hidden'); 
+        document.getElementById('tela-jogos').classList.add('hidden');
+        document.getElementById('tela-mestre-senha').classList.remove('hidden'); 
+    }
+
+    function entrarPainel() { 
+        const senha = document.getElementById('pass-admin').value;
+        if(senha === "2026") { 
+            // ESCONDE TUDO E MOSTRA O PAINEL
+            document.getElementById('tela-mestre-senha').classList.add('hidden'); 
+            document.getElementById('tela-login').classList.add('hidden');
+            document.getElementById('tela-jogos').classList.add('hidden');
+            document.getElementById('tela-painel-admin').classList.remove('hidden'); 
+            alert("Acesso Master Concedido!");
+        } else { 
+            alert("Senha Incorreta!"); 
+        } 
+    }
     
     async function cadastrarJogoNoBanco() {
         const casa = document.getElementById('add-casa').value;
@@ -170,33 +203,22 @@
         if(!casa || !fora) return alert("Preencha os dois times!");
         await db.collection("jogos").add({ home: casa, away: fora });
         document.getElementById('add-casa').value = ""; document.getElementById('add-fora').value = "";
-        alert("Jogo adicionado!");
+        alert("Jogo Adicionado com Sucesso!");
     }
 
     async function limparTodaRodada() {
-        if(!confirm("Tem certeza que quer apagar TODOS os jogos?")) return;
+        if(!confirm("Cuidado! Isso vai apagar todos os jogos atuais. Continuar?")) return;
         const snap = await db.collection("jogos").get();
         const batch = db.batch();
         snap.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
-        alert("Rodada limpa!");
+        alert("Rodada Limpa!");
     }
 
     async function salvarTrava() {
         const h = document.getElementById('config-horario').value;
         await db.collection("config").doc("rodada").set({ limite: h });
-        alert("Horário salvo!");
+        alert("Horário de Fechamento Gravado!");
     }
 
-    function abrirModal() { document.getElementById('modal-confirma').style.display = 'flex'; }
-    function fecharModal() { document.getElementById('modal-confirma').style.display = 'none'; }
-    async function salvarAposta() {
-        const p = {};
-        document.querySelectorAll('.placar-box').forEach(i => { if(i.value !== "") p[i.id] = i.value; });
-        await db.collection("apostas").doc(tUser).set({ nome: nUser, palpites: p, data: firebase.firestore.FieldValue.serverTimestamp() });
-        alert("Bilhete salvo!");
-        location.reload();
-    }
-</script>
-</body>
-</html>
+    function abrirModal() { document.getElementById('modal

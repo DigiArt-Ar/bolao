@@ -3,161 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v12.0 - SISTEMA INTEGRADO COMPLETO</title>
+    <title>MAUBET v13.0 - CADASTRO MANUAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { 
-            --primary: #00ff88; 
-            --bg: #0a0a0a; 
-            --card: #161616; 
-            --accent: #ffb300; 
-            --danger: #ff4444; 
-        }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: var(--bg); 
-            color: #fff; 
-            margin: 0; 
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
+        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --danger: #ff4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .container { width: 100%; max-width: 500px; padding-bottom: 80px; }
-
-        .card { 
-            background: var(--card); 
-            padding: 30px; 
-            border-radius: 25px; 
-            border-top: 6px solid var(--primary); 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.9); 
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 900; letter-spacing: -1px; }
+        .card { background: var(--card); padding: 30px; border-radius: 25px; border-top: 6px solid var(--primary); box-shadow: 0 20px 60px rgba(0,0,0,0.9); text-align: center; margin-top: 20px; }
+        h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 900; }
         h1 span { color: var(--accent); }
-
-        #barra-status {
-            font-size: 12px;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        #barra-status { font-size: 12px; padding: 15px; border-radius: 12px; margin-bottom: 25px; font-weight: 900; text-transform: uppercase; }
         .aberto { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
         .fechado { background: rgba(255, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-
-        /* LISTA DE JOGOS */
-        .jogo-card {
-            background: #222;
-            border-radius: 18px;
-            padding: 18px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-left: 6px solid var(--accent);
-        }
-
-        .time-info {
-            width: 35%;
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .escudo-img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 10px; }
-
-        .placar-box {
-            width: 55px;
-            height: 50px;
-            background: #333;
-            border: 2px solid #444;
-            color: #fff;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 26px;
-            font-weight: bold;
-        }
-
-        /* UI GERAL */
+        .jogo-card { background: #222; border-radius: 18px; padding: 18px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 6px solid var(--accent); }
+        .time-info { width: 35%; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .placar-box { width: 55px; height: 50px; background: #333; border: 2px solid #444; color: #fff; border-radius: 12px; text-align: center; font-size: 26px; font-weight: bold; }
         .hidden { display: none !important; }
-
-        input {
-            width: 100%;
-            padding: 18px;
-            border-radius: 15px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            color: #fff;
-            margin: 12px 0;
-            box-sizing: border-box;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        button {
-            width: 100%;
-            padding: 20px;
-            border-radius: 15px;
-            border: none;
-            font-weight: 900;
-            cursor: pointer;
-            margin-top: 15px;
-            text-transform: uppercase;
-        }
-
+        input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid #333; background: #1a1a1a; color: #fff; margin: 12px 0; box-sizing: border-box; font-size: 16px; text-align: center; }
+        button { width: 100%; padding: 20px; border-radius: 15px; border: none; font-weight: 900; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-gray { background: #333; color: #fff; }
-
-        /* BOTÃO DE GESTÃO FIXO NO RODAPÉ */
-        .btn-admin-fixo {
-            position: fixed;
-            bottom: 20px;
-            width: 90%;
-            max-width: 460px;
-            background: rgba(20,20,20,0.9);
-            border: 1px solid #333;
-            color: #555;
-            padding: 10px;
-            font-size: 10px;
-            border-radius: 10px;
-            z-index: 100;
-        }
-
-        /* MODAL */
-        .overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-        }
-
-        .modal-body {
-            background: var(--card);
-            padding: 35px;
-            border-radius: 30px;
-            border: 2px solid var(--accent);
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-admin-fixo { position: fixed; bottom: 20px; width: 90%; max-width: 460px; background: rgba(20,20,20,0.9); border: 1px solid #333; color: #555; padding: 10px; font-size: 10px; border-radius: 10px; z-index: 100; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-body { background: var(--card); padding: 35px; border-radius: 30px; border: 2px solid var(--accent); width: 90%; max-width: 400px; text-align: center; }
     </style>
 </head>
 <body>
@@ -165,20 +38,18 @@
 <div class="container">
     <div class="card">
         <h1>MAU<span>BET</span></h1>
-        <div id="barra-status" class="aberto">CONECTANDO...</div>
+        <div id="barra-status" class="aberto">SISTEMA ONLINE</div>
 
         <div id="tela-login">
-            <p style="color: #888;">Identifique-se para apostar:</p>
             <input type="text" id="input-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="input-tel" placeholder="DDD + CELULAR (Ex: 24993148000)">
+            <input type="tel" id="input-tel" placeholder="DDD + CELULAR">
             <div id="recaptcha-container"></div>
-            <button class="btn-green" onclick="enviarCodigoSMS()">RECEBER CÓDIGO POR SMS</button>
+            <button class="btn-green" onclick="enviarSMS()">ENTRAR COM SMS</button>
         </div>
 
         <div id="tela-codigo" class="hidden">
-            <p>Insira o código do SMS:</p>
-            <input type="number" id="input-confirm" placeholder="000000">
-            <button class="btn-green" onclick="validarSMS()">ENTRAR NO BOLÃO</button>
+            <input type="number" id="input-confirm" placeholder="CÓDIGO DE 6 DÍGITOS">
+            <button class="btn-green" onclick="validarEntrada()">CONFIRMAR</button>
             <button class="btn-gray" onclick="location.reload()">VOLTAR</button>
         </div>
 
@@ -188,45 +59,44 @@
         </div>
 
         <div id="tela-mestre-senha" class="hidden">
-            <h3>ACESSO GESTOR</h3>
+            <h3>PAINEL DO GESTOR</h3>
             <input type="password" id="pass-admin" placeholder="SENHA DO MESTRE">
-            <button class="btn-green" onclick="entrarComoMestre()">ACESSAR PAINEL</button>
+            <button class="btn-green" onclick="entrarPainel()">ENTRAR</button>
             <button class="btn-gray" onclick="location.reload()">SAIR</button>
         </div>
 
         <div id="tela-painel-admin" class="hidden">
-            <h2 style="color:var(--accent)">GESTOR DA RODADA</h2>
+            <h2 style="color:var(--accent)">CONTROLE MANUAL</h2>
             
-            <div style="background: #111; padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: left;">
-                <p style="color: var(--primary); font-weight: bold;">1. ATUALIZAR JOGOS (IA GEMINI)</p>
-                <input type="file" id="print-ge" accept="image/*">
-                <button class="btn-green" onclick="chamarIA_MotorReal()">LER PRINT E CRIAR JOGOS</button>
+            <div style="background: #111; padding: 20px; border-radius: 20px; margin-bottom: 20px;">
+                <p style="color:var(--primary); font-weight:bold;">1. ADICIONAR NOVO JOGO</p>
+                <input type="text" id="add-casa" placeholder="TIME DA CASA">
+                <input type="text" id="add-fora" placeholder="TIME DE FORA">
+                <button class="btn-green" onclick="cadastrarJogoNoBanco()">➕ ADICIONAR JOGO</button>
+                <button class="btn-danger" style="margin-top:10px; font-size:12px;" onclick="limparTodaRodada()">🗑️ LIMPAR TODOS OS JOGOS</button>
             </div>
 
-            <div style="background: #111; padding: 20px; border-radius: 20px; text-align: left;">
-                <p style="color: var(--primary); font-weight: bold;">2. TRAVA DE HORÁRIO</p>
+            <div style="background: #111; padding: 20px; border-radius: 20px;">
+                <p style="color:var(--primary); font-weight:bold;">2. LIMITE DE HORÁRIO</p>
                 <input type="time" id="config-horario">
-                <button class="btn-green" onclick="gravarHoraBanco()">SALVAR TRAVA</button>
+                <button class="btn-green" onclick="salvarTrava()">SALVAR HORÁRIO</button>
             </div>
-
-            <button class="btn-gray" style="margin-top: 30px;" onclick="location.reload()">VOLTAR AO INÍCIO</button>
+            <button class="btn-gray" onclick="location.reload()">VOLTAR AO INÍCIO</button>
         </div>
     </div>
 </div>
 
-<button class="btn-admin-fixo" onclick="mostrarLoginMestre()">⚙️ CONFIGURAÇÕES DO ADMINISTRADOR (MESTRE)</button>
+<button class="btn-admin-fixo" onclick="mostrarLoginMestre()">⚙️ CONFIGURAÇÕES DO GESTOR</button>
 
 <div id="modal-confirma" class="overlay">
     <div class="modal-body">
         <h3>CONFIRMAR ENVIO?</h3>
-        <p style="color:#aaa;">Seu bilhete será gravado no banco de dados e não poderá ser alterado.</p>
-        <button class="btn-green" onclick="salvarApostaFinal()">SIM, ENVIAR!</button>
-        <button class="btn-gray" onclick="fecharModal()">CANCELAR</button>
+        <button class="btn-green" onclick="salvarAposta()">SIM, ENVIAR!</button>
+        <button class="btn-gray" onclick="fecharModal()">REVISAR</button>
     </div>
 </div>
 
 <script>
-    // CONFIGURAÇÃO FIREBASE (BOLÃO-D2BAF)
     const firebaseConfig = { 
         apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
         authDomain: "bolao-d2baf.firebaseapp.com", 
@@ -239,61 +109,50 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    let resSMS;
-    let hLim = "";
-    let nUser = "";
-    let tUser = "";
+    let resSMS, hLim = "", nUser = "", tUser = "";
 
-    // RELÓGIO DE TRAVA
-    function checarTempo() {
+    // TRAVA DE HORÁRIO
+    function checarRelogio() {
         if(!hLim) return;
         const agora = new Date();
         const atual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
         const st = document.getElementById('barra-status');
         if(atual >= hLim) {
-            st.innerText = "🚨 RODADA ENCERRADA ÀS " + hLim;
-            st.className = "fechado";
+            st.innerText = "🚨 RODADA ENCERRADA ÀS " + hLim; st.className = "fechado";
             document.getElementById('btn-finalizar')?.classList.add('hidden');
         } else {
-            st.innerText = "⏳ APOSTAS ABERTAS ATÉ " + hLim;
-            st.className = "aberto";
+            st.innerText = "⏳ APOSTAS ABERTAS ATÉ " + hLim; st.className = "aberto";
         }
     }
-    setInterval(checarTempo, 5000);
+    setInterval(checarRelogio, 5000);
+    db.collection("config").doc("rodada").onSnapshot(doc => { if(doc.exists) { hLim = doc.data().limite; checarRelogio(); } });
 
-    // SYNC BANCO
-    db.collection("config").doc("rodada").onSnapshot(doc => {
-        if(doc.exists) { hLim = doc.data().limite; checarTempo(); }
-    });
-
-    // SISTEMA SMS
+    // SMS
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
-    function enviarCodigoSMS() {
+    function enviarSMS() {
         nUser = document.getElementById('input-nome').value;
         tUser = document.getElementById('input-tel').value.replace(/\D/g, '');
-        if(nUser.length < 3) return alert("Nome inválido!");
         auth.signInWithPhoneNumber("+55" + tUser, window.recaptchaVerifier).then(res => {
             resSMS = res;
             document.getElementById('tela-login').classList.add('hidden');
             document.getElementById('tela-codigo').classList.remove('hidden');
         }).catch(e => alert("Erro: " + e.message));
     }
-
-    function validarSMS() {
+    function validarEntrada() {
         const c = document.getElementById('input-confirm').value;
         resSMS.confirm(c).then(() => {
             document.getElementById('tela-codigo').classList.add('hidden');
             document.getElementById('tela-jogos').classList.remove('hidden');
-            carregarJogosBanco();
+            carregarLista();
         }).catch(() => alert("Código inválido!"));
     }
 
-    // CARREGAR JOGOS
-    function carregarJogosBanco() {
+    // LISTAGEM DE JOGOS
+    function carregarLista() {
         const div = document.getElementById('lista-jogos');
         db.collection("jogos").onSnapshot(snap => {
             div.innerHTML = "";
-            if(snap.empty) { div.innerHTML = "<p style='color:orange;'>Aguardando o Mestre criar a rodada...</p>"; return; }
+            if(snap.empty) { div.innerHTML = "<p style='color:orange;'>Aguardando jogos serem cadastrados...</p>"; return; }
             snap.forEach(doc => {
                 const j = doc.data();
                 div.innerHTML += `<div class="jogo-card"><div class="time-info">${j.home}</div><div><input type="number" class="placar-box" id="${doc.id}-h"> x <input type="number" class="placar-box" id="${doc.id}-a"></div><div class="time-info">${j.away}</div></div>`;
@@ -301,45 +160,41 @@
         });
     }
 
-    // ADMIN
-    function mostrarLoginMestre() {
-        document.getElementById('tela-login').classList.add('hidden');
-        document.getElementById('tela-mestre-senha').classList.remove('hidden');
+    // FUNÇÕES DO MESTRE
+    function mostrarLoginMestre() { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('tela-mestre-senha').classList.remove('hidden'); }
+    function entrarPainel() { if(document.getElementById('pass-admin').value === "2026") { document.getElementById('tela-mestre-senha').classList.add('hidden'); document.getElementById('tela-painel-admin').classList.remove('hidden'); } }
+    
+    async function cadastrarJogoNoBanco() {
+        const casa = document.getElementById('add-casa').value;
+        const fora = document.getElementById('add-fora').value;
+        if(!casa || !fora) return alert("Preencha os dois times!");
+        await db.collection("jogos").add({ home: casa, away: fora });
+        document.getElementById('add-casa').value = ""; document.getElementById('add-fora').value = "";
+        alert("Jogo adicionado!");
     }
 
-    function entrarComoMestre() {
-        if(document.getElementById('pass-admin').value === "2026") {
-            document.getElementById('tela-mestre-senha').classList.add('hidden');
-            document.getElementById('tela-painel-admin').classList.remove('hidden');
-        } else { alert("Senha Errada!"); }
-    }
-
-    async function chamarIA_MotorReal() {
-        alert("IA processando print... Aguarde.");
+    async function limparTodaRodada() {
+        if(!confirm("Tem certeza que quer apagar TODOS os jogos?")) return;
+        const snap = await db.collection("jogos").get();
         const batch = db.batch();
-        const olds = await db.collection("jogos").get();
-        olds.forEach(d => batch.delete(d.ref));
+        snap.forEach(doc => batch.delete(doc.ref));
         await batch.commit();
-        const teste = [{h:"Flamengo", a:"Vasco"}, {h:"Botafogo", a:"Santos"}];
-        for(let t of teste) { await db.collection("jogos").add({ home: t.h, away: t.a }); }
-        alert("Rodada atualizada com sucesso!");
-        location.reload();
+        alert("Rodada limpa!");
     }
 
-    async function gravarHoraBanco() {
+    async function salvarTrava() {
         const h = document.getElementById('config-horario').value;
         await db.collection("config").doc("rodada").set({ limite: h });
-        alert("Hora Gravada!");
+        alert("Horário salvo!");
     }
 
     function abrirModal() { document.getElementById('modal-confirma').style.display = 'flex'; }
     function fecharModal() { document.getElementById('modal-confirma').style.display = 'none'; }
-    
-    async function salvarApostaFinal() {
+    async function salvarAposta() {
         const p = {};
         document.querySelectorAll('.placar-box').forEach(i => { if(i.value !== "") p[i.id] = i.value; });
         await db.collection("apostas").doc(tUser).set({ nome: nUser, palpites: p, data: firebase.firestore.FieldValue.serverTimestamp() });
-        alert("Bilhete Gravado!");
+        alert("Bilhete salvo!");
         location.reload();
     }
 </script>

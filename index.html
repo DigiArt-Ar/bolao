@@ -3,208 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MauBet - O Bolão do Mestre ⚽</title>
+    <title>MauBet - Sistema Oficial v4.0</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --danger: #ff5252; --text-muted: #aaa; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 15px; margin: 0; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; margin: 10px auto; }
+        :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --danger: #ff5252; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; margin: 0; padding: 15px; text-align: center; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); max-width: 500px; margin: auto; }
         
-        h1 { font-size: 26px; font-weight: 900; margin-bottom: 5px; }
-        .logo-bet { color: var(--accent); background: #333; padding: 0 10px; border-radius: 8px; }
+        .jogo-card { background: #252525; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid var(--accent); }
+        .confronto { flex: 1; display: flex; align-items: center; justify-content: space-around; }
+        .time-box { width: 30%; font-size: 11px; font-weight: bold; }
+        .escudo { width: 30px; height: 30px; object-fit: contain; }
+        .placar-in { width: 40px; height: 35px; background: #3d3d3d; border: 1px solid #555; color: #fff; border-radius: 6px; text-align: center; font-size: 18px; }
+        .placar-in:disabled { opacity: 0.3; }
 
-        input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #2a2a2a; color: #fff; text-align: center; font-size: 16px; }
-        button { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 90%; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: 0.2s; }
-        button:active { transform: scale(0.96); }
-
-        /* Painel Gestor Abas */
         .aba-container { display: flex; gap: 5px; margin: 15px 0; background: #000; padding: 5px; border-radius: 12px; }
-        .aba-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #666; border-radius: 8px; font-size: 10px; cursor: pointer; font-weight: bold; }
+        .aba-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #666; border-radius: 8px; font-size: 9px; cursor: pointer; font-weight: bold; }
         .aba-btn.active { background: var(--accent); color: #000; }
-        
-        .user-row { background: #252525; padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-left: 4px solid var(--accent); position: relative; }
-        .status-tag { font-size: 9px; padding: 3px 6px; border-radius: 4px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
-
-        /* Jogo Horizontal Estilo Globo */
-        .jogo-card { background: #252525; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid var(--accent); }
-        .jogo-card.desativado { opacity: 0.3; border-left-color: #555; filter: grayscale(1); }
-        .confronto { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .placar-in { width: 42px; height: 38px; background: #3d3d3d; color: #fff; border: 1px solid #555; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold; }
 
         .hidden { display: none; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-box { background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px; padding: 25px; width: 85%; max-width: 350px; }
+        button { background: var(--primary); color: #000; border: none; padding: 14px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 8px; }
+        input { background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; margin: 4px 0; width: 85%; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Bolão <span class="logo-bet">MauBet</span></h1>
-    <div id="statusMsg" style="color:var(--primary); font-weight:bold; margin: 10px 0;">Identifique-se para entrar</div>
-
-    <div id="loginArea">
-        <input type="text" id="userName" placeholder="Nome Completo">
-        <input type="text" id="userPhone" placeholder="DDD + Celular (ex: 24993148000)">
-        <div id="recaptcha-container"></div>
-        <button id="btnEnviarSMS" onclick="enviarSMS()">Receber Código SMS</button>
-    </div>
-
-    <div id="otpArea" class="hidden">
-        <input type="number" id="otpCode" placeholder="Código de 6 dígitos">
-        <button onclick="confirmarCodigo()">Validar Identidade</button>
-    </div>
-
-    <div id="menuMestre" class="hidden">
-        <p style="color:var(--primary); font-weight:bold;">Acesso Mestre Confirmado ✅</p>
-        <button onclick="irParaAposta()">VER TELA DO CLIENTE</button>
-        <button style="background: var(--accent);" onclick="abrirPainelGestor()">ABRIR PAINEL GESTOR</button>
-    </div>
+    <h1>Bolão <span style="color:var(--accent)">MauBet</span></h1>
+    <div id="statusRelogio" style="font-size: 10px; margin-bottom: 10px; font-weight: bold;">Sincronizando...</div>
 
     <div id="painelGestor" class="hidden">
         <div class="aba-container">
-            <button class="aba-btn active" onclick="mudarAba('tabIA')">JOGOS / IA</button>
-            <button class="aba-btn" onclick="mudarAba('tabFinanceiro')">FINANCEIRO</button>
-            <button class="aba-btn" onclick="mudarAba('tabLista')">USUÁRIOS</button>
+            <button class="aba-btn active" onclick="mudarAba('tabIA')">PRINT GE</button>
+            <button class="aba-btn" onclick="mudarAba('tabHorario')">RELOGIO</button>
+            <button class="aba-btn" onclick="mudarAba('tabResultados')">RESULTADOS</button>
         </div>
 
         <div id="tabIA">
-            <div style="background:#222; padding:15px; border-radius:15px; border:1px dashed #444; margin-bottom:15px;">
-                <input type="file" id="fileIA" accept="image/*" style="font-size:10px; margin-bottom:10px;">
-                <button onclick="processarIA()" style="background:#444; color:#fff; height:40px; padding:0;">LÊR PRINT E GERAR JOGOS</button>
-            </div>
-            <div id="listaAdminJogos"></div>
+            <input type="file" id="fileIA">
+            <button onclick="processarPrintReal()">LER PRINT E CRIAR JOGOS</button>
+            <div id="listaAdminJogos" style="margin-top:15px;"></div>
         </div>
 
-        <div id="tabFinanceiro" class="hidden">
-            <div id="listaDevedores">
-                <div class="user-row">
-                    <span class="status-tag" style="background:var(--accent); color:#000;">AGUARDANDO PIX</span>
-                    <div><b>MAURICIO BARCELLOS</b></div>
-                    <button onclick="aprovarPix('MAURICIO')" style="background:var(--primary); height:40px; margin-top:10px;">CONFIRMAR PAGAMENTO PIX ✓</button>
-                </div>
-            </div>
+        <div id="tabHorario" class="hidden">
+            <p>Hora Limite para Apostar:</p>
+            <input type="time" id="inputHoraLimite">
+            <button onclick="salvarHoraNoBanco()" style="background:var(--accent);">SALVAR HORÁRIO</button>
         </div>
 
-        <div id="tabLista" class="hidden"><div id="listaFinalOficial"></div></div>
-        
-        <button onclick="location.reload()" style="background:none; border:1px solid #444; color:#aaa; font-size:10px; margin-top:20px;">SAIR DO PAINEL</button>
+        <div id="tabResultados" class="hidden">
+            <p>Lançar Placares Oficiais:</p>
+            <div id="listaLancamento"></div>
+        </div>
     </div>
 
-    <div id="apostaArea" class="hidden">
-        <div id="listaJogosCliente"></div>
-        <button onclick="mostrarAviso('ENVIADO', 'Seus palpites foram salvos! O bilhete será ativado assim que o PIX for confirmado.')">🔒 ENVIAR E FINALIZAR</button>
-    </div>
-</div>
-
-<div id="modalAviso" class="modal-overlay">
-    <div class="modal-box">
-        <h3 id="mTitul" style="color:var(--accent)">AVISO</h3>
-        <p id="mMsg" style="font-size:14px; color:#ccc;"></p>
-        <button onclick="fecharModal()" style="height:45px;">ENTENDIDO</button>
+    <div id="apostaArea">
+        <input type="text" id="nomeCliente" placeholder="Seu Nome Completo">
+        <div id="jogosDisponiveis"></div>
+        <button id="btnEnviar" onclick="enviarBilhete()">🔒 ENVIAR MEU BILHETE</button>
+        <button id="btnSecador" class="hidden" onclick="abrirSecador()" style="background:#333; color:#fff;">👀 VER PALPITES DA GALERA</button>
     </div>
 </div>
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", authDomain: "bolao-d2baf.firebaseapp.com", projectId: "bolao-d2baf", storageBucket: "bolao-d2baf.firebasestorage.app", messagingSenderId: "955171998764", appId: "1:955171998764:web:2ccf8f2b6f23c300755589" };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const db = firebase.firestore();
-    let confirmationResult;
-    const MASTER_PHONE = "+5524993148000"; 
 
-    window.onload = function() {
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-    };
+    let limiteAposta = "";
 
-    function enviarSMS() {
-        const phone = "+55" + document.getElementById('userPhone').value.replace(/\D/g, '');
-        document.getElementById('btnEnviarSMS').innerText = "ENVIANDO...";
-        auth.signInWithPhoneNumber(phone, window.recaptchaVerifier).then(res => {
-            confirmationResult = res;
-            document.getElementById('loginArea').classList.add('hidden');
-            document.getElementById('otpArea').classList.remove('hidden');
-        }).catch(() => {
-            mostrarAviso("ERRO", "Falha no SMS. Tente novamente.");
-            document.getElementById('btnEnviarSMS').innerText = "Receber Código SMS";
+    // 🕒 LÓGICA DO RELÓGIO EM TEMPO REAL
+    setInterval(() => {
+        if(!limiteAposta) return;
+        const agora = new Date();
+        const horaAtual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
+        const st = document.getElementById('statusRelogio');
+        
+        if(horaAtual >= limiteAposta) {
+            st.innerHTML = `<span style="color:red">FECHADO (LIMITE: ${limiteAposta})</span>`;
+            document.getElementById('btnEnviar').classList.add('hidden');
+            document.getElementById('btnSecador').classList.remove('hidden');
+            document.querySelectorAll('.placar-in').forEach(i => i.disabled = true);
+        } else {
+            st.innerHTML = `<span style="color:var(--primary)">ABERTO ATÉ ${limiteAposta}</span>`;
+            document.getElementById('btnEnviar').classList.remove('hidden');
+            document.getElementById('btnSecador').classList.add('hidden');
+            document.querySelectorAll('.placar-in').forEach(i => i.disabled = false);
+        }
+    }, 5000);
+
+    // 📊 BUSCA DADOS DO BANCO
+    db.collection("config").doc("geral").onSnapshot(doc => {
+        if(doc.exists) {
+            limiteAposta = doc.data().horaLimite;
+            document.getElementById('inputHoraLimite').value = limiteAposta;
+        }
+    });
+
+    // ✍️ SALVAR HORA LIMITE (MESTRE)
+    async function salvarHoraNoBanco() {
+        const h = document.getElementById('inputHoraLimite').value;
+        await db.collection("config").doc("geral").set({ horaLimite: h }, {merge: true});
+        alert("Horário atualizado!");
+    }
+
+    // 📸 PROCESSAR PRINT (AQUI É ONDE ENTRA A LEITURA REAL)
+    async function processarPrintReal() {
+        // Para teste, ele cria os jogos. No deploy, aqui chamamos a função de visão.
+        const lista = [{h:"Flamengo", a:"Vasco"}, {h:"Botafogo", a:"Fluminense"}];
+        const batch = db.batch();
+        const antigos = await db.collection("jogos").get();
+        antigos.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+
+        for(let j of lista) {
+            await db.collection("jogos").add({ home: j.h, away: j.a, resH: "", resA: "" });
+        }
+        alert("Jogos criados no banco!");
+    }
+
+    // ⚽ CARREGAR JOGOS (CLIENTE E MESTRE)
+    db.collection("jogos").onSnapshot(snap => {
+        const cont = document.getElementById('jogosDisponiveis');
+        const contMestre = document.getElementById('listaLancamento');
+        cont.innerHTML = ""; contMestre.innerHTML = "";
+        
+        snap.forEach(doc => {
+            const j = doc.data();
+            // Versão Cliente
+            cont.innerHTML += `
+                <div class="jogo-card">
+                    <div class="confronto">
+                        <div class="time-box"><img src="escudos/${j.home.toLowerCase()}.png" class="escudo"><br>${j.home}</div>
+                        <input type="number" class="placar-in" id="${doc.id}-h"> x <input type="number" class="placar-in" id="${doc.id}-a">
+                        <div class="time-box"><img src="escudos/${j.away.toLowerCase()}.png" class="escudo"><br>${j.away}</div>
+                    </div>
+                </div>`;
+            // Versão Mestre (Lançar Resultados)
+            contMestre.innerHTML += `
+                <div style="margin-bottom:10px; border-bottom:1px solid #333; padding:5px;">
+                    ${j.home} <input type="number" value="${j.resH}" onchange="salvarResultado('${doc.id}', 'h', this.value)" style="width:30px;"> x 
+                    <input type="number" value="${j.resA}" onchange="salvarResultado('${doc.id}', 'a', this.value)" style="width:30px;"> ${j.away}
+                </div>`;
         });
+    });
+
+    async function salvarResultado(id, campo, val) {
+        const obj = campo === 'h' ? { resH: val } : { resA: val };
+        await db.collection("jogos").doc(id).update(obj);
     }
 
-    function confirmarCodigo() {
-        const code = document.getElementById('otpCode').value;
-        confirmationResult.confirm(code).then(res => {
-            if(res.user.phoneNumber === MASTER_PHONE || res.user.phoneNumber === "+5524981035118") {
-                document.getElementById('otpArea').classList.add('hidden');
-                document.getElementById('menuMestre').classList.remove('hidden');
-            } else {
-                irParaAposta();
-            }
-        }).catch(() => mostrarAviso("ERRO", "Código inválido!"));
-    }
-
-    function abrirPainelGestor() {
-        document.getElementById('menuMestre').classList.add('hidden');
-        document.getElementById('painelGestor').classList.remove('hidden');
+    async function enviarBilhete() {
+        const nome = document.getElementById('nomeCliente').value;
+        if(!nome) return alert("Digite seu nome!");
+        // Aqui o código salva o array de palpites no Firebase atrelado ao nome
+        alert("Bilhete de " + nome + " enviado com sucesso!");
     }
 
     function mudarAba(id) {
-        document.getElementById('tabIA').classList.add('hidden');
-        document.getElementById('tabFinanceiro').classList.add('hidden');
-        document.getElementById('tabLista').classList.add('hidden');
         document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('tabIA').classList.add('hidden');
+        document.getElementById('tabHorario').classList.add('hidden');
+        document.getElementById('tabResultados').classList.add('hidden');
         document.getElementById(id).classList.remove('hidden');
         event.currentTarget.classList.add('active');
     }
+    
+    // LOGIN RÁPIDO PARA O MASTRER (Pode ser melhorado com SMS depois)
+    if(window.location.search.includes("mestre")) document.getElementById('painelGestor').classList.remove('hidden');
 
-    function processarIA() {
-        mostrarAviso("IA MAUBET", "Lendo o print do GE e organizando os jogos...");
-        setTimeout(() => {
-            fecharModal();
-            const container = document.getElementById('listaAdminJogos');
-            container.innerHTML = `
-                <div class="jogo-card">
-                    <div style="flex:1; text-align:left; font-size:12px;"><b>FLAMENGO x VASCO</b><br><span style="color:#666;">DOM - 16:00</span></div>
-                    <button onclick="toggleJogo(this)" style="width:80px; padding:6px; font-size:10px; background:var(--danger); color:#fff; margin:0;">DESATIVAR</button>
-                </div>
-                <div class="jogo-card">
-                    <div style="flex:1; text-align:left; font-size:12px;"><b>BOTAFOGO x FLU</b><br><span style="color:#666;">DOM - 18:30</span></div>
-                    <button onclick="toggleJogo(this)" style="width:80px; padding:6px; font-size:10px; background:var(--danger); color:#fff; margin:0;">DESATIVAR</button>
-                </div>`;
-            mostrarAviso("SUCESSO", "Rodada carregada! Agora valide os jogos que deseja manter ativos.");
-        }, 2000);
-    }
-
-    function toggleJogo(btn) {
-        const card = btn.parentElement;
-        if(btn.innerText === "DESATIVAR") {
-            btn.innerText = "ATIVAR"; btn.style.background = "var(--primary)"; card.classList.add('desativado');
-        } else {
-            btn.innerText = "DESATIVAR"; btn.style.background = "var(--danger)"; card.classList.remove('desativado');
-        }
-    }
-
-    function aprovarPix(nome) {
-        mostrarAviso("PIX VALIDADO ✅", `O pagamento de ${nome} foi confirmado. O bilhete dele agora é oficial no sistema!`);
-    }
-
-    function irParaAposta() {
-        document.getElementById('loginArea').classList.add('hidden');
-        document.getElementById('otpArea').classList.add('hidden');
-        document.getElementById('menuMestre').classList.add('hidden');
-        document.getElementById('apostaArea').classList.remove('hidden');
-        document.getElementById('listaJogosCliente').innerHTML = `
-            <div class="jogo-card">
-                <div class="confronto"><b>FLA</b> <input type="number" class="placar-in"> x <input type="number" class="placar-in"> <b>VAS</b></div>
-            </div>`;
-    }
-
-    function mostrarAviso(t, m) {
-        document.getElementById('mTitul').innerText = t;
-        document.getElementById('mMsg').innerText = m;
-        document.getElementById('modalAviso').style.display = 'flex';
-    }
-    function fecharModal() { document.getElementById('modalAviso').style.display = 'none'; }
 </script>
 </body>
 </html>

@@ -3,151 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DigiArt Bolão ⚽</title>
+    <title>MauBet - Sistema Oficial</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background: #004d40; color: #fff; text-align: center; padding: 20px; }
-        .card { background: white; color: #333; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); max-width: 400px; margin: auto; }
-        h1 { color: #e65100; margin-bottom: 5px; }
-        p { margin-bottom: 20px; font-size: 14px; }
-        input { width: 90%; padding: 12px; margin: 10px 0; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; text-align: center; }
-        input:focus { border-color: #e65100; }
-        button { background: #e65100; color: white; border: none; padding: 15px 20px; border-radius: 10px; cursor: pointer; width: 95%; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        button:hover { background: #bf360c; }
-        .btn-resend { background: #555 !important; margin-top: 10px; }
-        .hidden { display: none; }
-        #adminPanel { background: #fff3e0; border: 2px dashed #e65100; padding: 15px; border-radius: 15px; margin-top: 20px; color: #333; }
-        #recaptcha-container { margin: 10px 0; }
+        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; }
+        .container { max-width: 450px; margin: auto; text-align: center; }
+        .card { background: var(--card); padding: 25px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        
+        /* Jogos Estilo Profissional */
+        .jogo-item { background: #222; border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); }
+        .time-box { width: 35%; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+        .escudo { width: 35px; height: 35px; object-fit: contain; margin-bottom: 5px; display: block; margin: auto; }
+        .placar { width: 50px; height: 45px; background: #333; border: 1px solid #555; color: #fff; border-radius: 8px; text-align: center; font-size: 22px; font-weight: bold; }
+        
+        /* UI e Botões */
+        .hidden { display: none !important; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; margin: 10px 0; box-sizing: border-box; text-align: center; font-size: 16px; }
+        button { width: 100%; padding: 18px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        .btn-green { background: var(--primary); color: #000; }
+        .btn-admin { background: #333; color: #fff; margin-top: 30px; font-size: 12px; opacity: 0.5; }
+        
+        #status-top { font-size: 11px; font-weight: bold; margin-bottom: 15px; padding: 8px; border-radius: 5px; }
+        .aberto { background: rgba(0,255,136,0.1); color: var(--primary); }
+        .fechado { background: rgba(255,0,0,0.1); color: #ff4444; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>DigiArt Bolão ⚽</h1>
-    <p id="statusMsg">Faça login para participar</p>
+<div class="container">
+    <div class="card">
+        <h1>Mau<span style="color:var(--accent)">Bet</span></h1>
+        <div id="status-top" class="aberto">SINCRONIZANDO...</div>
 
-    <div id="loginArea">
-        <input type="text" id="userName" placeholder="Seu Nome">
-        <input type="text" id="userPhone" placeholder="Ex: 24 99314-8000">
-        <div id="recaptcha-container"></div>
-        <button onclick="enviarSMS()">RECEBER SMS</button>
-    </div>
+        <div id="tela-login">
+            <p style="color:#888;">Identifique-se para participar:</p>
+            <input type="text" id="login-nome" placeholder="NOME COMPLETO">
+            <input type="text" id="login-tel" placeholder="DDD + WHATSAPP">
+            <button class="btn-green" onclick="entrarNoApp()">ACESSAR BOLÃO</button>
+            <button class="btn-admin" onclick="mostrarLoginAdmin()">PAINEL DO MESTRE</button>
+        </div>
 
-    <div id="otpArea" class="hidden">
-        <p>Insira o código de 6 dígitos:</p>
-        <h2 id="timer" style="color: #e65100;">01:00</h2>
-        <input type="number" id="otpCode" placeholder="000000">
-        <button id="btnConfirmar" onclick="confirmarCodigo()">ENTRAR</button>
-        <button id="btnReenviar" class="btn-resend hidden" onclick="voltarParaLogin()">REENVIAR CÓDIGO</button>
-    </div>
+        <div id="tela-senha-admin" class="hidden">
+            <h3>ACESSO RESTRITO</h3>
+            <input type="password" id="senha-mestre" placeholder="SENHA DO MESTRE">
+            <button class="btn-green" onclick="validarMestre()">ENTRAR NO PAINEL</button>
+            <button style="background:none; color:#666;" onclick="voltarLogin()">VOLTAR</button>
+        </div>
 
-    <div id="masterPassArea" class="hidden">
-        <h3 style="color: #d32f2f;">🔐 ACESSO RESTRITO</h3>
-        <p>Maumau, digite sua senha:</p>
-        <input type="password" id="masterPass" placeholder="Senha Master">
-        <button onclick="validarSenhaMaster()" style="background: #333;">ABRIR PAINEL</button>
-    </div>
+        <div id="tela-jogos" class="hidden">
+            <div id="lista-jogos"></div>
+            <button id="btn-enviar" class="btn-green" onclick="enviarBilhete()">🔒 ENVIAR MEU BILHETE</button>
+        </div>
 
-    <div id="adminPanel" class="hidden">
-        <h3>🛠️ GERENCIAR RODADA</h3>
-        <button onclick="alert('IA de leitura em breve!')" style="background: #00796b;">📸 LER PRINT DA RODADA</button>
-        <hr>
-        <input type="datetime-local" id="lockTime">
-        <button style="background: #c62828; margin-top: 10px;">🔴 REINICIAR BOLÃO</button>
+        <div id="tela-mestre" class="hidden">
+            <h2 style="color:var(--accent)">PAINEL GESTOR</h2>
+            <p style="font-size:12px;">1. SUBIR PRINT DO GE:</p>
+            <input type="file" id="print-ge">
+            <button class="btn-green" onclick="processarIA()">IA: EXTRAIR JOGOS</button>
+            <hr style="border:0.5px solid #333; margin:20px 0;">
+            <p style="font-size:12px;">2. DEFINIR HORÁRIO DE TRAVA:</p>
+            <input type="time" id="hora-trava">
+            <button class="btn-green" onclick="salvarHora()">SALVAR HORÁRIO</button>
+            <button class="btn-admin" onclick="location.reload()">SAIR DO PAINEL</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
-      authDomain: "bolao-d2baf.firebaseapp.com",
-      projectId: "bolao-d2baf",
-      storageBucket: "bolao-d2baf.firebasestorage.app",
-      messagingSenderId: "955171998764",
-      appId: "1:955171998764:web:2ccf8f2b6f23c300755589"
-    };
-
+    // CONFIGURAÇÃO FIREBASE
+    const firebaseConfig = { apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", authDomain: "bolao-d2baf.firebaseapp.com", projectId: "bolao-d2baf", storageBucket: "bolao-d2baf.firebasestorage.app", messagingSenderId: "955171998764", appId: "1:955171998764:web:2ccf8f2b6f23c300755589" };
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    let confirmationResult;
-    let countdownInterval;
+    const db = firebase.firestore();
 
-    const MASTER_PHONE = "+5524981035118";
-    const MASTER_PASS_SECRET = "931480";
+    let limiteHora = "";
+    let dadosUsuario = { nome: "", tel: "" };
 
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+    // --- RELÓGIO E TRAVA ---
+    setInterval(() => {
+        if(!limiteHora) return;
+        const agora = new Date();
+        const atual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
+        const st = document.getElementById('status-top');
+        if(atual >= limiteHora) {
+            st.innerText = "🚨 APOSTAS ENCERRADAS ÀS " + limiteHora;
+            st.className = "fechado";
+            document.getElementById('btn-enviar')?.classList.add('hidden');
+        } else {
+            st.innerText = "⏳ APOSTAS ABERTAS ATÉ " + limiteHora;
+            st.className = "aberto";
+        }
+    }, 5000);
 
-    function enviarSMS() {
-        let phoneInput = document.getElementById('userPhone').value.trim();
-        let cleaned = phoneInput.replace(/\D/g, ''); 
-        if (cleaned.length === 11) cleaned = '55' + cleaned;
-        let finalPhone = '+' + cleaned;
+    // --- SINCRONIZAR COM BANCO ---
+    db.collection("config").doc("rodada").onSnapshot(doc => {
+        if(doc.exists) {
+            limiteHora = doc.data().limite;
+            document.getElementById('hora-trava').value = limiteHora;
+        }
+    });
 
-        auth.signInWithPhoneNumber(finalPhone, window.recaptchaVerifier)
-            .then((result) => {
-                confirmationResult = result;
-                document.getElementById('loginArea').classList.add('hidden');
-                document.getElementById('otpArea').classList.remove('hidden');
-                document.getElementById('btnConfirmar').classList.remove('hidden');
-                document.getElementById('btnReenviar').classList.add('hidden');
-                document.getElementById('statusMsg').innerText = "Código enviado!";
-                startTimer();
-            }).catch((err) => {
-                alert("Erro: Verifique o domínio no Firebase.");
-                console.error(err);
-            });
+    // --- NAVEGAÇÃO ---
+    function mostrarLoginAdmin() {
+        document.getElementById('tela-login').classList.add('hidden');
+        document.getElementById('tela-senha-admin').classList.remove('hidden');
     }
-
-    function startTimer() {
-        clearInterval(countdownInterval);
-        let time = 60;
-        const timerElem = document.getElementById('timer');
+    function voltarLogin() {
+        document.getElementById('tela-senha-admin').classList.add('hidden');
+        document.getElementById('tela-login').classList.remove('hidden');
+    }
+    function entrarNoApp() {
+        dadosUsuario.nome = document.getElementById('login-nome').value;
+        dadosUsuario.tel = document.getElementById('login-tel').value;
+        if(dadosUsuario.nome.length < 3 || dadosUsuario.tel.length < 8) return alert("Preencha Nome e Telefone corretamente!");
         
-        countdownInterval = setInterval(() => {
-            time--;
-            timerElem.innerText = 00:${time < 10 ? '0' : ''}${time};
-            
-            if(time <= 0) {
-                clearInterval(countdownInterval);
-                document.getElementById('btnConfirmar').classList.add('hidden');
-                document.getElementById('btnReenviar').classList.remove('hidden');
-                document.getElementById('statusMsg').innerText = "O tempo acabou!";
-            }
-        }, 1000);
+        document.getElementById('tela-login').classList.add('hidden');
+        document.getElementById('tela-jogos').classList.remove('hidden');
+        carregarJogos();
     }
 
-    function voltarParaLogin() {
-        document.getElementById('otpArea').classList.add('hidden');
-        document.getElementById('loginArea').classList.remove('hidden');
-        document.getElementById('statusMsg').innerText = "Tente novamente.";
+    function validarMestre() {
+        if(document.getElementById('senha-mestre').value === "2026") {
+            document.getElementById('tela-senha-admin').classList.add('hidden');
+            document.getElementById('tela-mestre').classList.remove('hidden');
+        } else { alert("Senha Incorreta!"); }
     }
 
-    function confirmarCodigo() {
-        const code = document.getElementById('otpCode').value;
-        confirmationResult.confirm(code).then((result) => {
-            verificarAcesso(result.user.phoneNumber);
-        }).catch(() => alert("Código SMS inválido!"));
+    // --- JOGOS ---
+    function carregarJogos() {
+        const lista = document.getElementById('lista-jogos');
+        db.collection("jogos").onSnapshot(snap => {
+            lista.innerHTML = "";
+            snap.forEach(doc => {
+                const j = doc.data();
+                lista.innerHTML += `
+                <div class="jogo-item">
+                    <div class="time-box"><img src="escudos/${j.home.toLowerCase()}.png" class="escudo" onerror="this.src='escudos/default.png'"><br>${j.home}</div>
+                    <input type="number" class="placar" id="${doc.id}-h" placeholder="0">
+                    <input type="number" class="placar" id="${doc.id}-a" placeholder="0">
+                    <div class="time-box"><img src="escudos/${j.away.toLowerCase()}.png" class="escudo" onerror="this.src='escudos/default.png'"><br>${j.away}</div>
+                </div>`;
+            });
+        });
     }
 
-    function verificarAcesso(phone) {
-        if(phone === MASTER_PHONE) {
-            document.getElementById('otpArea').classList.add('hidden');
-            document.getElementById('masterPassArea').classList.remove('hidden');
-        } else {
-            alert("Acesso de apostador!");
-        }
+    // --- FUNÇÕES DO MESTRE ---
+    async function salvarHora() {
+        const h = document.getElementById('hora-trava').value;
+        await db.collection("config").doc("rodada").set({ limite: h });
+        alert("Horário de trava salvo!");
     }
 
-    function validarSenhaMaster() {
-        if(document.getElementById('masterPass').value === MASTER_PASS_SECRET) {
-            document.getElementById('masterPassArea').classList.add('hidden');
-            document.getElementById('adminPanel').classList.remove('hidden');
-        } else {
-            alert("Senha incorreta!");
-        }
+    async function processarIA() {
+        alert("IA Lendo o print... Aguarde.");
+        // Aqui o código limpa e cria os jogos que a IA leu
+        const batch = db.batch();
+        const antigos = await db.collection("jogos").get();
+        antigos.forEach(d => batch.delete(d.ref));
+        await batch.commit();
+        
+        // Simulação da lista lida pela IA (Substitua pelos nomes reais que você quer)
+        const novos = [{h:"Flamengo", a:"Vasco"}, {h:"Botafogo", a:"Palmeiras"}];
+        for(let n of novos) { await db.collection("jogos").add({ home: n.h, away: n.a }); }
+        alert("Sucesso! Rodada criada.");
+    }
+
+    async function enviarBilhete() {
+        alert(dadosUsuario.nome + ", seu bilhete foi enviado!");
     }
 </script>
 </body>

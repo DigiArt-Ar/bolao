@@ -3,154 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MauBet - Painel Master ⚽</title>
+    <title>MauBet - Painel Master</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --danger: #ff5252; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 15px; margin: 0; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--accent); max-width: 600px; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; padding: 15px; margin: 0; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--accent); max-width: 600px; margin: 10px auto; }
         
-        h1 { font-size: 24px; font-weight: 900; margin-bottom: 20px; color: var(--accent); }
-        .aba-container { display: flex; gap: 5px; margin-bottom: 20px; }
-        .aba-btn { flex: 1; padding: 10px; background: #333; border: none; color: #fff; border-radius: 8px; cursor: pointer; font-size: 12px; }
-        .aba-btn.active { background: var(--accent); color: #000; font-weight: bold; }
+        .aba-container { display: flex; gap: 5px; margin-bottom: 20px; background: #000; padding: 5px; border-radius: 12px; }
+        .aba-btn { flex: 1; padding: 12px; background: transparent; border: none; color: #666; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .aba-btn.active { background: var(--accent); color: #000; }
 
-        /* Estilo da Lista de Apostadores */
-        .user-row { background: #2a2a2a; padding: 12px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
-        .user-info b { display: block; color: var(--primary); font-size: 14px; }
-        .user-info span { font-size: 11px; color: #aaa; }
-        .btn-reset { background: var(--danger); color: #fff; border: none; padding: 8px 12px; border-radius: 6px; font-size: 10px; cursor: pointer; }
+        /* Lista de Jogos */
+        .jogo-item { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--primary); }
+        .jogo-item.desativado { border-left-color: #555; opacity: 0.6; }
+        .btn-toggle { background: #444; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; font-size: 10px; cursor: pointer; }
+        .btn-toggle.on { background: var(--danger); }
 
-        /* Estilo IA e Jogos */
-        .area-upload { background: #252525; border: 2px dashed #444; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .jogo-item { background: #2a2a2a; padding: 10px; border-radius: 10px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid var(--primary); }
-        .status-badge { font-size: 9px; padding: 3px 6px; border-radius: 4px; margin-left: 10px; }
-        .status-ativo { background: var(--primary); color: #000; }
+        /* Lista de Pagamentos/Apostadores */
+        .user-row { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-bottom: 2px solid #333; }
+        .status-tag { font-size: 10px; padding: 4px 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
+        .status-pendente { background: var(--accent); color: #000; }
+        .status-pago { background: var(--primary); color: #000; }
+        
+        .btn-aprovar { background: var(--primary); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; width: 100%; margin-top: 10px; cursor: pointer; }
+        .btn-reset { background: none; color: var(--danger); border: 1px solid var(--danger); padding: 5px; font-size: 10px; border-radius: 5px; float: right; cursor: pointer; }
 
-        /* Modais Personalizados do MauBet */
+        /* Modais */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
-        .modal-box { background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px; padding: 25px; width: 85%; max-width: 350px; }
-        .modal-box h3 { margin-top: 0; color: var(--accent); }
-        .btn-modal { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .modal-box { background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px; padding: 25px; width: 85%; max-width: 350px; text-align: center; }
+        .btn-modal { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; margin-top: 15px; }
 
         .hidden { display: none; }
-        button:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>Painel <span style="color:#fff">Gestor</span></h1>
+    <h1>Controle <span style="color:var(--accent)">MauBet</span></h1>
 
     <div class="aba-container">
-        <button class="aba-btn active" onclick="mudarAba('abaJogos')">JOGOS (IA)</button>
-        <button class="aba-btn" onclick="mudarAba('abaUsers')">APOSTADORES</button>
+        <button class="aba-btn active" onclick="mudarAba('tabJogos')">JOGOS</button>
+        <button class="aba-btn" onclick="mudarAba('tabFinanceiro')">FINANCEIRO (PIX)</button>
+        <button class="aba-btn" onclick="mudarAba('tabApostadores')">USUÁRIOS</button>
     </div>
 
-    <div id="abaJogos">
-        <div class="area-upload">
-            <p style="font-size: 12px; color: var(--accent);">Suba o print do Globo Esporte aqui:</p>
-            <input type="file" id="fileIA" accept="image/*" style="font-size: 11px;">
-            <button onclick="simularLeituraIA()" style="background: var(--primary); color:#000; margin-top:15px; padding:12px; border-radius:10px; width:100%; font-weight:bold; border:none;">LÊR PRINT E GERAR RODADA</button>
+    <div id="tabJogos">
+        <div style="background:#252525; padding:15px; border-radius:15px; margin-bottom:20px; border:1px dashed #444;">
+            <input type="file" id="fileIA" style="font-size:10px; margin-bottom:10px;">
+            <button onclick="lerIA()" style="background:var(--primary); color:#000; padding:10px; border:none; border-radius:8px; width:100%; font-weight:bold;">CARREGAR PRINT RODADA</button>
         </div>
-
-        <div id="listaJogosIA">
-            <p style="font-size: 11px; color:#666;">Nenhum jogo carregado ainda.</p>
-        </div>
+        <div id="containerJogos">
+            </div>
     </div>
 
-    <div id="abaUsers" class="hidden">
-        <div id="listaUsuarios">
+    <div id="tabFinanceiro" class="hidden">
+        <h3 style="color:var(--accent); font-size:14px;">VALIDAR PAGAMENTOS</h3>
+        <div id="listaPendentes">
             <div class="user-row">
-                <div class="user-info">
-                    <b>MAURICIO BARCELLOS</b>
-                    <span>Tel: (24) 99314-8000</span>
-                </div>
-                <button class="btn-reset" onclick="abrirConfirmacaoReset('MAURICIO')">RESETAR</button>
+                <span class="status-tag status-pendente">AGUARDANDO PIX</span>
+                <div><b>MAURICIO BARCELLOS</b></div>
+                <div style="font-size:11px; color:#aaa;">Aposta: R$ 10,00 | Ref: #8892</div>
+                <button class="btn-aprovar" onclick="aprovarPagamento('MAURICIO')">CONFIRMAR RECEBIMENTO ✓</button>
             </div>
+        </div>
+    </div>
+
+    <div id="tabApostadores" class="hidden">
+        <div id="listaGeralUsers">
+            <div class="user-row">
+                <button class="btn-reset" onclick="resetUser('MAURICIO')">RESETAR</button>
+                <b>MAURICIO BARCELLOS</b><br>
+                <span style="font-size:11px; color:#aaa;">(24) 99314-8000</span>
             </div>
+        </div>
     </div>
 </div>
 
 <div id="modalAviso" class="modal-overlay">
     <div class="modal-box">
-        <h3 id="modalTitulo">AVISO</h3>
-        <p id="modalMsg" style="font-size: 14px; color: #ccc;"></p>
-        <button class="btn-modal" onclick="fecharModal()">ENTENDIDO</button>
-    </div>
-</div>
-
-<div id="modalReset" class="modal-overlay">
-    <div class="modal-box">
-        <h3 style="color:var(--danger)">RESETAR USUÁRIO?</h3>
-        <p style="font-size:12px;">Isso apagará o rascunho de <b id="nomeReset"></b> e permitirá que ele comece do zero.</p>
-        <button class="btn-modal" style="background:var(--danger); color:#fff;" onclick="executarReset()">SIM, RESETAR AGORA</button>
-        <button class="btn-modal" style="background:#444; color:#fff;" onclick="fecharModal()">CANCELAR</button>
+        <h3 id="mTitulo">AVISO</h3>
+        <p id="mMsg" style="font-size:14px; color:#ccc;"></p>
+        <button class="btn-modal" onclick="fecharModal()">OK</button>
     </div>
 </div>
 
 <script>
-    // FUNÇÕES DE INTERFACE
     function mudarAba(id) {
-        document.getElementById('abaJogos').classList.add('hidden');
-        document.getElementById('abaUsers').classList.add('hidden');
+        document.getElementById('tabJogos').classList.add('hidden');
+        document.getElementById('tabFinanceiro').classList.add('hidden');
+        document.getElementById('tabApostadores').classList.add('hidden');
         document.querySelectorAll('.aba-btn').forEach(b => b.classList.remove('active'));
-        
         document.getElementById(id).classList.remove('hidden');
         event.currentTarget.classList.add('active');
     }
 
-    function mostrarAviso(titulo, msg) {
-        document.getElementById('modalTitulo').innerText = titulo;
-        document.getElementById('modalMsg').innerText = msg;
+    function mostrarAviso(t, m) {
+        document.getElementById('mTitulo').innerText = t;
+        document.getElementById('mMsg').innerText = m;
         document.getElementById('modalAviso').style.display = 'flex';
     }
 
-    function fecharModal() {
-        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+    function fecharModal() { document.getElementById('modalAviso').style.display = 'none'; }
+
+    // Lógica de Ativar/Desativar Jogo
+    function toggleJogo(btn, id) {
+        const card = btn.parentElement;
+        if(btn.innerText === "DESATIVAR") {
+            btn.innerText = "ATIVAR";
+            btn.classList.remove('on');
+            card.classList.add('desativado');
+        } else {
+            btn.innerText = "DESATIVAR";
+            btn.classList.add('on');
+            card.classList.remove('desativado');
+        }
     }
 
-    // SIMULAÇÃO DA IA (FLUXO QUE VOCÊ PEDIU)
-    function simularLeituraIA() {
-        const file = document.getElementById('fileIA').files[0];
-        if(!file) return mostrarAviso("ERRO", "Selecione uma imagem primeiro!");
-
-        mostrarAviso("PROCESSANDO", "A IA está lendo os jogos do print. Aguarde um instante...");
+    function lerIA() {
+        if(!document.getElementById('fileIA').files[0]) return mostrarAviso("ERRO", "Suba o print primeiro!");
+        mostrarAviso("IA MAUBET", "Lendo print e gerando tabela... Aguarde.");
         
-        // Simula o tempo de resposta da IA
         setTimeout(() => {
             fecharModal();
-            const lista = document.getElementById('listaJogosIA');
-            lista.innerHTML = `
-                <div class="jogo-item">
-                    <div style="flex:1; font-size:12px; text-align:left;">
-                        <b>FLAMENGO x VASCO</b><br>
-                        <span style="color:#aaa;">Sáb, 05/04 - 16:00</span>
+            const container = document.getElementById('containerJogos');
+            // Aqui simulamos a lista vinda da IA
+            const jogos = [
+                { id: 1, times: "FLAMENGO x VASCO", data: "Sáb, 16:00" },
+                { id: 2, times: "BOTAFOGO x FLUMINENSE", data: "Dom, 18:30" }
+            ];
+            
+            container.innerHTML = "";
+            jogos.forEach(j => {
+                container.innerHTML += `
+                    <div class="jogo-item">
+                        <div style="text-align:left;">
+                            <b style="font-size:13px;">${j.times}</b><br>
+                            <span style="font-size:10px; color:#aaa;">${j.data}</span>
+                        </div>
+                        <button class="btn-toggle on" onclick="toggleJogo(this, ${j.id})">DESATIVAR</button>
                     </div>
-                    <span class="status-badge status-ativo">ATIVO</span>
-                    <button style="margin-left:10px; background:none; border:1px solid #555; color:#fff; font-size:9px; padding:5px;">DESATIVAR</button>
-                </div>
-            `;
-            mostrarAviso("SUCESSO", "Rodada gerada! Os jogos já estão disponíveis para os apostadores.");
-        }, 3000);
+                `;
+            });
+            mostrarAviso("SUCESSO", "Rodada carregada! Você pode desativar jogos que não quer no bolão.");
+        }, 2500);
     }
 
-    // GESTÃO DE USUÁRIOS
-    let usuarioParaResetar = "";
-    function abrirConfirmacaoReset(nome) {
-        usuarioParaResetar = nome;
-        document.getElementById('nomeReset').innerText = nome;
-        document.getElementById('modalReset').style.display = 'flex';
+    function aprovarPagamento(nome) {
+        mostrarAviso("PIX APROVADO", `O acesso de ${nome} foi liberado. Agora ele verá o bilhete confirmado no app!`);
+        // Aqui o db.collection('apostas').doc(id).update({ pago: true });
     }
 
-    function executarReset() {
-        fecharModal();
-        mostrarAviso("SUCESSO", `O cadastro de ${usuarioParaResetar} foi resetado com sucesso.`);
-        // Aqui entraria o db.collection('apostas').doc(id).delete();
+    function resetUser(nome) {
+        if(confirm(`Deseja mesmo resetar ${nome}?`)) {
+            mostrarAviso("RESETADO", "O usuário agora pode refazer o cadastro/aposta.");
+        }
     }
 </script>
-
 </body>
 </html>

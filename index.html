@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA MAUBET v23.0</title>
+    <title>SISTEMA MAUBET v24.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -20,7 +20,6 @@
         button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.3s; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .btn-red { background: #ff4444; color: #fff; font-size: 11px; padding: 10px; margin-top: 20px; }
         
         .saudacao { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; width: 100%; }
         .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
@@ -53,24 +52,22 @@
         </div>
 
         <div id="tela-principal" class="hidden">
+            
             <div id="area-cadastro" class="hidden">
                 <div class="painel-mestre">
                     <b style="color:var(--accent)">1. CADASTRE OS TIMES:</b>
                     <input type="text" id="m-casa" placeholder="TIME CASA">
                     <input type="text" id="m-fora" placeholder="TIME FORA">
                     <button class="btn-accent" onclick="salvarJogo()">+ ADICIONAR À LISTA</button>
-                    
-                    <button class="btn-green" style="margin-top:20px; border: 2px solid #fff" onclick="finalizarRodada()">
-                        🚀 FINALIZAR E LIBERAR RODADA
-                    </button>
-                    <button class="btn-red" onclick="limparTudo()">APAGAR TODOS OS TIMES</button>
+                    <button class="btn-green" style="margin-top:20px; border: 2px solid #fff" onclick="finalizarRodada()">🚀 FINALIZAR E LIBERAR RODADA</button>
                 </div>
             </div>
 
             <div id="area-gestao" class="hidden">
                 <div class="painel-mestre">
                     <b style="color:var(--primary)">2. CONTROLE DA RODADA:</b>
-                    <div id="lista-admin-clientes" class="lista-gestao"></div>
+                    <div id="lista-admin-clientes" class="lista-gestao">
+                        </div>
                     <button class="btn-accent" onclick="voltarCadastro()" style="font-size:10px; margin-top:10px">EDITAR TIMES NOVAMENTE</button>
                 </div>
             </div>
@@ -82,6 +79,7 @@
 </div>
 
 <script>
+    // Mesmas configurações do Firebase
     const firebaseConfig = { 
         apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
         authDomain: "bolao-d2baf.firebaseapp.com", 
@@ -97,9 +95,7 @@
     const SENHA_MESTRE = "259225";
     let confirmacaoSMS;
 
-    window.onload = () => {
-        if(localStorage.getItem('maubet_sessao')) abrirPainel();
-    };
+    window.onload = () => { if(localStorage.getItem('maubet_sessao')) abrirPainel(); };
 
     function enviarSMS() {
         const nome = document.getElementById('nome').value.toUpperCase();
@@ -137,6 +133,7 @@
             const mestre = localStorage.getItem('maubet_sessao') === 'mestre';
             const liberada = doc.exists && doc.data().liberada;
 
+            // Se for Mestre, decide qual painel mostrar (Cadastro ou Gestão)
             if(mestre) {
                 if(liberada) {
                     document.getElementById('area-cadastro').classList.add('hidden');
@@ -147,44 +144,24 @@
                 }
                 carregarAdmin();
             }
+
+            // Jogos aparecem para o Mestre sempre, e para clientes só se liberado
             if(liberada || mestre) carregarJogos();
             else document.getElementById('lista-jogos').innerHTML = "<p>Aguardando liberação do Mestre...</p>";
         });
     }
 
-    // CORREÇÃO: SALVAR E LIMPAR CAMPOS
     async function salvarJogo() {
-        const inCasa = document.getElementById('m-casa');
-        const inFora = document.getElementById('m-fora');
-        const c = inCasa.value.toUpperCase().trim();
-        const f = inFora.value.toUpperCase().trim();
-        
+        const c = document.getElementById('m-casa').value.toUpperCase();
+        const f = document.getElementById('m-fora').value.toUpperCase();
         if(c && f) {
-            await db.collection("jogos").add({ 
-                home: c, away: f, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-            });
-            // LIMPA OS CAMPOS AUTOMATICAMENTE
-            inCasa.value = "";
-            inFora.value = "";
-            inCasa.focus(); // Coloca o cursor de volta no primeiro campo
+            await db.collection("jogos").add({ home: c, away: f, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById('m-casa').value = ""; document.getElementById('m-fora').value = "";
         }
     }
 
-    async function finalizarRodada() {
-        await db.collection("config").doc("status").set({ liberada: true });
-    }
-
-    async function voltarCadastro() {
-        await db.collection("config").doc("status").set({ liberada: false });
-    }
-
-    async function limparTudo() {
-        if(confirm("Deseja apagar todos os times cadastrados?")) {
-            const snap = await db.collection("jogos").get();
-            snap.forEach(doc => doc.ref.delete());
-        }
-    }
+    async function finalizarRodada() { await db.collection("config").doc("status").set({ liberada: true }); }
+    async function voltarCadastro() { await db.collection("config").doc("status").set({ liberada: false }); }
 
     function carregarJogos() {
         db.collection("jogos").orderBy("timestamp", "asc").onSnapshot(snap => {
@@ -192,16 +169,16 @@
             l.innerHTML = "";
             snap.forEach(doc => {
                 const j = doc.data();
-                const c = j.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const f = j.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const cImg = j.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const fImg = j.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                 l.innerHTML += `
                     <div class="jogo-item">
-                        <div class="time-box"><img src="escudos/${c}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.home}</div>
+                        <div class="time-box"><img src="escudos/${cImg}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.home}</div>
                         <div style="display:flex; gap:5px">
                             <input type="number" class="placar" id="${doc.id}-h" oninput="checarBotao()">
                             <input type="number" class="placar" id="${doc.id}-f" oninput="checarBotao()">
                         </div>
-                        <div class="time-box"><img src="escudos/${f}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.away}</div>
+                        <div class="time-box"><img src="escudos/${fImg}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.away}</div>
                     </div>`;
             });
         });
@@ -243,9 +220,10 @@
         const p = {}; document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
         await db.collection("apostas").add({
             nome: localStorage.getItem('maubet_nome'),
-            palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            palpites: p, pago: (localStorage.getItem('maubet_sessao') === 'mestre'), // Mestre já entra como pago
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("Enviado com sucesso! Aguarde a validação.");
+        alert("Bilhete enviado!");
         location.reload();
     }
 </script>

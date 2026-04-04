@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v36.3 - FIX MASTER</title>
+    <title>MAUBET v37.0 - FINAL FIX</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --text: #ffffff; }
+        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --text: #ffffff; --danger: #ff4444; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 500px; }
         .hidden { display: none !important; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
         input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; }
-        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
+        button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
+        .btn-danger { background: var(--danger); color: #fff; padding: 5px 10px; font-size: 10px; width: auto; margin: 0; }
+        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
         .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
-        .escudo { width: 40px; height: 40px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar-input { width: 45px; height: 45px; background: #000 !important; border: 1px solid var(--primary) !important; color: #fff !important; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; opacity: 1 !important; -webkit-text-fill-color: white !important; }
-        .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 2px solid var(--accent); }
-        .btn-secreto { color: #222; font-size: 9px; cursor: pointer; margin-top: 30px; display: inline-block; }
+        .escudo { width: 35px; height: 35px; object-fit: contain; display: block; margin: 0 auto 5px; }
+        .placar-input { width: 42px; height: 42px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
+        .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 1px solid var(--accent); }
     </style>
 </head>
 <body>
@@ -30,41 +30,34 @@
     <div class="card">
         <div id="view-login">
             <h2>MAU<span>BET</span></h2>
-            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="user-tel" placeholder="TELEFONE">
-            <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
+            <input type="text" id="user-nome" placeholder="SEU NOME">
+            <button class="btn-green" onclick="handleAcesso()">ENTRAR</button>
             <div id="login-mestre" class="hidden">
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
-                <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
+                <button class="btn-accent" onclick="acessoMestre()">PAINEL MESTRE</button>
             </div>
-            <span class="btn-secreto" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v36.3</span>
+            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:20px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.0</span>
         </div>
 
         <div id="view-main" class="hidden">
             <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
-                <b style="color:var(--accent)">1. CADASTRAR JOGO:</b>
+                <b style="color:var(--accent)">1. ADICIONAR JOGO:</b>
                 <input type="text" id="input-casa" placeholder="TIME CASA">
                 <input type="text" id="input-fora" placeholder="TIME FORA">
                 <input type="datetime-local" id="input-data">
                 <button class="btn-accent" onclick="addJogoNovo()">+ SALVAR TIME</button>
-                
-                <div style="margin-top:15px">
-                    <b style="color:var(--primary)">STATUS DA RODADA:</b>
-                    <button id="btn-liberar" class="btn-green" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
-                    <button id="btn-travar" class="btn-accent hidden" onclick="setRodada(false)">🔒 TRAVAR RODADA</button>
-                </div>
-
+                <button id="btn-toggle-rodada" class="btn-green" onclick="toggleRodada(true)">🚀 LIBERAR RODADA AGORA</button>
                 <hr style="border-color:#333; margin:15px 0">
-                <b style="color:var(--primary)">2. RESULTADOS REAIS:</b>
-                <div id="lista-mestre-resultados"></div>
+                <b style="color:var(--primary)">2. PLACAR FINAL E GESTÃO:</b>
+                <div id="lista-mestre-resultados" style="margin-top:10px"></div>
             </div>
 
-            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">Aguardando liberação da rodada...</div>
+            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">Aguardando liberação do Mestre...</div>
             <div id="display-jogos"></div>
-            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
+            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR BILHETE</button>
             
             <div id="ranking-container" class="ranking-box hidden">
-                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING</h3>
+                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING DA RODADA</h3>
                 <div id="ranking-lista"></div>
             </div>
             <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR</button>
@@ -89,7 +82,7 @@
 
     function handleAcesso() {
         const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        if(!n) return alert("Nome!");
+        if(!n) return alert("Digite seu nome!");
         localStorage.setItem('maubet_n', n);
         localStorage.setItem('maubet_token', 'user');
         startApp();
@@ -107,17 +100,19 @@
         document.getElementById('view-login').classList.add('hidden');
         document.getElementById('view-main').classList.remove('hidden');
         document.getElementById('msg-boas-vindas').innerText = "Olá, " + localStorage.getItem('maubet_n');
-
+        
         db.collection("config").doc("status").onSnapshot(doc => {
             const liberada = doc.exists ? doc.data().liberada : false;
             const admin = localStorage.getItem('maubet_token') === 'admin';
             
             if(admin) {
                 document.getElementById('bloco-mestre').classList.remove('hidden');
-                document.getElementById('btn-liberar').classList.toggle('hidden', liberada);
-                document.getElementById('btn-travar').classList.toggle('hidden', !liberada);
+                const btn = document.getElementById('btn-toggle-rodada');
+                btn.innerText = liberada ? "🔒 TRAVAR RODADA" : "🚀 LIBERAR RODADA AGORA";
+                btn.className = liberada ? "btn-accent" : "btn-green";
+                btn.onclick = () => toggleRodada(!liberada);
             }
-            
+
             if(!liberada && !admin) {
                 document.getElementById('status-msg').classList.remove('hidden');
                 document.getElementById('display-jogos').innerHTML = "";
@@ -128,9 +123,8 @@
         });
     }
 
-    async function setRodada(v) { 
-        await db.collection("config").doc("status").set({ liberada: v }, { merge: true });
-        alert(v ? "RODADA ABERTA!" : "RODADA TRAVADA!");
+    async function toggleRodada(v) { 
+        await db.collection("config").doc("status").set({ liberada: v });
     }
 
     async function addJogoNovo() {
@@ -139,8 +133,15 @@
         const d = document.getElementById('input-data').value;
         if(c && f && d) {
             await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
-            alert("Jogo adicionado!");
+            document.getElementById('input-casa').value = ""; 
+            document.getElementById('input-fora').value = "";
+            alert("Time Salvo!");
+        }
+    }
+
+    async function excluirJogo(id) {
+        if(confirm("Deseja apagar este jogo permanentemente?")) {
+            await db.collection("jogos").doc(id).delete();
         }
     }
 
@@ -152,13 +153,11 @@
             let jogosFinais = {};
 
             snap.forEach(doc => {
-                const d = doc.data();
-                const id = doc.id;
+                const d = doc.data(); const id = doc.id;
                 if(d.resH !== null) jogosFinais[id] = {h: d.resH, f: d.resF};
                 const hI = d.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                 const aI = d.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
 
-                // ÁREA DE APOSTA (VISÍVEL PARA VOCÊ TAMBÉM)
                 container.innerHTML += `
                     <div class="jogo-item">
                         <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.home}</div>
@@ -172,15 +171,14 @@
                         <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.away}</div>
                     </div>`;
 
-                // CONTROLE DO MESTRE (PARA LANÇAR RESULTADO)
                 if(admin) {
                     listaMestre.innerHTML += `
-                        <div style="margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; background:#111; padding:8px; border-radius:10px">
-                            <span style="font-size:10px; width:70px">${d.home}</span>
-                            <input type="number" id="m-${id}-h" style="width:35px; height:30px; background:#222; color:#fff; border:1px solid #444" value="${d.resH !== null ? d.resH : ''}">
-                            <input type="number" id="m-${id}-f" style="width:35px; height:30px; background:#222; color:#fff; border:1px solid #444" value="${d.resF !== null ? d.resF : ''}">
-                            <span style="font-size:10px; width:70px; text-align:right">${d.away}</span>
-                            <button onclick="salvarPlacarFinal('${id}')" style="width:auto; padding:5px; margin:0; font-size:10px" class="btn-green">OK</button>
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; background:#111; padding:5px; border-radius:8px">
+                            <span style="font-size:9px; width:60px">${d.home}</span>
+                            <input type="number" id="m-${id}-h" style="width:30px; height:25px; background:#000; color:#fff; border:1px solid #444" value="${d.resH !== null ? d.resH : ''}">
+                            <input type="number" id="m-${id}-f" style="width:30px; height:25px; background:#000; color:#fff; border:1px solid #444" value="${d.resF !== null ? d.resF : ''}">
+                            <button onclick="salvarPlacarFinal('${id}')" class="btn-green" style="width:auto; padding:3px 8px; margin:0; font-size:10px">OK</button>
+                            <button onclick="excluirJogo('${id}')" class="btn-danger">🗑️</button>
                         </div>`;
                 }
             });
@@ -193,7 +191,7 @@
         const f = document.getElementById(`m-${id}-f`).value;
         if(h !== "" && f !== "") {
             await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Placar salvo!");
+            alert("Placar Salvo!");
         }
     }
 
@@ -204,13 +202,9 @@
     }
 
     async function salvarPalpites() {
-        const p = {}; 
-        document.querySelectorAll('.user-p').forEach(i => p[i.id] = i.value);
-        await db.collection("apostas").add({
-            nome: localStorage.getItem('maubet_n'),
-            palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert("BILHETE ENVIADO!");
+        const p = {}; document.querySelectorAll('.user-p').forEach(i => p[i.id] = i.value);
+        await db.collection("apostas").add({ nome: localStorage.getItem('maubet_n'), palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        alert("BILHETE ENVIADO COM SUCESSO!");
         location.reload();
     }
 
@@ -218,13 +212,10 @@
         const snap = await db.collection("apostas").get();
         let rank = [];
         snap.forEach(doc => {
-            const a = doc.data();
-            let pts = 0;
+            const a = doc.data(); let pts = 0;
             for(let jId in jogosFinais) {
-                const rH = jogosFinais[jId].h;
-                const rF = jogosFinais[jId].f;
-                const pH = parseInt(a.palpites[`p-${jId}-h`]);
-                const pF = parseInt(a.palpites[`p-${jId}-f`]);
+                const rH = jogosFinais[jId].h; const rF = jogosFinais[jId].f;
+                const pH = parseInt(a.palpites[`p-${jId}-h`]); const pF = parseInt(a.palpites[`p-${jId}-f`]);
                 if(!isNaN(pH) && !isNaN(pF)) {
                     if(pH === rH && pF === rF) pts += 10;
                     else if((rH > rF && pH > pF) || (rF > rH && pF > pH) || (rH === rF && pH === pF)) pts += 6;
@@ -233,11 +224,8 @@
             rank.push({n: a.nome, p: pts});
         });
         rank.sort((a,b) => b.p - a.p);
-        const list = document.getElementById('ranking-lista');
-        list.innerHTML = "";
-        rank.forEach((r, i) => {
-            list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`;
-        });
+        const list = document.getElementById('ranking-lista'); list.innerHTML = "";
+        rank.forEach((r, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #222"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`; });
         document.getElementById('ranking-container').classList.remove('hidden');
     }
 </script>

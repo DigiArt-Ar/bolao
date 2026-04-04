@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v36.2 - FIX LIBERAR</title>
+    <title>MAUBET v36.3 - FIX MASTER</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
@@ -19,9 +19,8 @@
         .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
         .escudo { width: 40px; height: 40px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar-input { width: 45px; height: 45px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; }
+        .placar-input { width: 45px; height: 45px; background: #000 !important; border: 1px solid var(--primary) !important; color: #fff !important; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; opacity: 1 !important; -webkit-text-fill-color: white !important; }
         .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 2px solid var(--accent); }
-        .ranking-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
         .btn-secreto { color: #222; font-size: 9px; cursor: pointer; margin-top: 30px; display: inline-block; }
     </style>
 </head>
@@ -38,7 +37,7 @@
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
                 <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
             </div>
-            <span class="btn-secreto" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v36.2</span>
+            <span class="btn-secreto" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v36.3</span>
         </div>
 
         <div id="view-main" class="hidden">
@@ -48,13 +47,19 @@
                 <input type="text" id="input-fora" placeholder="TIME FORA">
                 <input type="datetime-local" id="input-data">
                 <button class="btn-accent" onclick="addJogoNovo()">+ SALVAR TIME</button>
-                <button class="btn-green" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
+                
+                <div style="margin-top:15px">
+                    <b style="color:var(--primary)">STATUS DA RODADA:</b>
+                    <button id="btn-liberar" class="btn-green" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
+                    <button id="btn-travar" class="btn-accent hidden" onclick="setRodada(false)">🔒 TRAVAR RODADA</button>
+                </div>
+
                 <hr style="border-color:#333; margin:15px 0">
                 <b style="color:var(--primary)">2. RESULTADOS REAIS:</b>
                 <div id="lista-mestre-resultados"></div>
             </div>
 
-            <div id="status-rodada-msg" class="hidden" style="padding: 20px; color: #888;">A rodada ainda não foi liberada pelo organizador.</div>
+            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">Aguardando liberação da rodada...</div>
             <div id="display-jogos"></div>
             <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
             
@@ -104,20 +109,28 @@
         document.getElementById('msg-boas-vindas').innerText = "Olá, " + localStorage.getItem('maubet_n');
 
         db.collection("config").doc("status").onSnapshot(doc => {
-            const liberada = doc.exists && doc.data().liberada;
+            const liberada = doc.exists ? doc.data().liberada : false;
             const admin = localStorage.getItem('maubet_token') === 'admin';
             
-            if(admin) document.getElementById('bloco-mestre').classList.remove('hidden');
+            if(admin) {
+                document.getElementById('bloco-mestre').classList.remove('hidden');
+                document.getElementById('btn-liberar').classList.toggle('hidden', liberada);
+                document.getElementById('btn-travar').classList.toggle('hidden', !liberada);
+            }
             
             if(!liberada && !admin) {
-                document.getElementById('status-rodada-msg').classList.remove('hidden');
-                document.getElementById('display-jogos').classList.add('hidden');
+                document.getElementById('status-msg').classList.remove('hidden');
+                document.getElementById('display-jogos').innerHTML = "";
             } else {
-                document.getElementById('status-rodada-msg').classList.add('hidden');
-                document.getElementById('display-jogos').classList.remove('hidden');
+                document.getElementById('status-msg').classList.add('hidden');
                 renderConteudo(admin);
             }
         });
+    }
+
+    async function setRodada(v) { 
+        await db.collection("config").doc("status").set({ liberada: v }, { merge: true });
+        alert(v ? "RODADA ABERTA!" : "RODADA TRAVADA!");
     }
 
     async function addJogoNovo() {
@@ -125,18 +138,10 @@
         const f = document.getElementById('input-fora').value.toUpperCase().trim();
         const d = document.getElementById('input-data').value;
         if(c && f && d) {
-            await db.collection("jogos").add({ 
-                home: c, away: f, inicio: d, resH: null, resF: null, 
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-            });
-            alert("Jogo Salvo!");
+            await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
+            alert("Jogo adicionado!");
         }
-    }
-
-    async function setRodada(v) { 
-        await db.collection("config").doc("status").set({ liberada: v }); 
-        alert("RODADA LIBERADA COM SUCESSO!"); 
     }
 
     function renderConteudo(admin) {
@@ -150,15 +155,15 @@
                 const d = doc.data();
                 const id = doc.id;
                 if(d.resH !== null) jogosFinais[id] = {h: d.resH, f: d.resF};
-
                 const hI = d.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                 const aI = d.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
 
+                // ÁREA DE APOSTA (VISÍVEL PARA VOCÊ TAMBÉM)
                 container.innerHTML += `
                     <div class="jogo-item">
                         <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.home}</div>
                         <div>
-                            ${d.resH !== null ? `<span style="color:var(--accent); font-size:10px">RESULTADO: ${d.resH}x${d.resF}</span>` : ''}
+                            ${d.resH !== null ? `<span style="color:var(--accent); font-size:10px">FINAL: ${d.resH}x${d.resF}</span>` : ''}
                             <div style="display:flex; gap:5px">
                                 <input type="number" class="placar-input user-p" id="p-${id}-h" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
                                 <input type="number" class="placar-input user-p" id="p-${id}-f" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
@@ -167,15 +172,15 @@
                         <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.away}</div>
                     </div>`;
 
+                // CONTROLE DO MESTRE (PARA LANÇAR RESULTADO)
                 if(admin) {
                     listaMestre.innerHTML += `
-                        <div style="margin-bottom:12px; display:flex; align-items:center; justify-content:space-between; background:#111; padding:8px; border-radius:10px">
+                        <div style="margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; background:#111; padding:8px; border-radius:10px">
                             <span style="font-size:10px; width:70px">${d.home}</span>
-                            <input type="number" id="m-${id}-h" style="width:35px; height:30px; background:#000; color:#fff; border:1px solid #444" value="${d.resH !== null ? d.resH : ''}">
-                            <span>x</span>
-                            <input type="number" id="m-${id}-f" style="width:35px; height:30px; background:#000; color:#fff; border:1px solid #444" value="${d.resF !== null ? d.resF : ''}">
+                            <input type="number" id="m-${id}-h" style="width:35px; height:30px; background:#222; color:#fff; border:1px solid #444" value="${d.resH !== null ? d.resH : ''}">
+                            <input type="number" id="m-${id}-f" style="width:35px; height:30px; background:#222; color:#fff; border:1px solid #444" value="${d.resF !== null ? d.resF : ''}">
                             <span style="font-size:10px; width:70px; text-align:right">${d.away}</span>
-                            <button onclick="salvarPlacarFinal('${id}')" style="width:auto; padding:5px 8px; margin:0; font-size:10px" class="btn-green">OK</button>
+                            <button onclick="salvarPlacarFinal('${id}')" style="width:auto; padding:5px; margin:0; font-size:10px" class="btn-green">OK</button>
                         </div>`;
                 }
             });
@@ -188,9 +193,7 @@
         const f = document.getElementById(`m-${id}-f`).value;
         if(h !== "" && f !== "") {
             await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Resultado Salvo!");
-        } else {
-            alert("Preencha o placar antes de salvar!");
+            alert("Placar salvo!");
         }
     }
 
@@ -207,7 +210,7 @@
             nome: localStorage.getItem('maubet_n'),
             palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("Bilhete Enviado!");
+        alert("BILHETE ENVIADO!");
         location.reload();
     }
 
@@ -233,7 +236,7 @@
         const list = document.getElementById('ranking-lista');
         list.innerHTML = "";
         rank.forEach((r, i) => {
-            list.innerHTML += `<div class="ranking-item"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`;
+            list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #222"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`;
         });
         document.getElementById('ranking-container').classList.remove('hidden');
     }

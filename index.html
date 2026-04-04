@@ -10,21 +10,20 @@
 
     <style>
         :root {
-            --primary: #00ff88; /* Verde Neon Apostas */
+            --primary: #00ff88; 
             --bg-dark: #121212;
             --card-bg: #1e1e1e;
-            --accent: #ffb300; /* Dourado MauBet */
+            --accent: #ffb300; 
         }
         body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 20px; }
         .card { background: var(--card-bg); padding: 30px; border-radius: 15px; border-top: 5px solid var(--primary); box-shadow: 0 15px 35px rgba(0,0,0,0.5); max-width: 400px; margin: auto; }
         
-        /* Estilo Casa de Aposta */
         h1 { margin-bottom: 5px; font-weight: 900; letter-spacing: -1px; }
         .logo-mau { color: #fff; }
         .logo-bet { color: var(--accent); background: #333; padding: 2px 8px; border-radius: 5px; margin-left: 2px; }
         
-        p { color: #aaa; font-size: 14px; }
-        input { width: 90%; padding: 14px; margin: 12px 0; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; color: #fff; font-size: 16px; outline: none; }
+        p { color: #aaa; font-size: 14px; margin-bottom: 20px; }
+        input { width: 90%; padding: 14px; margin: 12px 0; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; color: #fff; font-size: 16px; outline: none; text-align: center; }
         input:focus { border-color: var(--primary); }
         
         button { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 95%; font-weight: 800; font-size: 16px; text-transform: uppercase; transition: 0.3s; }
@@ -60,10 +59,11 @@
     </div>
 
     <div id="mestreChoiceArea" class="hidden">
-        <h3 style="color: var(--accent);">BEM-VINDO, MAUMAU!</h3>
-        <p>O que deseja fazer hoje?</p>
+        <h3 id="welcomeMestre" style="color: var(--accent);">BEM-VINDO!</h3>
+        <p>O que deseja fazer agora?</p>
         <button onclick="irParaAposta()" style="background: var(--accent);">FAZER MINHA APOSTA</button>
         <button onclick="exibirSenhaMaster()" class="btn-secondary">ABRIR PAINEL GESTOR</button>
+        <button onclick="sair()" class="btn-resend" style="border:none !important; margin-top:20px;">Sair da conta</button>
     </div>
 
     <div id="masterPassArea" class="hidden">
@@ -77,18 +77,16 @@
         <h3 style="color: var(--primary);">🛠️ GESTÃO MAUBET</h3>
         <button onclick="alert('IA de leitura em breve!')" style="background: #00796b; color: white;">📸 LER PRINT DA RODADA</button>
         <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
-        <p>Definir fechamento:</p>
         <input type="datetime-local" id="lockTime">
-        <button style="background: #d32f2f; color: white; margin-top: 10px; font-size: 12px;">REINICIAR SISTEMA</button>
+        <button onclick="sair()" class="btn-secondary" style="font-size: 12px; width: 50%;">SAIR</button>
     </div>
 
     <div id="apostaArea" class="hidden">
-        <h3 style="color: var(--primary);">MINHA APOSTA</h3>
-        <p>Selecione seus palpites abaixo:</p>
-        <div style="background: #2a2a2a; padding: 15px; border-radius: 10px; border: 1px dashed #444;">
-            <p>Aguardando liberação da rodada pelo administrador...</p>
+        <h3 id="welcomeApostador" style="color: var(--primary);">MINHA APOSTA</h3>
+        <div style="background: #2a2a2a; padding: 15px; border-radius: 10px; border: 1px dashed #444; margin-bottom: 20px;">
+            <p>Aguardando liberação da rodada...</p>
         </div>
-        <button onclick="location.reload()" class="btn-secondary">SAIR</button>
+        <button onclick="sair()" class="btn-secondary">SAIR DA CONTA</button>
     </div>
 </div>
 
@@ -110,6 +108,15 @@
 
     const MASTER_PHONE = "+5524981035118";
     const MASTER_PASS_SECRET = "931480";
+
+    // --- LÓGICA DE RECONHECIMENTO AUTOMÁTICO ---
+    window.onload = function() {
+        const nomeSalvo = localStorage.getItem('maubet_nome');
+        const telSalvo = localStorage.getItem('maubet_tel');
+        if (nomeSalvo && telSalvo) {
+            verificarAcesso(telSalvo, nomeSalvo);
+        }
+    };
 
     window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
 
@@ -156,19 +163,30 @@
 
     function confirmarCodigo() {
         const code = document.getElementById('otpCode').value;
+        const nomeParaSalvar = document.getElementById('userName').value;
         confirmationResult.confirm(code).then((result) => {
-            verificarAcesso(result.user.phoneNumber);
+            verificarAcesso(result.user.phoneNumber, nomeParaSalvar);
         }).catch(() => alert("Código inválido!"));
     }
 
-    function verificarAcesso(phone) {
+    function verificarAcesso(phone, nomeManual) {
+        // Salva na memória do celular
+        localStorage.setItem('maubet_nome', nomeManual);
+        localStorage.setItem('maubet_tel', phone);
+
+        // Lógica de Saudação
+        const hora = new Date().getHours();
+        let saudacao = "Bom dia";
+        if (hora >= 12 && hora < 18) saudacao = "Boa tarde";
+        if (hora >= 18) saudacao = "Boa noite";
+
+        document.getElementById('loginArea').classList.add('hidden');
         document.getElementById('otpArea').classList.add('hidden');
+        document.getElementById('statusMsg').innerText = `${saudacao}, ${nomeManual}!`;
+
         if(phone === MASTER_PHONE) {
-            // SE FOR VOCÊ, ABRE A ESCOLHA
             document.getElementById('mestreChoiceArea').classList.remove('hidden');
-            document.getElementById('statusMsg').innerText = "Olá, MauBet!";
         } else {
-            // SE FOR CLIENTE, VAI DIRETO PARA APOSTA
             irParaAposta();
         }
     }
@@ -176,7 +194,6 @@
     function irParaAposta() {
         document.getElementById('mestreChoiceArea').classList.add('hidden');
         document.getElementById('apostaArea').classList.remove('hidden');
-        document.getElementById('statusMsg').innerText = "Área do Jogador";
     }
 
     function exibirSenhaMaster() {
@@ -187,6 +204,11 @@
     function voltarEscolha() {
         document.getElementById('masterPassArea').classList.add('hidden');
         document.getElementById('mestreChoiceArea').classList.remove('hidden');
+    }
+
+    function sair() {
+        localStorage.clear();
+        location.reload();
     }
 
     function validarSenhaMaster() {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA MAUBET v24.0</title>
+    <title>SISTEMA MAUBET v25.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -20,9 +20,10 @@
         button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.3s; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
+        .btn-del { background: #ff4444; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 10px; margin-left: 10px; cursor: pointer; border:none; }
         
         .saudacao { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; width: 100%; }
-        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
+        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
         .time-box { width: 35%; font-size: 11px; font-weight: bold; text-transform: uppercase; text-align: center; }
         .escudo { width: 40px; height: 40px; object-fit: contain; display: block; margin: 0 auto 5px; }
         .placar { width: 48px; height: 45px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; }
@@ -53,22 +54,19 @@
 
         <div id="tela-principal" class="hidden">
             
-            <div id="area-cadastro" class="hidden">
-                <div class="painel-mestre">
+            <div id="area-mestre" class="hidden">
+                <div id="cadastro-jogos" class="painel-mestre">
                     <b style="color:var(--accent)">1. CADASTRE OS TIMES:</b>
                     <input type="text" id="m-casa" placeholder="TIME CASA">
                     <input type="text" id="m-fora" placeholder="TIME FORA">
-                    <button class="btn-accent" onclick="salvarJogo()">+ ADICIONAR À LISTA</button>
-                    <button class="btn-green" style="margin-top:20px; border: 2px solid #fff" onclick="finalizarRodada()">🚀 FINALIZAR E LIBERAR RODADA</button>
+                    <button class="btn-accent" onclick="salvarJogo()">+ ADICIONAR JOGO</button>
+                    <button class="btn-green" style="margin-top:15px; border: 2px solid #fff" onclick="finalizarRodada()">🚀 LIBERAR PARA TODOS</button>
                 </div>
-            </div>
 
-            <div id="area-gestao" class="hidden">
-                <div class="painel-mestre">
-                    <b style="color:var(--primary)">2. CONTROLE DA RODADA:</b>
-                    <div id="lista-admin-clientes" class="lista-gestao">
-                        </div>
-                    <button class="btn-accent" onclick="voltarCadastro()" style="font-size:10px; margin-top:10px">EDITAR TIMES NOVAMENTE</button>
+                <div id="gestao-pix" class="painel-mestre hidden">
+                    <b style="color:var(--primary)">2. CONTROLE DE PAGAMENTOS:</b>
+                    <div id="lista-admin-clientes" class="lista-gestao"></div>
+                    <button class="btn-accent" onclick="voltarEdicao()" style="font-size:10px; margin-top:10px">VOLTAR PARA EDIÇÃO</button>
                 </div>
             </div>
 
@@ -79,7 +77,6 @@
 </div>
 
 <script>
-    // Mesmas configurações do Firebase
     const firebaseConfig = { 
         apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
         authDomain: "bolao-d2baf.firebaseapp.com", 
@@ -119,7 +116,7 @@
                 localStorage.setItem('maubet_nome', localStorage.getItem('maubet_nome_temp'));
                 localStorage.setItem('maubet_sessao', 'cliente');
                 abrirPainel();
-            }).catch(() => alert("Código inválido!"));
+            });
         }
     }
 
@@ -128,26 +125,24 @@
         document.getElementById('tela-sms').classList.add('hidden');
         document.getElementById('tela-principal').classList.remove('hidden');
         document.getElementById('msg-saudacao').innerText = obterSaudacao();
-        
+
         db.collection("config").doc("status").onSnapshot(doc => {
             const mestre = localStorage.getItem('maubet_sessao') === 'mestre';
             const liberada = doc.exists && doc.data().liberada;
 
-            // Se for Mestre, decide qual painel mostrar (Cadastro ou Gestão)
             if(mestre) {
+                document.getElementById('area-mestre').classList.remove('hidden');
                 if(liberada) {
-                    document.getElementById('area-cadastro').classList.add('hidden');
-                    document.getElementById('area-gestao').classList.remove('hidden');
+                    document.getElementById('cadastro-jogos').classList.add('hidden');
+                    document.getElementById('gestao-pix').classList.remove('hidden');
                 } else {
-                    document.getElementById('area-cadastro').classList.remove('hidden');
-                    document.getElementById('area-gestao').classList.add('hidden');
+                    document.getElementById('cadastro-jogos').classList.remove('hidden');
+                    document.getElementById('gestao-pix').classList.add('hidden');
                 }
                 carregarAdmin();
             }
-
-            // Jogos aparecem para o Mestre sempre, e para clientes só se liberado
             if(liberada || mestre) carregarJogos();
-            else document.getElementById('lista-jogos').innerHTML = "<p>Aguardando liberação do Mestre...</p>";
+            else document.getElementById('lista-jogos').innerHTML = "Aguardando rodada...";
         });
     }
 
@@ -160,25 +155,37 @@
         }
     }
 
+    // BOTÃO DE APAGAR TIME UNITÁRIO
+    async function apagarTime(id) {
+        if(confirm("Deseja remover este jogo?")) await db.collection("jogos").doc(id).delete();
+    }
+
     async function finalizarRodada() { await db.collection("config").doc("status").set({ liberada: true }); }
-    async function voltarCadastro() { await db.collection("config").doc("status").set({ liberada: false }); }
+    async function voltarEdicao() { await db.collection("config").doc("status").set({ liberada: false }); }
 
     function carregarJogos() {
+        const mestre = localStorage.getItem('maubet_sessao') === 'mestre';
         db.collection("jogos").orderBy("timestamp", "asc").onSnapshot(snap => {
             const l = document.getElementById('lista-jogos');
             l.innerHTML = "";
             snap.forEach(doc => {
                 const j = doc.data();
-                const cImg = j.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const fImg = j.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const casa = j.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const fora = j.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                
                 l.innerHTML += `
                     <div class="jogo-item">
-                        <div class="time-box"><img src="escudos/${cImg}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.home}</div>
-                        <div style="display:flex; gap:5px">
+                        <div class="time-box">
+                            <img src="escudos/${casa}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.home}
+                        </div>
+                        <div style="display:flex; gap:5px; align-items:center">
                             <input type="number" class="placar" id="${doc.id}-h" oninput="checarBotao()">
                             <input type="number" class="placar" id="${doc.id}-f" oninput="checarBotao()">
+                            ${mestre ? `<button class="btn-del" onclick="apagarTime('${doc.id}')">X</button>` : ''}
                         </div>
-                        <div class="time-box"><img src="escudos/${fImg}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.away}</div>
+                        <div class="time-box">
+                            <img src="escudos/${fora}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.away}
+                        </div>
                     </div>`;
             });
         });
@@ -187,14 +194,14 @@
     function carregarAdmin() {
         db.collection("apostas").orderBy("timestamp", "desc").onSnapshot(snap => {
             const l = document.getElementById('lista-admin-clientes');
-            l.innerHTML = "<b>APOSTADORES:</b>";
+            l.innerHTML = "";
             snap.forEach(doc => {
                 const a = doc.data();
                 l.innerHTML += `
                     <div class="item-apostador">
                         <span>${a.nome}</span>
                         <button onclick="validar('${doc.id}', ${!a.pago})" style="background:${a.pago?'#00ff88':'#444'}">
-                            ${a.pago?'PAGO ✅':'VALIDAR PIX'}
+                            ${a.pago?'PAGO ✅':'CONFIRMAR'}
                         </button>
                     </div>`;
             });
@@ -217,11 +224,10 @@
     }
 
     async function enviarBilhete() {
-        const p = {}; document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
+        const p = {}; document.querySelectorAll('.placar').forEach(i => { if(i.id) p[i.id] = i.value; });
         await db.collection("apostas").add({
             nome: localStorage.getItem('maubet_nome'),
-            palpites: p, pago: (localStorage.getItem('maubet_sessao') === 'mestre'), // Mestre já entra como pago
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
         alert("Bilhete enviado!");
         location.reload();

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA MAUBET v25.0</title>
+    <title>MAUBET OFICIAL v30.0</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -15,63 +15,66 @@
         .container { width: 100%; max-width: 500px; }
         .hidden { display: none !important; }
         
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; position: relative; }
         input { width: 100%; padding: 15px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 12px; box-sizing: border-box; text-align: center; font-size: 16px; }
-        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.3s; }
+        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .btn-del { background: #ff4444; color: #fff; padding: 5px 10px; border-radius: 5px; font-size: 10px; margin-left: 10px; cursor: pointer; border:none; }
         
-        .saudacao { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; width: 100%; }
+        /* Botão de deletar jogo discreto no canto superior direito do card */
+        .del-game { position: absolute; top: 5px; right: 5px; background: rgba(255, 0, 0, 0.2); color: #ff4444; border: 1px solid #ff4444; border-radius: 50%; width: 20px; height: 20px; font-size: 9px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; }
+        
+        .saudacao-user { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; width: 100%; }
         .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
         .time-box { width: 35%; font-size: 11px; font-weight: bold; text-transform: uppercase; text-align: center; }
         .escudo { width: 40px; height: 40px; object-fit: contain; display: block; margin: 0 auto 5px; }
         .placar { width: 48px; height: 45px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; }
 
         .painel-mestre { background: #000; padding: 15px; border-radius: 15px; border: 2px dashed var(--accent); margin-bottom: 20px; text-align: left; }
-        .lista-gestao { margin-top: 15px; background: #111; border-radius: 10px; padding: 10px; }
-        .item-apostador { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #222; font-size: 12px; }
+        .lista-apostas { margin-top: 15px; background: #111; border-radius: 10px; padding: 10px; }
+        .row-apostador { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #222; font-size: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div id="msg-saudacao" class="saudacao"></div>
+    <div id="msg-boas-vindas" class="saudacao-user"></div>
 
     <div class="card">
-        <div id="tela-login">
-            <h2 style="margin-top:0">MAU<span>BET</span></h2>
-            <input type="text" id="nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="tel" placeholder="DDD + CELULAR">
-            <div id="recaptcha-container"></div>
-            <button class="btn-green" onclick="enviarSMS()">ENTRAR</button>
+        <div id="view-login">
+            <h2 style="margin:0 0 10px 0">MAU<span>BET</span></h2>
+            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
+            <input type="tel" id="user-tel" placeholder="DDD + CELULAR">
+            <div id="recaptcha-box"></div>
+            <button class="btn-green" onclick="handleSms()">ENTRAR</button>
         </div>
 
-        <div id="tela-sms" class="hidden">
-            <input type="number" id="codigo-input" placeholder="CÓDIGO OU SENHA">
-            <button class="btn-green" onclick="validarAcesso()">VALIDAR</button>
+        <div id="view-sms" class="hidden">
+            <input type="number" id="user-code" placeholder="CÓDIGO OU SENHA">
+            <button class="btn-green" onclick="handleAcesso()">CONFIRMAR</button>
         </div>
 
-        <div id="tela-principal" class="hidden">
+        <div id="view-main" class="hidden">
             
-            <div id="area-mestre" class="hidden">
-                <div id="cadastro-jogos" class="painel-mestre">
-                    <b style="color:var(--accent)">1. CADASTRE OS TIMES:</b>
-                    <input type="text" id="m-casa" placeholder="TIME CASA">
-                    <input type="text" id="m-fora" placeholder="TIME FORA">
-                    <button class="btn-accent" onclick="salvarJogo()">+ ADICIONAR JOGO</button>
-                    <button class="btn-green" style="margin-top:15px; border: 2px solid #fff" onclick="finalizarRodada()">🚀 LIBERAR PARA TODOS</button>
+            <div id="bloco-mestre" class="hidden">
+                <div id="aba-cadastro" class="painel-mestre">
+                    <b style="color:var(--accent)">1. CADASTRE A RODADA:</b>
+                    <input type="text" id="input-casa" placeholder="TIME CASA">
+                    <input type="text" id="input-fora" placeholder="TIME FORA">
+                    <button class="btn-accent" onclick="addJogoNovo()">+ ADICIONAR JOGO</button>
+                    <button class="btn-green" style="margin-top:15px; border: 2px solid #fff" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
                 </div>
 
-                <div id="gestao-pix" class="painel-mestre hidden">
+                <div id="aba-gestao" class="painel-mestre hidden">
                     <b style="color:var(--primary)">2. CONTROLE DE PAGAMENTOS:</b>
-                    <div id="lista-admin-clientes" class="lista-gestao"></div>
-                    <button class="btn-accent" onclick="voltarEdicao()" style="font-size:10px; margin-top:10px">VOLTAR PARA EDIÇÃO</button>
+                    <div id="painel-clientes" class="lista-apostas"></div>
+                    <button class="btn-accent" onclick="setRodada(false)" style="font-size:10px; margin-top:10px">EDITAR TIMES NOVAMENTE</button>
                 </div>
             </div>
 
-            <div id="lista-jogos"></div>
-            <button id="btn-enviar" class="hidden btn-green" onclick="enviarBilhete()">🔒 ENVIAR MEU BILHETE</button>
+            <div id="display-jogos"></div>
+            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
+            <button onclick="logout()" style="background:none; color:#444; font-size:10px; margin-top:20px; border:none">SAIR DA CONTA</button>
         </div>
     </div>
 </div>
@@ -89,118 +92,105 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    const SENHA_MESTRE = "259225";
-    let confirmacaoSMS;
+    const MASTER_KEY = "259225";
+    let smsSession;
 
-    window.onload = () => { if(localStorage.getItem('maubet_sessao')) abrirPainel(); };
+    window.onload = () => { if(localStorage.getItem('maubet_token')) startApp(); };
 
-    function enviarSMS() {
-        const nome = document.getElementById('nome').value.toUpperCase();
-        const tel = "+55" + document.getElementById('tel').value.replace(/\D/g, '');
-        localStorage.setItem('maubet_nome_temp', nome);
-        auth.signInWithPhoneNumber(tel, new firebase.auth.RecaptchaVerifier('recaptcha-container', {size:'invisible'})).then(res => {
-            confirmacaoSMS = res;
-            document.getElementById('tela-login').classList.add('hidden');
-            document.getElementById('tela-sms').classList.remove('hidden');
+    function handleSms() {
+        const n = document.getElementById('user-nome').value.toUpperCase();
+        const t = "+55" + document.getElementById('user-tel').value.replace(/\D/g, '');
+        localStorage.setItem('maubet_tmp_n', n);
+        auth.signInWithPhoneNumber(t, new firebase.auth.RecaptchaVerifier('recaptcha-box', {size:'invisible'})).then(r => {
+            smsSession = r;
+            document.getElementById('view-login').classList.add('hidden');
+            document.getElementById('view-sms').classList.remove('hidden');
         });
     }
 
-    function validarAcesso() {
-        const cod = document.getElementById('codigo-input').value;
-        if(cod === SENHA_MESTRE) {
-            localStorage.setItem('maubet_nome', "MESTRE");
-            localStorage.setItem('maubet_sessao', 'mestre');
-            abrirPainel();
+    function handleAcesso() {
+        const c = document.getElementById('user-code').value;
+        if(c === MASTER_KEY) {
+            localStorage.setItem('maubet_n', "MESTRE MAU");
+            localStorage.setItem('maubet_token', 'admin');
+            startApp();
         } else {
-            confirmacaoSMS.confirm(cod).then(() => {
-                localStorage.setItem('maubet_nome', localStorage.getItem('maubet_nome_temp'));
-                localStorage.setItem('maubet_sessao', 'cliente');
-                abrirPainel();
+            smsSession.confirm(c).then(() => {
+                localStorage.setItem('maubet_n', localStorage.getItem('maubet_tmp_n'));
+                localStorage.setItem('maubet_token', 'user');
+                startApp();
             });
         }
     }
 
-    function abrirPainel() {
-        document.getElementById('tela-login').classList.add('hidden');
-        document.getElementById('tela-sms').classList.add('hidden');
-        document.getElementById('tela-principal').classList.remove('hidden');
-        document.getElementById('msg-saudacao').innerText = obterSaudacao();
+    function startApp() {
+        document.getElementById('view-login').classList.add('hidden');
+        document.getElementById('view-sms').classList.add('hidden');
+        document.getElementById('view-main').classList.remove('hidden');
+        document.getElementById('msg-boas-vindas').innerText = "Olá, " + localStorage.getItem('maubet_n');
 
         db.collection("config").doc("status").onSnapshot(doc => {
-            const mestre = localStorage.getItem('maubet_sessao') === 'mestre';
-            const liberada = doc.exists && doc.data().liberada;
+            const admin = localStorage.getItem('maubet_token') === 'admin';
+            const open = doc.exists && doc.data().liberada;
 
-            if(mestre) {
-                document.getElementById('area-mestre').classList.remove('hidden');
-                if(liberada) {
-                    document.getElementById('cadastro-jogos').classList.add('hidden');
-                    document.getElementById('gestao-pix').classList.remove('hidden');
+            if(admin) {
+                document.getElementById('bloco-mestre').classList.remove('hidden');
+                if(open) {
+                    document.getElementById('aba-cadastro').classList.add('hidden');
+                    document.getElementById('aba-gestao').classList.remove('hidden');
                 } else {
-                    document.getElementById('cadastro-jogos').classList.remove('hidden');
-                    document.getElementById('gestao-pix').classList.add('hidden');
+                    document.getElementById('aba-cadastro').classList.remove('hidden');
+                    document.getElementById('aba-gestao').classList.add('hidden');
                 }
-                carregarAdmin();
+                renderAdmin();
             }
-            if(liberada || mestre) carregarJogos();
-            else document.getElementById('lista-jogos').innerHTML = "Aguardando rodada...";
+            if(open || admin) renderJogos();
+            else document.getElementById('display-jogos').innerHTML = "Aguardando liberação...";
         });
     }
 
-    async function salvarJogo() {
-        const c = document.getElementById('m-casa').value.toUpperCase();
-        const f = document.getElementById('m-fora').value.toUpperCase();
+    async function addJogoNovo() {
+        const c = document.getElementById('input-casa').value.toUpperCase();
+        const f = document.getElementById('input-fora').value.toUpperCase();
         if(c && f) {
             await db.collection("jogos").add({ home: c, away: f, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('m-casa').value = ""; document.getElementById('m-fora').value = "";
+            document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
         }
     }
 
-    // BOTÃO DE APAGAR TIME UNITÁRIO
-    async function apagarTime(id) {
-        if(confirm("Deseja remover este jogo?")) await db.collection("jogos").doc(id).delete();
-    }
+    async function removeJogo(id) { if(confirm("Apagar este jogo?")) await db.collection("jogos").doc(id).delete(); }
+    async function setRodada(val) { await db.collection("config").doc("status").set({ liberada: val }); }
 
-    async function finalizarRodada() { await db.collection("config").doc("status").set({ liberada: true }); }
-    async function voltarEdicao() { await db.collection("config").doc("status").set({ liberada: false }); }
-
-    function carregarJogos() {
-        const mestre = localStorage.getItem('maubet_sessao') === 'mestre';
+    function renderJogos() {
+        const admin = localStorage.getItem('maubet_token') === 'admin';
         db.collection("jogos").orderBy("timestamp", "asc").onSnapshot(snap => {
-            const l = document.getElementById('lista-jogos');
-            l.innerHTML = "";
+            const container = document.getElementById('display-jogos');
+            container.innerHTML = "";
             snap.forEach(doc => {
-                const j = doc.data();
-                const casa = j.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                const fora = j.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                
-                l.innerHTML += `
+                const data = doc.data();
+                const hI = data.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                const aI = data.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                container.innerHTML += `
                     <div class="jogo-item">
-                        <div class="time-box">
-                            <img src="escudos/${casa}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.home}
-                        </div>
-                        <div style="display:flex; gap:5px; align-items:center">
-                            <input type="number" class="placar" id="${doc.id}-h" oninput="checarBotao()">
-                            <input type="number" class="placar" id="${doc.id}-f" oninput="checarBotao()">
-                            ${mestre ? `<button class="btn-del" onclick="apagarTime('${doc.id}')">X</button>` : ''}
-                        </div>
-                        <div class="time-box">
-                            <img src="escudos/${fora}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.away}
-                        </div>
+                        ${admin ? `<div class="del-game" onclick="removeJogo('${doc.id}')">X</div>` : ''}
+                        <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.home}</div>
+                        <div style="display:flex; gap:5px"><input type="number" class="placar" id="${doc.id}-h" oninput="showBtn()"><input type="number" class="placar" id="${doc.id}-f" oninput="showBtn()"></div>
+                        <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.away}</div>
                     </div>`;
             });
         });
     }
 
-    function carregarAdmin() {
+    function renderAdmin() {
         db.collection("apostas").orderBy("timestamp", "desc").onSnapshot(snap => {
-            const l = document.getElementById('lista-admin-clientes');
-            l.innerHTML = "";
+            const box = document.getElementById('painel-clientes');
+            box.innerHTML = "<b>QUEM JÁ JOGOU:</b>";
             snap.forEach(doc => {
                 const a = doc.data();
-                l.innerHTML += `
-                    <div class="item-apostador">
+                box.innerHTML += `
+                    <div class="row-apostador">
                         <span>${a.nome}</span>
-                        <button onclick="validar('${doc.id}', ${!a.pago})" style="background:${a.pago?'#00ff88':'#444'}">
+                        <button onclick="setPIX('${doc.id}', ${!a.pago})" style="background:${a.pago?'#00ff88':'#444'}; padding:4px 8px; font-size:10px; border-radius:5px; border:none">
                             ${a.pago?'PAGO ✅':'CONFIRMAR'}
                         </button>
                     </div>`;
@@ -208,29 +198,22 @@
         });
     }
 
-    function checarBotao() {
+    function showBtn() {
         const inputs = document.querySelectorAll('.placar');
         if(Array.from(inputs).every(i => i.value !== "") && inputs.length > 0) 
-            document.getElementById('btn-enviar').classList.remove('hidden');
+            document.getElementById('btn-salvar-jogo').classList.remove('hidden');
     }
 
-    async function validar(id, st) { await db.collection("apostas").doc(id).update({ pago: st }); }
+    async function setPIX(id, val) { await db.collection("apostas").doc(id).update({ pago: val }); }
+    function logout() { localStorage.clear(); location.reload(); }
 
-    function obterSaudacao() {
-        const h = new Date().getHours();
-        const n = localStorage.getItem('maubet_nome') || "";
-        let s = (h < 12) ? "Bom dia" : (h < 18) ? "Boa tarde" : "Boa noite";
-        return `${s}, ${n.split(' ')[0]}!`;
-    }
-
-    async function enviarBilhete() {
-        const p = {}; document.querySelectorAll('.placar').forEach(i => { if(i.id) p[i.id] = i.value; });
+    async function salvarPalpites() {
+        const p = {}; document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
         await db.collection("apostas").add({
-            nome: localStorage.getItem('maubet_nome'),
+            nome: localStorage.getItem('maubet_n'),
             palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("Bilhete enviado!");
-        location.reload();
+        alert("Enviado!");
     }
 </script>
 </body>

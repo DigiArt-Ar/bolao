@@ -3,143 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MauBet - Bolão Profissional ⚽</title>
+    <title>MauBet - O Bolão do Mestre ⚽</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <style>
-        :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 20px; }
-        .card { background: var(--card-bg); padding: 25px; border-radius: 15px; border-top: 5px solid var(--primary); box-shadow: 0 15px 35px rgba(0,0,0,0.5); max-width: 450px; margin: auto; }
+        :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --text-muted: #aaa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 15px; margin: 0; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; margin: 20px auto; }
+        h1 { font-size: 28px; margin-bottom: 5px; }
+        .logo-bet { color: var(--accent); background: #333; padding: 0 10px; border-radius: 8px; }
+        .instrucao { color: var(--accent); font-size: 12px; margin-bottom: 15px; display: block; }
+
+        /* --- NOVO LAYOUT HORIZONTAL (Estilo image_6.png) --- */
+        .jogo-card-horiz { background: #2a2a2a; border-radius: 12px; padding: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid #444; }
+        .data-hora-box { width: 80px; text-align: left; font-size: 10px; color: var(--text-muted); border-right: 1px solid #444; padding-right: 5px; }
+        .data-hora-box b { color: #fff; display: block; font-size: 11px; }
         
-        h1 { margin-bottom: 15px; font-weight: 900; }
-        .logo-bet { color: var(--accent); background: #333; padding: 2px 8px; border-radius: 5px; }
+        .confronto-box { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px; }
+        .time-box { display: flex; flex-direction: column; align-items: center; width: 40%; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #fff; }
+        .escudo-horiz { width: 35px; height: 35px; object-fit: contain; margin-bottom: 3px; }
         
-        input { width: 85%; padding: 12px; margin: 10px 0; border: 1px solid #333; border-radius: 8px; background: #2a2a2a; color: #fff; text-align: center; }
-        button { background: var(--primary); color: #000; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 95%; font-weight: 800; text-transform: uppercase; margin-top: 10px; }
-        
+        .placar-box { width: 45px; height: 40px; background: #3d3d3d; border: 1px solid #555; border-radius: 8px; color: #fff; font-size: 22px; font-weight: bold; text-align: center; outline: none; margin: 0 5px; }
+        .placar-box:disabled { background: #1a1a1a; border: none; color: var(--primary); }
+        .vs-horiz { color: var(--primary); font-weight: 900; font-size: 14px; }
+
+        /* Botões e Inputs Padrão */
+        input#userName { width: 80%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; margin-bottom: 15px; text-align: center; }
+        button { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
+        button:active { transform: scale(0.98); }
+        .btn-status-pendente { background: #555 !important; color: #fff !important; cursor: not-allowed; }
+        .btn-status-pago { background: #00796b !important; color: #fff !important; cursor: not-allowed; }
         .hidden { display: none; }
-        
-        /* Layout dos Jogos */
-        .jogo-row { display: flex; align-items: center; justify-content: space-around; background: #252525; margin: 10px 0; padding: 12px; border-radius: 10px; }
-        .time-box { display: flex; flex-direction: column; align-items: center; width: 35%; font-size: 11px; }
-        .escudo { width: 35px; height: 35px; margin-bottom: 5px; }
-        .placar-in { width: 45px !important; margin: 0 !important; font-size: 18px !important; font-weight: bold; }
-        
-        /* Estilo Pix */
-        #pixArea { background: #fff; color: #000; padding: 20px; border-radius: 15px; margin-top: 20px; }
-        .chave-pix { background: #eee; padding: 10px; font-family: monospace; font-size: 12px; border: 1px dashed #333; word-break: break-all; }
+
+        /* Area do Pix */
+        .pix-container { background: #fff; color: #333; padding: 20px; border-radius: 15px; margin-top: 15px; }
+        .chave-box { background: #f0f0f0; border: 1px dashed #999; padding: 12px; font-size: 11px; word-break: break-all; margin: 10px 0; font-family: monospace; }
+        .btn-copiar { background: #333; color: #fff; font-size: 12px; padding: 10px; text-transform: none; width: auto; }
+
+        /* --- ESTILO DOS MODAIS PERSONALIZADOS (Adeus pop-up branco!) --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: var(--card-bg); border: 2px solid var(--primary); border-radius: 15px; padding: 25px; width: 80%; max-width: 350px; text-align: center; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
+        .modal-box h3 { margin-top: 0; color: var(--primary); }
+        .modal-box p { color: #ccc; font-size: 14px; margin-bottom: 20px; }
+        .modal-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn-modal { padding: 10px 20px; text-transform: none; font-size: 14px; width: auto; }
+        .btn-confirm { background: var(--primary); color: #000; }
+        .btn-cancel { background: #444; color: #fff; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>Bolão <span class="logo-bet">MauBet</span></h1>
-    <p id="statusMsg">Autentique-se para apostar</p>
+    <p id="statusMsg">Autentique-se para começar</p>
 
     <div id="loginArea">
         <input type="text" id="userName" placeholder="Seu Nome Completo">
-        <input type="text" id="userPhone" placeholder="Seu WhatsApp (DDD)">
-        <div id="recaptcha-container"></div>
-        <button onclick="enviarSMS()">RECEBER ACESSO</button>
-    </div>
-
-    <div id="otpArea" class="hidden">
-        <input type="number" id="otpCode" placeholder="000000">
-        <button onclick="confirmarCodigo()">ENTRAR</button>
+        <button onclick="entrarFake()">ENTRAR NO BOLÃO</button>
     </div>
 
     <div id="apostaArea" class="hidden">
-        <h3 id="boasVindas">Boa sorte!</h3>
-        <p style="font-size: 11px; color: var(--accent);">Dica: Seus palpites ficam salvos automaticamente como rascunho.</p>
+        <span class="instrucao">Dica: Seus palpites ficam salvos como rascunho.</span>
         
-        <div id="containerJogos">
-            <div class="jogo-row">
-                <div class="time-box">
-                    <img src="escudos/flamengo.png" class="escudo">
-                    <span>FLAMENGO</span>
+        <div id="listaJogos">
+            <div class="jogo-card-horiz">
+                <div class="data-hora-box">
+                    <b>SÁB, 05/04</b>
+                    <span>16:00</span>
                 </div>
-                <input type="number" class="placar-in" placeholder="0">
-                <span style="color:var(--primary)">X</span>
-                <input type="number" class="placar-in" placeholder="0">
-                <div class="time-box">
-                    <img src="escudos/vasco.png" class="escudo">
-                    <span>VASCO</span>
+                <div class="confronto-box">
+                    <div class="time-box">
+                        <img src="escudos/flamengo.png" class="escudo-horiz">
+                        <span class="time-nome">Flamengo</span>
+                    </div>
+                    <input type="number" class="placar-box" placeholder="0">
+                    <span class="vs-horiz">X</span>
+                    <input type="number" class="placar-box" placeholder="0">
+                    <div class="time-box">
+                        <img src="escudos/vasco.png" class="escudo-horiz">
+                        <span class="time-nome">Vasco</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <button id="btnFinalizar" onclick="confirmarEnvio()">🔒 FINALIZAR E ENVIAR APOSTA</button>
-    </div>
+        <div id="interacaoApostaArea">
+            <button id="btnEnviar" onclick="abrirModalConfirmacao()">🔒 FINALIZAR E ENVIAR APOSTA</button>
 
-    <div id="pixArea" class="hidden">
-        <h3 style="color: #00796b;">✅ Aposta Registrada!</h3>
-        <p>Para validar sua participação, realize o pagamento via PIX:</p>
-        <div class="chave-pix" id="copiaCola">00020126580014BR.GOV.BCB.PIX0114... (CHAVE EXEMPLO)</div>
-        <button onclick="copiarPix()" style="background: #333; color: #fff; margin-top: 10px;">📋 COPIAR CHAVE PIX</button>
-        <p style="font-size: 10px; margin-top: 10px;">Envie o comprovante no grupo do WhatsApp!</p>
+            <div id="pixContainer" class="pix-container hidden">
+                <h3 style="margin:0; color:#00796b;">✅ Quase lá!</h3>
+                <p style="font-size:12px;">Para validar, pague o PIX Copia e Cola:</p>
+                <div class="chave-box" id="chavePixTexto">SUA_CHAVE_ALEATORIA_AQUI_DEPOIS</div>
+                <button class="btn-copiar" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
+                <p style="font-size:10px; color:#666; margin-top:10px;">Enviando comprovante no grupo!</p>
+            </div>
+
+            <button id="btnStatusPendente" class="btn-status-pendente hidden">⏳ PAGAMENTO PENDENTE (AGUARDANDO ADMIN)</button>
+            <button id="btnStatusPago" class="btn-status-pago hidden">✅ APOSTA CONFIRMADA</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalConfirmar" class="modal-overlay">
+    <div class="modal-box">
+        <h3>CONFIRMAR ENVIO?</h3>
+        <p>⚠️ Atenção: Após o envio, você não poderá mais alterar seus palpites!</p>
+        <div class="modal-btns">
+            <button class="btn-modal btn-cancel" onclick="fecharModais()">CANCELAR</button>
+            <button class="btn-modal btn-confirm" onclick="confirmarEnvioFinal()">SIM, ENVIAR</button>
+        </div>
+    </div>
+</div>
+
+<div id="modalAlerta" class="modal-overlay">
+    <div class="modal-box">
+        <h3>AVISO</h3>
+        <p id="alertaTexto">Mensagem aqui...</p>
+        <div class="modal-btns">
+            <button class="btn-modal btn-confirm" onclick="fecharModais()">OK</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
-      authDomain: "bolao-d2baf.firebaseapp.com",
-      projectId: "bolao-d2baf",
-      storageBucket: "bolao-d2baf.firebasestorage.app",
-      messagingSenderId: "955171998764",
-      appId: "1:955171998764:web:2ccf8f2b6f23c300755589"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
-
-    function confirmarEnvio() {
-        const confirmar = confirm("Deseja enviar sua aposta agora? \n\n⚠️ Atenção: Após o envio, você não poderá mais alterar seus palpites!");
-        
-        if(confirmar) {
-            trancarCampos();
-            salvarNoBanco();
-            document.getElementById('pixArea').classList.remove('hidden');
-            document.getElementById('btnFinalizar').classList.add('hidden');
-            alert("Aposta enviada com sucesso! Realize o pagamento para validar.");
-        }
+    // --- FUNÇÕES DOS MODAIS ---
+    function abrirModalConfirmacao() {
+        document.getElementById('modalConfirmar').style.display = 'flex';
     }
 
-    function trancarCampos() {
-        const inputs = document.querySelectorAll('.placar-in');
-        inputs.forEach(input => {
-            input.disabled = true;
-            input.style.background = "#555";
-        });
+    function abrirAlerta(texto) {
+        document.getElementById('alertaTexto').innerText = texto;
+        document.getElementById('modalAlerta').style.display = 'flex';
     }
 
-    function copiarPix() {
-        const texto = document.getElementById('copiaCola').innerText;
-        navigator.clipboard.writeText(texto);
-        alert("Chave Pix copiada!");
+    function fecharModais() {
+        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
     }
 
-    // Outras funções de login (enviarSMS, confirmarCodigo) permanecem as mesmas...
-    // Vou manter a estrutura simplificada para você testar o fluxo.
-
-    function enviarSMS() {
-        // Lógica de SMS aqui...
+    // --- FLUXO DE APOSTA ---
+    function entrarFake() {
+        const nome = document.getElementById('userName').value;
+        if(!nome) return abrirAlerta("Digite seu nome completo!");
+        document.getElementById('statusMsg').innerText = "Boa sorte, " + nome + "!";
         document.getElementById('loginArea').classList.add('hidden');
-        document.getElementById('otpArea').classList.remove('hidden');
-    }
-
-    function confirmarCodigo() {
-        document.getElementById('otpArea').classList.add('hidden');
         document.getElementById('apostaArea').classList.remove('hidden');
     }
 
-    function salvarNoBanco() {
-        console.log("Aposta salva como FINALIZADA no Firestore.");
-        // Aqui o código enviará os placares para o Firestore com o status 'pago: false'
+    function confirmarEnvioFinal() {
+        fecharModais();
+        // Bloqueia os placares
+        const inputs = document.querySelectorAll('.placar-box');
+        inputs.forEach(i => i.disabled = true);
+        
+        // Esconde botão de enviar e mostra o Pix
+        document.getElementById('btnEnviar').classList.add('hidden');
+        document.getElementById('pixContainer').classList.remove('hidden');
+        abrirAlerta("Aposta enviada com sucesso! Use o PIX abaixo para pagar.");
+        // Aqui salvaríamos o status 'pendente' no Firestore
+    }
+
+    function copiarPix() {
+        const texto = document.getElementById('chavePixTexto').innerText;
+        navigator.clipboard.writeText(texto).then(() => {
+            fecharModais();
+            // Fluxo pós-cópia que você pediu:
+            document.getElementById('pixContainer').classList.add('hidden'); // Some o Pix
+            document.getElementById('btnStatusPendente').classList.remove('hidden'); // Mostra o status pendente
+            abrirAlerta("Chave Pix copiada! Envie o comprovante no grupo.");
+        });
     }
 </script>
+
 </body>
 </html>

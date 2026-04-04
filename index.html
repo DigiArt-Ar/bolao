@@ -3,83 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v34.1</title>
-    
+    <title>MAUBET v36.0 - RANKING PARCIAL</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-
     <style>
         :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --text: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 500px; }
         .hidden { display: none !important; }
-        
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; position: relative; }
-        input { width: 100%; padding: 15px; margin: 8px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 12px; box-sizing: border-box; text-align: center; font-size: 16px; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; }
         button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        
-        /* O SEGREDO: Numerozinho da versão quase invisível */
-        .btn-secreto { color: #333; font-size: 9px; cursor: pointer; margin-top: 40px; display: inline-block; text-decoration: none; }
-        
-        .del-game { position: absolute; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.4); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; }
-        .saudacao-user { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; }
         .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
-        .time-box { width: 35%; font-size: 10px; font-weight: bold; text-transform: uppercase; text-align: center; }
-        .escudo { width: 45px; height: 45px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar { width: 45px; height: 45px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; }
-        .painel-mestre { background: #000; padding: 15px; border-radius: 15px; border: 2px dashed var(--accent); margin-bottom: 20px; text-align: left; }
-        .lista-apostas { margin-top: 15px; background: #111; border-radius: 10px; padding: 10px; }
-        .row-apostador { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #222; font-size: 12px; }
+        .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
+        .escudo { width: 40px; height: 40px; object-fit: contain; display: block; margin: 0 auto 5px; }
+        .placar { width: 40px; height: 40px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
+        .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 2px solid var(--accent); }
+        .ranking-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .btn-secreto { color: #222; font-size: 9px; cursor: pointer; margin-top: 30px; display: inline-block; }
+        .badge-final { font-size: 10px; color: var(--accent); display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <div id="msg-boas-vindas" class="saudacao-user"></div>
-
+    <div id="msg-boas-vindas" style="color:var(--primary); font-weight:bold; text-align:center; margin-bottom:10px"></div>
     <div class="card">
         <div id="view-login">
-            <h2 style="margin-bottom:5px">MAU<span>BET</span></h2>
-            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">FAÇA SEU PALPITE</p>
-            
-            <div id="login-comum">
-                <input type="text" id="user-nome" placeholder="SEU NOME COMPLETO">
-                <input type="tel" id="user-tel" placeholder="TELEFONE (DDD + NÚMERO)">
-                <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
-            </div>
-
+            <h2>MAU<span>BET</span></h2>
+            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
+            <input type="tel" id="user-tel" placeholder="TELEFONE">
+            <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
             <div id="login-mestre" class="hidden">
-                <p style="color:var(--accent); font-size:12px">MODO ADMINISTRADOR</p>
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
                 <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
-                <button onclick="document.getElementById('login-mestre').classList.add('hidden'); document.getElementById('login-comum').classList.remove('hidden');" style="background:none; color:#555; border:none; font-size:10px">CANCELAR</button>
             </div>
-
-            <span class="btn-secreto" onclick="abrirPortaSecreta()">v34.1</span>
+            <span class="btn-secreto" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v36.0</span>
         </div>
 
         <div id="view-main" class="hidden">
-            <div id="bloco-mestre" class="hidden">
-                <div id="aba-cadastro" class="painel-mestre">
-                    <b style="color:var(--accent)">1. CADASTRE A RODADA:</b>
-                    <input type="text" id="input-casa" placeholder="TIME CASA">
-                    <input type="text" id="input-fora" placeholder="TIME FORA">
-                    <button class="btn-accent" onclick="addJogoNovo()">+ ADICIONAR JOGO</button>
-                    <button class="btn-green" style="margin-top:15px; border: 2px solid #fff" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
-                </div>
-
-                <div id="aba-gestao" class="painel-mestre hidden">
-                    <b style="color:var(--primary)">2. CONTROLE DE PAGAMENTOS:</b>
-                    <div id="painel-clientes" class="lista-apostas"></div>
-                    <button class="btn-accent" onclick="setRodada(false)" style="font-size:10px; margin-top:10px">EDITAR TIMES NOVAMENTE</button>
-                </div>
+            <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
+                <b style="color:var(--accent)">ADICIONAR JOGOS:</b>
+                <input type="text" id="input-casa" placeholder="TIME CASA">
+                <input type="text" id="input-fora" placeholder="TIME FORA">
+                <input type="datetime-local" id="input-data">
+                <button class="btn-accent" onclick="addJogoNovo()">+ CADASTRAR JOGO</button>
+                <button class="btn-green" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
+                <hr style="border-color:#333; margin:20px 0">
+                <b style="color:var(--primary)">FINALIZAR JOGOS (UM POR UM):</b>
+                <div id="lista-mestre-resultados"></div>
+                <div id="painel-pagamentos" style="font-size:11px; margin-top:15px"></div>
             </div>
 
             <div id="display-jogos"></div>
             <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
-            <button onclick="logout()" style="background:none; color:#444; font-size:10px; margin-top:30px; border:none">SAIR / TROCAR NOME</button>
+            
+            <div id="ranking-container" class="ranking-box">
+                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING ATUALIZADO</h3>
+                <div id="ranking-lista"></div>
+            </div>
+            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR / LOGOUT</button>
         </div>
     </div>
 </div>
@@ -95,35 +79,24 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-
-    const MASTER_KEY = "259225"; 
+    const MASTER_KEY = "259225";
 
     window.onload = () => { if(localStorage.getItem('maubet_token')) startApp(); };
 
-    // FUNÇÕES DA PORTA SECRETA
-    function abrirPortaSecreta() {
-        document.getElementById('login-comum').classList.add('hidden');
-        document.getElementById('login-mestre').classList.remove('hidden');
-    }
-
-    function acessoMestre() {
-        const p = document.getElementById('pass-mestre').value;
-        if(p === MASTER_KEY) {
-            localStorage.setItem('maubet_n', "MESTRE MAU");
-            localStorage.setItem('maubet_token', 'admin');
-            startApp();
-        } else {
-            alert("Acesso negado.");
-        }
-    }
-
     function handleAcesso() {
         const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        const t = document.getElementById('user-tel').value.trim();
-        if(!n || !t) return alert("Preencha nome e telefone!");
+        if(!n) return alert("Seu nome!");
         localStorage.setItem('maubet_n', n);
         localStorage.setItem('maubet_token', 'user');
         startApp();
+    }
+
+    function acessoMestre() {
+        if(document.getElementById('pass-mestre').value === MASTER_KEY) {
+            localStorage.setItem('maubet_n', "MESTRE MAU");
+            localStorage.setItem('maubet_token', 'admin');
+            startApp();
+        }
     }
 
     function startApp() {
@@ -133,80 +106,130 @@
 
         db.collection("config").doc("status").onSnapshot(doc => {
             const admin = localStorage.getItem('maubet_token') === 'admin';
-            const open = doc.exists && doc.data().liberada;
-            if(admin) {
-                document.getElementById('bloco-mestre').classList.remove('hidden');
-                if(open) {
-                    document.getElementById('aba-cadastro').classList.add('hidden');
-                    document.getElementById('aba-gestao').classList.remove('hidden');
-                } else {
-                    document.getElementById('aba-cadastro').classList.remove('hidden');
-                    document.getElementById('aba-gestao').classList.add('hidden');
-                }
-                renderAdmin();
-            }
-            if(open || admin) renderJogos();
-            else document.getElementById('display-jogos').innerHTML = "<p style='color:#666'>Rodada em preparação...</p>";
+            if(admin) document.getElementById('bloco-mestre').classList.remove('hidden');
+            renderConteudo(doc.exists && doc.data().liberada);
         });
     }
 
     async function addJogoNovo() {
         const c = document.getElementById('input-casa').value.toUpperCase();
         const f = document.getElementById('input-fora').value.toUpperCase();
-        if(c && f) {
-            await db.collection("jogos").add({ home: c, away: f, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
+        const d = document.getElementById('input-data').value;
+        if(c && f && d) {
+            await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+            location.reload();
         }
     }
 
-    async function removeJogo(id) { if(confirm("Apagar jogo?")) await db.collection("jogos").doc(id).delete(); }
     async function setRodada(val) { await db.collection("config").doc("status").set({ liberada: val }); }
 
-    function renderJogos() {
+    function renderConteudo(liberada) {
         const admin = localStorage.getItem('maubet_token') === 'admin';
         db.collection("jogos").orderBy("timestamp", "asc").onSnapshot(snap => {
             const container = document.getElementById('display-jogos');
-            container.innerHTML = "";
+            const listaMestre = document.getElementById('lista-mestre-resultados');
+            container.innerHTML = ""; listaMestre.innerHTML = "";
+            let jogosFinais = {};
+
             snap.forEach(doc => {
                 const data = doc.data();
+                const id = doc.id;
+                if(data.resH !== null) jogosFinais[id] = {h: data.resH, f: data.resF};
+                
                 const hI = data.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                 const aI = data.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-                container.innerHTML += `
-                    <div class="jogo-item">
-                        ${admin ? `<button class="del-game" onclick="removeJogo('${doc.id}')">X</button>` : ''}
-                        <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.home}</div>
-                        <div style="display:flex; gap:5px"><input type="number" class="placar" id="${doc.id}-h" oninput="showBtn()"><input type="number" class="placar" id="${doc.id}-f" oninput="showBtn()"></div>
-                        <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.away}</div>
-                    </div>`;
+                
+                if(liberada || admin) {
+                    container.innerHTML += `
+                        <div class="jogo-item">
+                            <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.home}</div>
+                            <div>
+                                ${data.resH !== null ? `<span class="badge-final">FINAL: ${data.resH} x ${data.resF}</span>` : ''}
+                                <div style="display:flex; gap:5px">
+                                    <input type="number" class="placar" id="${id}-h" oninput="checkInputs()" ${data.resH !== null ? 'disabled' : ''}>
+                                    <input type="number" class="placar" id="${id}-f" oninput="checkInputs()" ${data.resH !== null ? 'disabled' : ''}>
+                                </div>
+                            </div>
+                            <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.away}</div>
+                        </div>`;
+                }
+
+                if(admin) {
+                    listaMestre.innerHTML += `
+                        <div style="margin-bottom:10px; font-size:12px">
+                            ${data.home} <input type="number" id="final-h-${id}" style="width:35px" value="${data.resH}"> x 
+                            <input type="number" id="final-f-${id}" style="width:35px" value="${data.resF}"> ${data.away}
+                            <button onclick="salvarPlacarFinal('${id}')" style="width:auto; padding:5px 10px; font-size:10px; margin:0">✔</button>
+                        </div>`;
+                }
             });
+            atualizarRanking(jogosFinais);
         });
     }
 
-    function renderAdmin() {
-        db.collection("apostas").orderBy("timestamp", "desc").onSnapshot(snap => {
-            const box = document.getElementById('painel-clientes');
-            box.innerHTML = "<b>PAGAMENTOS:</b>";
-            snap.forEach(doc => {
-                const a = doc.data();
-                box.innerHTML += `<div class="row-apostador"><span>${a.nome}</span><button onclick="setPIX('${doc.id}', ${!a.pago})" style="background:${a.pago?'#00ff88':'#444'}; padding:5px; border-radius:5px; border:none; color:#000; font-weight:bold">${a.pago?'PAGO ✅':'CONFIRMAR'}</button></div>`;
-            });
+    async function salvarPlacarFinal(id) {
+        const h = document.getElementById(`final-h-${id}`).value;
+        const f = document.getElementById(`final-f-${id}`).value;
+        if(h !== "" && f !== "") {
+            await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
+            alert("Resultado atualizado!");
+        }
+    }
+
+    async function atualizarRanking(jogosFinais) {
+        const apostasSnap = await db.collection("apostas").get();
+        let ranking = [];
+
+        apostasSnap.forEach(doc => {
+            const a = doc.data();
+            let totalPontos = 0;
+
+            for(let jId in jogosFinais) {
+                const realH = jogosFinais[jId].h;
+                const realF = jogosFinais[jId].f;
+                const palpH = parseInt(a.palpites[`${jId}-h`]);
+                const palpF = parseInt(a.palpites[`${jId}-f`]);
+
+                if(!isNaN(palpH) && !isNaN(palpF)) {
+                    // REGRA: 10 PONTOS NA MOSCA
+                    if(palpH === realH && palpF === realF) {
+                        totalPontos += 10;
+                    } 
+                    // REGRA: 6 PONTOS VENCEDOR OU EMPATE
+                    else {
+                        const ganhouCasa = realH > realF && palpH > palpF;
+                        const ganhouFora = realF > realH && palpF > palpH;
+                        const empatou = realH === realF && palpH === palpF;
+                        if(ganhouCasa || ganhouFora || empatou) totalPontos += 6;
+                    }
+                }
+            }
+            ranking.push({nome: a.nome, pts: totalPontos});
+        });
+
+        ranking.sort((a,b) => b.pts - a.pts);
+        const listaUI = document.getElementById('ranking-lista');
+        listaUI.innerHTML = "";
+        ranking.forEach((r, i) => {
+            listaUI.innerHTML += `<div class="ranking-item"><span>${i+1}º ${r.nome}</span> <b>${r.pts} pts</b></div>`;
         });
     }
 
-    function showBtn() {
-        const inputs = document.querySelectorAll('.placar');
-        if(Array.from(inputs).every(i => i.value !== "") && inputs.length > 0) document.getElementById('btn-salvar-jogo').classList.remove('hidden');
-        else document.getElementById('btn-salvar-jogo').classList.add('hidden');
+    function checkInputs() {
+        const inputs = document.querySelectorAll('.placar:not([disabled])');
+        const preenchido = Array.from(inputs).every(i => i.value !== "");
+        document.getElementById('btn-salvar-jogo').classList.toggle('hidden', !preenchido || inputs.length === 0);
     }
-
-    async function setPIX(id, val) { await db.collection("apostas").doc(id).update({ pago: val }); }
-    function logout() { localStorage.clear(); location.reload(); }
 
     async function salvarPalpites() {
-        const p = {}; document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
-        await db.collection("apostas").add({ nome: localStorage.getItem('maubet_n'), palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-        alert("Enviado!");
-        document.getElementById('btn-salvar-jogo').classList.add('hidden');
+        const p = {}; 
+        document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
+        await db.collection("apostas").add({
+            nome: localStorage.getItem('maubet_n'),
+            palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("Palpites salvos!");
+        location.reload();
     }
 </script>
 </body>

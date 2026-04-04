@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v33.0 - ACESSO DIRETO</title>
+    <title>MAUBET v34.1</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -19,6 +19,9 @@
         button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
+        
+        /* O SEGREDO: Numerozinho da versão quase invisível */
+        .btn-secreto { color: #333; font-size: 9px; cursor: pointer; margin-top: 40px; display: inline-block; text-decoration: none; }
         
         .del-game { position: absolute; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.4); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; }
         .saudacao-user { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; }
@@ -38,11 +41,23 @@
 
     <div class="card">
         <div id="view-login">
-            <h2>MAU<span>BET</span></h2>
-            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">FAÇA SEU PALPITE AGORA</p>
-            <input type="text" id="user-nome" placeholder="SEU NOME COMPLETO">
-            <input type="text" id="user-tel" placeholder="TELEFONE (DDD + NÚMERO)">
-            <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
+            <h2 style="margin-bottom:5px">MAU<span>BET</span></h2>
+            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">FAÇA SEU PALPITE</p>
+            
+            <div id="login-comum">
+                <input type="text" id="user-nome" placeholder="SEU NOME COMPLETO">
+                <input type="tel" id="user-tel" placeholder="TELEFONE (DDD + NÚMERO)">
+                <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
+            </div>
+
+            <div id="login-mestre" class="hidden">
+                <p style="color:var(--accent); font-size:12px">MODO ADMINISTRADOR</p>
+                <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
+                <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
+                <button onclick="document.getElementById('login-mestre').classList.add('hidden'); document.getElementById('login-comum').classList.remove('hidden');" style="background:none; color:#555; border:none; font-size:10px">CANCELAR</button>
+            </div>
+
+            <span class="btn-secreto" onclick="abrirPortaSecreta()">v34.1</span>
         </div>
 
         <div id="view-main" class="hidden">
@@ -81,26 +96,34 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const MASTER_KEY = "259225"; // SUA SENHA DE MESTRE
+    const MASTER_KEY = "259225"; 
 
     window.onload = () => { if(localStorage.getItem('maubet_token')) startApp(); };
 
-    function handleAcesso() {
-        const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        const t = document.getElementById('user-tel').value.trim();
+    // FUNÇÕES DA PORTA SECRETA
+    function abrirPortaSecreta() {
+        document.getElementById('login-comum').classList.add('hidden');
+        document.getElementById('login-mestre').classList.remove('hidden');
+    }
 
-        if(!n || !t) return alert("Por favor, preencha nome e telefone!");
-
-        // Se no campo de telefone digitar a senha mestre
-        if(t === MASTER_KEY) {
+    function acessoMestre() {
+        const p = document.getElementById('pass-mestre').value;
+        if(p === MASTER_KEY) {
             localStorage.setItem('maubet_n', "MESTRE MAU");
             localStorage.setItem('maubet_token', 'admin');
             startApp();
         } else {
-            localStorage.setItem('maubet_n', n);
-            localStorage.setItem('maubet_token', 'user');
-            startApp();
+            alert("Acesso negado.");
         }
+    }
+
+    function handleAcesso() {
+        const n = document.getElementById('user-nome').value.toUpperCase().trim();
+        const t = document.getElementById('user-tel').value.trim();
+        if(!n || !t) return alert("Preencha nome e telefone!");
+        localStorage.setItem('maubet_n', n);
+        localStorage.setItem('maubet_token', 'user');
+        startApp();
     }
 
     function startApp() {
@@ -111,7 +134,6 @@
         db.collection("config").doc("status").onSnapshot(doc => {
             const admin = localStorage.getItem('maubet_token') === 'admin';
             const open = doc.exists && doc.data().liberada;
-
             if(admin) {
                 document.getElementById('bloco-mestre').classList.remove('hidden');
                 if(open) {
@@ -123,10 +145,8 @@
                 }
                 renderAdmin();
             }
-            
-            // Todos vêem os jogos se estiver liberado OU se for o admin
             if(open || admin) renderJogos();
-            else document.getElementById('display-jogos').innerHTML = "<p style='color:#666'>A rodada ainda não foi liberada pelo organizador.</p>";
+            else document.getElementById('display-jogos').innerHTML = "<p style='color:#666'>Rodada em preparação...</p>";
         });
     }
 
@@ -139,7 +159,7 @@
         }
     }
 
-    async function removeJogo(id) { if(confirm("Apagar este jogo?")) await db.collection("jogos").doc(id).delete(); }
+    async function removeJogo(id) { if(confirm("Apagar jogo?")) await db.collection("jogos").doc(id).delete(); }
     async function setRodada(val) { await db.collection("config").doc("status").set({ liberada: val }); }
 
     function renderJogos() {
@@ -151,7 +171,6 @@
                 const data = doc.data();
                 const hI = data.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                 const aI = data.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-                
                 container.innerHTML += `
                     <div class="jogo-item">
                         ${admin ? `<button class="del-game" onclick="removeJogo('${doc.id}')">X</button>` : ''}
@@ -169,21 +188,14 @@
             box.innerHTML = "<b>PAGAMENTOS:</b>";
             snap.forEach(doc => {
                 const a = doc.data();
-                box.innerHTML += `
-                    <div class="row-apostador">
-                        <span>${a.nome}</span>
-                        <button onclick="setPIX('${doc.id}', ${!a.pago})" style="background:${a.pago?'#00ff88':'#444'}; padding:5px 10px; font-size:10px; border-radius:5px; border:none; color:#000; font-weight:bold">
-                            ${a.pago?'PAGO ✅':'CONFIRMAR'}
-                        </button>
-                    </div>`;
+                box.innerHTML += `<div class="row-apostador"><span>${a.nome}</span><button onclick="setPIX('${doc.id}', ${!a.pago})" style="background:${a.pago?'#00ff88':'#444'}; padding:5px; border-radius:5px; border:none; color:#000; font-weight:bold">${a.pago?'PAGO ✅':'CONFIRMAR'}</button></div>`;
             });
         });
     }
 
     function showBtn() {
         const inputs = document.querySelectorAll('.placar');
-        const preenchido = Array.from(inputs).every(i => i.value !== "");
-        if(preenchido && inputs.length > 0) document.getElementById('btn-salvar-jogo').classList.remove('hidden');
+        if(Array.from(inputs).every(i => i.value !== "") && inputs.length > 0) document.getElementById('btn-salvar-jogo').classList.remove('hidden');
         else document.getElementById('btn-salvar-jogo').classList.add('hidden');
     }
 
@@ -192,13 +204,9 @@
 
     async function salvarPalpites() {
         const p = {}; document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
-        await db.collection("apostas").add({
-            nome: localStorage.getItem('maubet_n'),
-            palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        alert("Palpites enviados! Boa sorte!");
+        await db.collection("apostas").add({ nome: localStorage.getItem('maubet_n'), palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
+        alert("Enviado!");
         document.getElementById('btn-salvar-jogo').classList.add('hidden');
-        // Uma vez enviado, ele "trava" o botão para essa sessão.
     }
 </script>
 </body>

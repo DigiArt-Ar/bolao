@@ -3,90 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MauBet v17.0 - Sistema Oficial</title>
+    <title>MAUBET v18.0 - SISTEMA OFICIAL</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { 
-            --primary: #00ff88; 
-            --bg: #0a0a0a; 
-            --card: #161616; 
-            --accent: #ffb300; 
-            --danger: #ff4444; 
-            --text: #ffffff;
-        }
-        
-        body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); 
-            color: var(--text); 
-            margin: 0; padding: 10px;
-            display: flex; flex-direction: column; align-items: center;
-        }
-
+        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --danger: #ff4444; --text: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 500px; padding-bottom: 100px; }
-
-        .card { 
-            background: var(--card); 
-            padding: 25px; 
-            border-radius: 25px; 
-            border-top: 6px solid var(--primary); 
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8); 
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 15px 40px rgba(0,0,0,0.6); text-align: center; margin-top: 10px; }
         h1 span { color: var(--accent); }
+        
+        .status-badge { font-size: 11px; padding: 10px; border-radius: 10px; margin-bottom: 15px; font-weight: 900; text-transform: uppercase; border: 1px solid #333; }
+        .aberto { color: var(--primary); border-color: var(--primary); }
+        .fechado { color: var(--danger); border-color: var(--danger); }
 
-        #status-relogio {
-            font-size: 11px; padding: 12px; border-radius: 12px;
-            margin-bottom: 20px; font-weight: 900; text-transform: uppercase;
-        }
-        .status-aberto { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
-        .status-fechado { background: rgba(255, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
-
-        .jogo-card {
-            background: #222; border-radius: 18px; padding: 15px; margin-bottom: 15px;
-            display: flex; align-items: center; justify-content: space-between;
-            border-left: 5px solid var(--accent);
-        }
-
-        .time-box { width: 35%; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-
-        .placar-input {
-            width: 50px; height: 45px; background: #333; border: 2px solid #444;
-            color: #fff; border-radius: 10px; text-align: center; font-size: 20px; font-weight: bold;
-        }
+        .jogo-item { background: #222; border-radius: 15px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border-left: 4px solid var(--accent); }
+        .time-box { width: 32%; font-size: 10px; font-weight: bold; text-align: center; }
+        .escudo { width: 35px; height: 35px; object-fit: contain; display: block; margin: 0 auto 5px; }
+        .input-placar { width: 45px; height: 40px; background: #000; border: 1px solid #444; color: #fff; border-radius: 8px; text-align: center; font-size: 18px; font-weight: bold; }
 
         .hidden { display: none !important; }
+        input, select { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #333; background: #1a1a1a; color: #fff; margin: 8px 0; box-sizing: border-box; text-align: center; }
+        button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 8px; text-transform: uppercase; }
+        .btn-green { background: var(--primary); color: #000; }
+        .btn-dark { background: #333; color: #fff; }
 
-        input {
-            width: 100%; padding: 16px; border-radius: 12px; border: 1px solid #333;
-            background: #1a1a1a; color: #fff; margin: 10px 0; box-sizing: border-box; text-align: center;
-        }
-
-        button {
-            width: 100%; padding: 18px; border-radius: 15px; border: none;
-            font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase;
-        }
-
-        .btn-principal { background: var(--primary); color: #000; }
-        .btn-secundario { background: #333; color: #fff; }
-        .btn-mestre-fixo { 
-            position: fixed; bottom: 20px; width: 90%; max-width: 460px;
-            background: #111; color: var(--primary); border: 1px solid var(--primary);
-            font-size: 11px; z-index: 999;
-        }
-
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; align-items: center;
-            justify-content: center; z-index: 1000;
-        }
+        /* PAINEL GESTOR */
+        .admin-row { background: #111; padding: 10px; border-radius: 10px; margin-bottom: 10px; text-align: left; font-size: 12px; border: 1px solid #222; }
+        .btn-check { width: auto; padding: 5px 10px; font-size: 10px; margin: 0; display: inline-block; }
+        .pago { background: var(--primary) !important; color: #000; }
     </style>
 </head>
 <body>
@@ -94,151 +42,7 @@
 <div class="container">
     <div class="card">
         <h1>MAU<span>BET</span></h1>
-        <div id="status-relogio" class="status-aberto">INICIALIZANDO...</div>
+        <div id="relogio" class="status-badge aberto">VERIFICANDO RODADA...</div>
 
-        <div id="sessao-login" class="aba">
-            <p style="color: #888;">Identifique-se para apostar:</p>
-            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="user-tel" placeholder="24993148000">
-            <div id="recaptcha-container"></div>
-            <button class="btn-principal" onclick="enviarSMS()">RECEBER SMS</button>
-        </div>
-
-        <div id="sessao-sms" class="aba hidden">
-            <input type="number" id="codigo-sms" placeholder="CÓDIGO DE 6 DÍGITOS">
-            <button class="btn-principal" onclick="validarSMS()">ENTRAR NO SISTEMA</button>
-        </div>
-
-        <div id="sessao-apostas" class="aba hidden">
-            <div id="lista-jogos"></div>
-            <button id="btn-enviar" class="btn-principal" onclick="confirmarBilhete()">🔒 ENVIAR PALPITES</button>
-        </div>
-
-        <div id="sessao-senha-mestre" class="aba hidden">
-            <h3>ACESSO MESTRE</h3>
-            <input type="password" id="senha-adm" placeholder="SENHA MASTER">
-            <button class="btn-principal" onclick="liberarPainel()">ENTRAR NO PAINEL</button>
-            <button class="btn-secundario" onclick="location.reload()">VOLTAR</button>
-        </div>
-
-        <div id="sessao-painel-mestre" class="aba hidden">
-            <h2 style="color:var(--accent)">PAINEL GESTOR</h2>
-            
-            <div style="background: #111; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
-                <p style="color:var(--primary); font-weight:bold;">ADICIONAR JOGO</p>
-                <input type="text" id="add-casa" placeholder="TIME CASA">
-                <input type="text" id="add-fora" placeholder="TIME FORA">
-                <button class="btn-principal" onclick="salvarNovoJogo()">➕ SALVAR JOGO</button>
-                <button class="btn-secundario" style="background:var(--danger); font-size:10px;" onclick="limparTudo()">🗑️ APAGAR RODADA</button>
-            </div>
-
-            <div style="background: #111; padding: 15px; border-radius: 15px;">
-                <p style="color:var(--primary); font-weight:bold;">FECHAMENTO</p>
-                <input type="time" id="config-hora">
-                <button class="btn-principal" onclick="salvarHora()">SALVAR HORÁRIO</button>
-            </div>
-            
-            <button class="btn-secundario" style="margin-top:20px;" onclick="location.reload()">SAIR DO MESTRE</button>
-        </div>
-    </div>
-</div>
-
-<button class="btn-mestre-fixo" onclick="irParaMestre()">⚙️ CONFIGURAÇÕES MASTER (MAUMAU)</button>
-
-<div id="modal-confirm" class="overlay">
-    <div style="background:var(--card); padding:30px; border-radius:20px; border:2px solid var(--accent); width:85%; max-width:350px; text-align:center;">
-        <h3>ENVIAR AGORA?</h3>
-        <button class="btn-principal" onclick="enviarPalpites()">SIM, CONFIRMO!</button>
-        <button class="btn-secundario" onclick="document.getElementById('modal-confirm').style.display='none'">REVISAR</button>
-    </div>
-</div>
-
-<script>
-    const firebaseConfig = { 
-        apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
-        authDomain: "bolao-d2baf.firebaseapp.com", 
-        projectId: "bolao-d2baf", 
-        storageBucket: "bolao-d2baf.firebasestorage.app", 
-        messagingSenderId: "955171998764", 
-        appId: "1:955171998764:web:2ccf8f2b6f23c300755589" 
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const auth = firebase.auth();
-
-    let smsConfirm, horaLim = "", uNome = "", uTel = "";
-
-    function resetAbas() { document.querySelectorAll('.aba').forEach(a => a.classList.add('hidden')); }
-
-    // RELÓGIO
-    function timer() {
-        if(!horaLim) return;
-        const agora = new Date();
-        const atual = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
-        const d = document.getElementById('status-relogio');
-        if(atual >= horaLim) {
-            d.innerText = "🚨 FECHADO ÀS " + horaLim; d.className = "status-fechado";
-            document.getElementById('btn-enviar')?.classList.add('hidden');
-        } else {
-            d.innerText = "⏳ ABERTO ATÉ " + horaLim; d.className = "status-aberto";
-        }
-    }
-    setInterval(timer, 5000);
-    db.collection("config").doc("rodada").onSnapshot(doc => { if(doc.exists) { horaLim = doc.data().limite; timer(); }});
-
-    // LOGIN & SMS
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
-    function enviarSMS() {
-        uNome = document.getElementById('user-nome').value;
-        uTel = document.getElementById('user-tel').value.replace(/\D/g, '');
-        auth.signInWithPhoneNumber("+55"+uTel, window.recaptchaVerifier).then(res => {
-            smsConfirm = res; resetAbas(); document.getElementById('sessao-sms').classList.remove('hidden');
-        }).catch(e => alert("Erro: " + e.message));
-    }
-    function validarSMS() {
-        const c = document.getElementById('codigo-sms').value;
-        smsConfirm.confirm(c).then(() => { 
-            resetAbas(); document.getElementById('sessao-apostas').classList.remove('hidden'); carregarJogos(); 
-        }).catch(() => alert("Código inválido!"));
-    }
-
-    // JOGOS
-    function carregarJogos() {
-        const container = document.getElementById('lista-jogos');
-        db.collection("jogos").onSnapshot(snap => {
-            container.innerHTML = "";
-            snap.forEach(doc => {
-                const j = doc.data();
-                container.innerHTML += `<div class="jogo-card"><div class="time-box">${j.home}</div><div><input type="number" class="placar-input" id="${doc.id}-h"> x <input type="number" class="placar-input" id="${doc.id}-a"></div><div class="time-box" style="text-align:right">${j.away}</div></div>`;
-            });
-        });
-    }
-
-    // PAINEL MASTER
-    function irParaMestre() { resetAbas(); document.getElementById('sessao-senha-mestre').classList.remove('hidden'); }
-    function liberarPainel() {
-        if(document.getElementById('senha-adm').value === "2026") {
-            resetAbas(); document.getElementById('sessao-painel-mestre').classList.remove('hidden');
-        } else { alert("Senha Incorreta!"); }
-    }
-
-    async function salvarNovoJogo() {
-        const h = document.getElementById('add-casa').value;
-        const a = document.getElementById('add-fora').value;
-        if(h && a) { await db.collection("jogos").add({ home: h, away: a }); document.getElementById('add-casa').value=""; document.getElementById('add-fora').value=""; }
-    }
-
-    async function limparTudo() { if(confirm("Apagar rodada?")) { const s = await db.collection("jogos").get(); const b = db.batch(); s.forEach(d => b.delete(d.ref)); await b.commit(); }}
-    async function salvarHora() { const h = document.getElementById('config-hora').value; await db.collection("config").doc("rodada").set({ limite: h }); alert("Salvo!"); }
-
-    // ENVIO
-    function confirmarBilhete() { document.getElementById('modal-confirm').style.display = 'flex'; }
-    async function enviarPalpites() {
-        const p = {};
-        document.querySelectorAll('.placar-input').forEach(i => { if(i.value !== "") p[i.id] = i.value; });
-        await db.collection("apostas").doc(uTel).set({ nome: uNome, palpites: p, data: firebase.firestore.FieldValue.serverTimestamp() });
-        alert("Enviado com sucesso!"); location.reload();
-    }
-</script>
-</body>
-</html>
+        <div id="aba-login">
+            <input type="

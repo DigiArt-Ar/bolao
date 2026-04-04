@@ -3,100 +3,229 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET - SISTEMA OFICIAL V8.0</title>
+    <title>MAUBET v10.0 - SISTEMA COMPLETO</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
-        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --danger: #ff4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 480px; }
-        .card { background: var(--card); padding: 25px; border-radius: 25px; border-top: 6px solid var(--primary); box-shadow: 0 15px 50px rgba(0,0,0,0.8); text-align: center; margin-top: 20px; }
+        :root { 
+            --primary: #00ff88; 
+            --bg: #0a0a0a; 
+            --card: #161616; 
+            --accent: #ffb300; 
+            --danger: #ff4444; 
+        }
         
-        /* Status de Tempo */
-        #status-info { font-size: 11px; padding: 12px; border-radius: 12px; margin-bottom: 20px; font-weight: bold; text-transform: uppercase; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); 
+            color: #fff; 
+            margin: 0; 
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { width: 100%; max-width: 500px; }
+
+        .card { 
+            background: var(--card); 
+            padding: 30px; 
+            border-radius: 25px; 
+            border-top: 6px solid var(--primary); 
+            box-shadow: 0 20px 60px rgba(0,0,0,0.9); 
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 5px; font-weight: 900; }
+        h1 span { color: var(--accent); }
+
+        #barra-status {
+            font-size: 12px;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
         .aberto { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
         .fechado { background: rgba(255, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
 
-        /* Estilo dos Jogos */
-        .jogo-item { background: #222; border-radius: 15px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; border-left: 5px solid var(--accent); }
-        .time-box { width: 35%; font-size: 11px; font-weight: bold; text-transform: uppercase; }
-        .escudo { width: 35px; height: 35px; object-fit: contain; margin-bottom: 5px; display: block; margin: auto; }
-        .placar-input { width: 50px; height: 45px; background: #333; border: 2px solid #444; color: #fff; border-radius: 10px; text-align: center; font-size: 22px; font-weight: bold; }
-
-        /* UI Geral */
-        .hidden { display: none !important; }
-        input[type="text"], input[type="tel"], input[type="password"], input[type="time"], input[type="number"] {
-            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #111; color: #fff; margin: 10px 0; box-sizing: border-box; text-align: center; font-size: 16px;
+        /* JOGOS */
+        .jogo-card {
+            background: #222;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 6px solid var(--accent);
+            transition: 0.3s;
         }
-        button { width: 100%; padding: 18px; border-radius: 15px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; transition: 0.2s; }
-        .btn-main { background: var(--primary); color: #000; }
-        .btn-sec { background: #333; color: #888; border: 1px solid #444; font-size: 12px; }
-        .btn-admin { background: transparent; color: #222; margin-top: 50px; font-size: 10px; }
 
-        /* Loader IA */
-        #loader-ia { display: none; color: var(--primary); font-weight: bold; margin: 15px 0; }
-        .spinner { width: 20px; height: 20px; border: 3px solid #333; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; display: inline-block; margin-right: 10px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .time-info {
+            width: 35%;
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .escudo-img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        .placar-box {
+            width: 55px;
+            height: 50px;
+            background: #333;
+            border: 2px solid #444;
+            color: #fff;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* UI GERAL */
+        .hidden { display: none !important; }
+
+        input {
+            width: 100%;
+            padding: 18px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 12px 0;
+            box-sizing: border-box;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 20px;
+            border-radius: 15px;
+            border: none;
+            font-weight: 900;
+            cursor: pointer;
+            margin-top: 15px;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+
+        .btn-green { background: var(--primary); color: #000; }
+        .btn-gray { background: #333; color: #fff; }
+        .btn-admin-link { background: transparent; color: #222; font-size: 11px; margin-top: 50px; }
+
+        /* MODAIS */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-body {
+            background: var(--card);
+            padding: 35px;
+            border-radius: 30px;
+            border: 2px solid var(--accent);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        #loading-ia {
+            display: none;
+            margin: 20px 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h1 style="margin-bottom:0;">MAU<span style="color:var(--accent)">BET</span></h1>
-        <div id="status-info" class="aberto">SINCRONIZANDO...</div>
+        <h1>MAU<span>BET</span></h1>
+        <div id="barra-status" class="aberto">SINCRONIZANDO...</div>
 
         <div id="tela-login">
-            <p style="color:#666; font-size:14px;">Identificação do Apostador:</p>
-            <input type="text" id="nome-user" placeholder="NOME COMPLETO">
-            <input type="tel" id="tel-user" placeholder="DDD + CELULAR">
+            <p style="color: #888;">Bem-vindo! Identifique-se para continuar:</p>
+            <input type="text" id="input-nome" placeholder="NOME COMPLETO">
+            <input type="tel" id="input-tel" placeholder="DDD + CELULAR (Ex: 24993148000)">
             <div id="recaptcha-container"></div>
-            <button class="btn-main" onclick="enviarSMS()">ACESSAR RODADA</button>
-            <button class="btn-admin" onclick="abrirAcessoMestre()">⚙️ CONFIGURAÇÕES</button>
+            <button class="btn-green" onclick="solicitarSMS()">ENVIAR CÓDIGO SMS</button>
+            <button class="btn-admin-link" onclick="abrirAdminSenha()">ACESSO RESTRITO GESTOR</button>
         </div>
 
-        <div id="tela-sms" class="hidden">
-            <p>Digite o código enviado por SMS:</p>
-            <input type="number" id="codigo-sms" placeholder="000000">
-            <button class="btn-main" onclick="validarEntrada()">CONFIRMAR E ENTRAR</button>
-            <button class="btn-sec" onclick="location.reload()">VOLTAR</button>
+        <div id="tela-codigo" class="hidden">
+            <p>Digite o código de 6 dígitos:</p>
+            <input type="number" id="input-codigo" placeholder="000000">
+            <button class="btn-green" onclick="confirmarCodigo()">VALIDAR E ENTRAR</button>
+            <button class="btn-gray" onclick="location.reload()">VOLTAR</button>
         </div>
 
         <div id="tela-mestre-login" class="hidden">
-            <h3>ACESSO MESTRE</h3>
-            <input type="password" id="senha-admin" placeholder="DIGITE A SENHA">
-            <button class="btn-main" onclick="checarSenhaMestre()">ENTRAR NO PAINEL</button>
-            <button class="btn-sec" onclick="location.reload()">VOLTAR</button>
+            <h3>PAINEL DE CONTROLE</h3>
+            <input type="password" id="input-senha-mestre" placeholder="SENHA DO MESTRE">
+            <button class="btn-green" onclick="entrarNoPainel()">ENTRAR NO PAINEL</button>
+            <button class="btn-gray" onclick="location.reload()">VOLTAR</button>
         </div>
 
         <div id="tela-jogos" class="hidden">
-            <div id="container-jogos"></div>
-            <button id="btn-salvar" class="btn-main" onclick="enviarPalpites()">🔒 FINALIZAR BILHETE</button>
+            <div id="lista-jogos-banco"></div>
+            <button id="btn-finalizar-bilhete" class="btn-green" onclick="abrirModalConfirma()">🔒 FINALIZAR MEU BILHETE</button>
         </div>
 
-        <div id="tela-painel-mestre" class="hidden">
+        <div id="tela-painel-admin" class="hidden">
             <h2 style="color:var(--accent)">GESTOR DA RODADA</h2>
-            <div style="background: #111; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
-                <p style="font-size:12px; color:var(--primary); text-align:left;">1. ATUALIZAR JOGOS (PRINT DO GE):</p>
-                <input type="file" id="print-ge" accept="image/*">
-                <button class="btn-main" onclick="executarIA_Total()">IA: LER PRINT E CRIAR JOGOS</button>
-                <div id="loader-ia"><div class="spinner"></div>IA LENDO IMAGEM...</div>
+            
+            <div style="background: #111; padding: 20px; border-radius: 20px; margin-bottom: 25px; text-align: left;">
+                <p style="margin:0 0 12px 0; font-weight: bold; color: var(--primary);">1. IA: ATUALIZAR JOGOS</p>
+                <input type="file" id="arquivo-print" accept="image/*">
+                <button class="btn-green" onclick="processarIA_Gemini()">LER PRINT DO GE</button>
+                <div id="loading-ia">IA ESTÁ LENDO A IMAGEM...</div>
             </div>
-            <div style="background: #111; padding: 15px; border-radius: 15px;">
-                <p style="font-size:12px; color:var(--primary); text-align:left;">2. TRAVA DE HORÁRIO:</p>
-                <input type="time" id="config-hora">
-                <button class="btn-main" onclick="salvarHora()">SALVAR HORÁRIO</button>
+
+            <div style="background: #111; padding: 20px; border-radius: 20px; text-align: left;">
+                <p style="margin:0 0 12px 0; font-weight: bold; color: var(--primary);">2. TRAVA DE HORÁRIO</p>
+                <input type="time" id="config-horario">
+                <button class="btn-green" onclick="salvarNovoHorario()">SALVAR TRAVA</button>
             </div>
-            <button class="btn-sec" style="margin-top: 30px;" onclick="location.reload()">SAIR DO SISTEMA</button>
+
+            <button class="btn-gray" style="margin-top: 40px;" onclick="location.reload()">SAIR DO GESTOR</button>
         </div>
     </div>
 </div>
 
+<div id="modal-confirma" class="overlay">
+    <div class="modal-body">
+        <h3 style="margin-top:0;">CONFIRMAR BILHETE?</h3>
+        <p style="font-size: 14px; color: #bbb;">Você revisou todos os placares? Após o envio, o bilhete será gravado no sistema e não poderá ser editado.</p>
+        <button class="btn-green" onclick="salvarBilheteNoBanco()">SIM, ENVIAR AGORA!</button>
+        <button class="btn-gray" onclick="fecharModalConfirma()">REVISAR NOVAMENTE</button>
+    </div>
+</div>
+
 <script>
-    // CONFIGURAÇÃO FIREBASE (SUA CONTA)
+    // CONFIGURAÇÃO FIREBASE
     const firebaseConfig = { 
         apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
         authDomain: "bolao-d2baf.firebaseapp.com", 
@@ -110,145 +239,187 @@
     const auth = firebase.auth();
 
     let confirmationResult;
-    let horaLimite = "";
-    let nomeParticipante = "";
-    let telParticipante = "";
+    let horaLimiteSistema = "";
+    let nomeUser = "";
+    let telUser = "";
 
-    // --- RELÓGIO E TRAVA ---
-    function monitorarRodada() {
-        if(!horaLimite) return;
+    // RELÓGIO E TRAVA AUTOMÁTICA
+    function atualizarRelogio() {
+        if(!horaLimiteSistema) return;
         const agora = new Date();
         const atual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
-        const st = document.getElementById('status-info');
-        const inputs = document.querySelectorAll('.placar-input');
+        const status = document.getElementById('barra-status');
+        const btn = document.getElementById('btn-finalizar-bilhete');
 
-        if(atual >= horaLimite) {
-            st.innerText = "🚨 RODADA ENCERRADA (" + horaLimite + ")";
-            st.className = "fechado";
-            document.getElementById('btn-salvar')?.classList.add('hidden');
-            inputs.forEach(i => i.disabled = true);
+        if(atual >= horaLimiteSistema) {
+            status.innerText = "🚨 RODADA ENCERRADA ÀS " + horaLimiteSistema;
+            status.className = "fechado";
+            if(btn) btn.classList.add('hidden');
+            document.querySelectorAll('.placar-box').forEach(i => i.disabled = true);
         } else {
-            st.innerText = "⏳ APOSTAS ABERTAS ATÉ " + horaLimite;
-            st.className = "aberto";
+            status.innerText = "⏳ APOSTAS ABERTAS ATÉ " + horaLimiteSistema;
+            status.className = "aberto";
         }
     }
-    setInterval(monitorarRodada, 5000);
+    setInterval(atualizarRelogio, 5000);
 
-    // --- SINCRONIZAR CONFIGS ---
+    // SINCRONIZAÇÃO DE CONFIGURAÇÕES
     db.collection("config").doc("rodada").onSnapshot(doc => {
         if(doc.exists) {
-            horaLimite = doc.data().limite;
-            document.getElementById('config-hora').value = horaLimite;
-            monitorarRodada();
+            horaLimiteSistema = doc.data().limite;
+            document.getElementById('config-horario').value = horaLimiteSistema;
+            atualizarRelogio();
         }
     });
 
-    // --- LOGIN E SMS ---
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+    // SISTEMA SMS
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
 
-    function enviarSMS() {
-        nomeParticipante = document.getElementById('nome-user').value;
-        telParticipante = document.getElementById('tel-user').value.replace(/\D/g, '');
-        if(nomeParticipante.length < 3) return alert("Digite seu nome completo!");
+    function solicitarSMS() {
+        nomeUser = document.getElementById('input-nome').value;
+        telUser = document.getElementById('input-tel').value.replace(/\D/g, '');
+        if(nomeUser.length < 3) return alert("Digite seu nome completo.");
         
-        auth.signInWithPhoneNumber("+55" + telParticipante, window.recaptchaVerifier).then(res => {
+        auth.signInWithPhoneNumber("+55" + telUser, window.recaptchaVerifier).then(res => {
             confirmationResult = res;
             document.getElementById('tela-login').classList.add('hidden');
-            document.getElementById('tela-sms').classList.remove('hidden');
-            alert("Código enviado!");
-        }).catch(e => alert("Erro ao enviar: " + e.message));
+            document.getElementById('tela-codigo').classList.remove('hidden');
+            alert("Código enviado para o celular final " + telUser.slice(-4));
+        }).catch(err => alert("Erro SMS: " + err.message));
     }
 
-    function validarEntrada() {
-        const code = document.getElementById('codigo-sms').value;
+    function confirmarCodigo() {
+        const code = document.getElementById('input-codigo').value;
         confirmationResult.confirm(code).then(() => {
-            document.getElementById('tela-sms').classList.add('hidden');
+            document.getElementById('tela-codigo').classList.add('hidden');
             document.getElementById('tela-jogos').classList.remove('hidden');
-            carregarJogosBanco();
+            carregarJogos();
         }).catch(() => alert("Código Inválido!"));
     }
 
-    // --- JOGOS ---
-    function carregarJogosBanco() {
-        const lista = document.getElementById('container-jogos');
+    // CARREGAMENTO DOS JOGOS
+    function carregarJogos() {
+        const container = document.getElementById('lista-jogos-banco');
         db.collection("jogos").onSnapshot(snap => {
-            lista.innerHTML = "";
-            if(snap.empty) { lista.innerHTML = "<p style='color:orange'>O Mestre ainda não abriu os jogos da rodada.</p>"; return; }
+            container.innerHTML = "";
+            if(snap.empty) {
+                container.innerHTML = "<p style='color:orange; padding:20px;'>Aguardando o Mestre definir os jogos da rodada...</p>";
+                return;
+            }
             snap.forEach(doc => {
                 const j = doc.data();
-                lista.innerHTML += `
-                    <div class="jogo-item">
-                        <div class="time-box"><img src="escudos/${j.home.toLowerCase()}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.home}</div>
-                        <div style="display:flex; align-items:center; gap:5px;">
-                            <input type="number" class="placar-input" id="${doc.id}-h">
-                            <span style="font-weight:bold; color:var(--accent);">X</span>
-                            <input type="number" class="placar-input" id="${doc.id}-a">
+                container.innerHTML += `
+                    <div class="jogo-card">
+                        <div class="time-info">
+                            <img src="escudos/${j.home.toLowerCase()}.png" class="escudo-img" onerror="this.src='escudos/default.png'">
+                            ${j.home}
                         </div>
-                        <div class="time-box"><img src="escudos/${j.away.toLowerCase()}.png" class="escudo" onerror="this.src='escudos/default.png'">${j.away}</div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <input type="number" class="placar-box" id="${doc.id}-h">
+                            <span style="font-weight:bold; color:var(--accent);">X</span>
+                            <input type="number" class="placar-box" id="${doc.id}-a">
+                        </div>
+                        <div class="time-info">
+                            <img src="escudos/${j.away.toLowerCase()}.png" class="escudo-img" onerror="this.src='escudos/default.png'">
+                            ${j.away}
+                        </div>
                     </div>`;
             });
-            monitorarRodada();
+            atualizarRelogio();
         });
     }
 
-    // --- PAINEL MESTRE ---
-    function abrirAcessoMestre() {
+    // FUNÇÕES DO MESTRE (ADMIN)
+    function abrirAdminSenha() {
         document.getElementById('tela-login').classList.add('hidden');
         document.getElementById('tela-mestre-login').classList.remove('hidden');
     }
 
-    function checarSenhaMestre() {
-        if(document.getElementById('senha-admin').value === "2026") {
+    function entrarNoPainel() {
+        if(document.getElementById('input-senha-mestre').value === "2026") {
             document.getElementById('tela-mestre-login').classList.add('hidden');
-            document.getElementById('tela-painel-mestre').classList.remove('hidden');
-        } else { alert("Senha Errada!"); }
+            document.getElementById('tela-painel-admin').classList.remove('hidden');
+        } else {
+            alert("Senha Incorreta!");
+        }
     }
 
-    async function salvarHora() {
-        const h = document.getElementById('config-hora').value;
+    async function salvarNovoHorario() {
+        const h = document.getElementById('config-horario').value;
         await db.collection("config").doc("rodada").set({ limite: h });
-        alert("Hora gravada com sucesso!");
+        alert("Trava de horário salva: " + h);
     }
 
-    // --- MOTOR IA: GEMINI INTEGRADO ---
-    async function executarIA_Total() {
-        const file = document.getElementById('print-ge').files[0];
-        if(!file) return alert("Selecione o print!");
-        document.getElementById('loader-ia').style.display = 'block';
+    // MOTOR DA IA GEMINI (OCR)
+    async function processarIA_Gemini() {
+        const file = document.getElementById('arquivo-print').files[0];
+        if(!file) return alert("Selecione a imagem primeiro!");
+        document.getElementById('loading-ia').style.display = 'block';
 
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
-            const b64 = reader.result.split(',')[1];
-            // CHAVE DA API INTEGRADA DIRETAMENTE NO CÓDIGO PARA VOCÊ NÃO TER QUE MEXER
-            const KEY_GEMINI = "AIzaSyD-X_Sample_Key_Do_Not_Use_Literal"; // Substituída pela lógica de serviço
+            const base64 = reader.result.split(',')[1];
             
-            // Lógica de Limpeza e Criação
-            const batch = db.batch();
-            const antigos = await db.collection("jogos").get();
-            antigos.forEach(d => batch.delete(d.ref));
-            await batch.commit();
+            // CHAVE DA API (Fictícia - Use a sua do Google AI Studio)
+            const API_KEY = "SUA_API_KEY_AQUI"; 
+            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
-            // Simulação de resposta da IA (O motor de busca interna fará o resto)
-            const rodadaLida = [{h:"Flamengo", a:"Vasco"}, {h:"Botafogo", a:"Fluminense"}];
-            for(let j of rodadaLida) { await db.collection("jogos").add({ home: j.h, away: j.a }); }
-            
-            alert("Rodada atualizada com sucesso!");
-            document.getElementById('loader-ia').style.display = 'none';
-        }
+            const payload = {
+                contents: [{
+                    parts: [
+                        { text: "Extraia os times do print. Formato: Time1 x Time2. Um por linha." },
+                        { inline_data: { mime_type: "image/png", data: base64 } }
+                    ]
+                }]
+            };
+
+            try {
+                const response = await fetch(endpoint, { method: 'POST', body: JSON.stringify(payload) });
+                const json = await response.json();
+                const texto = json.candidates[0].content.parts[0].text;
+
+                // Limpa banco
+                const batch = db.batch();
+                const atuais = await db.collection("jogos").get();
+                atuais.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+
+                // Salva novos
+                const linhas = texto.split('\n');
+                for(let l of linhas) {
+                    if(l.includes('x')) {
+                        const t = l.split('x');
+                        await db.collection("jogos").add({ home: t[0].trim(), away: t[1].trim() });
+                    }
+                }
+                alert("Rodada atualizada com sucesso!");
+            } catch (e) {
+                alert("Erro IA: " + e.message);
+            } finally {
+                document.getElementById('loading-ia').style.display = 'none';
+            }
+        };
     }
 
-    async function enviarPalpites() {
-        const p = {};
-        document.querySelectorAll('.placar-input').forEach(i => { if(i.value !== "") p[i.id] = i.value; });
-        if(Object.keys(p).length === 0) return alert("Preencha ao menos um placar!");
-        
-        await db.collection("apostas").doc(telParticipante).set({
-            nome: nomeParticipante,
-            jogos: p,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    // FINALIZAÇÃO DO BILHETE
+    function abrirModalConfirma() { document.getElementById('modal-confirma').style.display = 'flex'; }
+    function fecharModalConfirma() { document.getElementById('modal-confirma').style.display = 'none'; }
+
+    async function salvarBilheteNoBanco() {
+        const bilhete = {};
+        document.querySelectorAll('.placar-box').forEach(input => {
+            if(input.value !== "") bilhete[input.id] = input.value;
         });
-        alert("Show! Bilhete enviado.");
+
+        if(Object.keys(bilhete).length === 0) return alert("Preencha ao menos um placar!");
+
+        await db.collection("apostas").doc(telUser).set({
+            nome: nomeUser,
+            palpites: bilhete,
+            data: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        alert("Show! Bilhete gravado.");
         location.reload();
     }
 </script>

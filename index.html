@@ -7,175 +7,202 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <style>
         :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --text-muted: #aaa; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 15px; margin: 0; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 600px; margin: 20px auto; }
-        h1 { font-size: 28px; margin-bottom: 5px; }
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; margin: 20px auto; }
+        
+        h1 { font-size: 26px; margin-bottom: 5px; font-weight: 900; }
         .logo-bet { color: var(--accent); background: #333; padding: 0 10px; border-radius: 8px; }
-        .instrucao { color: var(--accent); font-size: 12px; margin-bottom: 15px; display: block; }
-
-        /* --- NOVO LAYOUT HORIZONTAL (Estilo image_6.png) --- */
-        .jogo-card-horiz { background: #2a2a2a; border-radius: 12px; padding: 10px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; border-left: 3px solid #444; }
-        .data-hora-box { width: 80px; text-align: left; font-size: 10px; color: var(--text-muted); border-right: 1px solid #444; padding-right: 5px; }
-        .data-hora-box b { color: #fff; display: block; font-size: 11px; }
         
-        .confronto-box { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 10px; }
-        .time-box { display: flex; flex-direction: column; align-items: center; width: 40%; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #fff; }
-        .escudo-horiz { width: 35px; height: 35px; object-fit: contain; margin-bottom: 3px; }
+        input { width: 85%; padding: 14px; margin: 10px 0; border: 1px solid #333; border-radius: 10px; background: #2a2a2a; color: #fff; text-align: center; font-size: 16px; }
+        button { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
         
-        .placar-box { width: 45px; height: 40px; background: #3d3d3d; border: 1px solid #555; border-radius: 8px; color: #fff; font-size: 22px; font-weight: bold; text-align: center; outline: none; margin: 0 5px; }
-        .placar-box:disabled { background: #1a1a1a; border: none; color: var(--primary); }
-        .vs-horiz { color: var(--primary); font-weight: 900; font-size: 14px; }
+        /* Layout Horizontal dos Jogos */
+        .jogo-card-horiz { background: #252525; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid var(--accent); }
+        .data-box { width: 70px; font-size: 10px; color: var(--text-muted); border-right: 1px solid #444; padding-right: 5px; text-align: left; }
+        .confronto { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .time { display: flex; flex-direction: column; align-items: center; width: 35%; font-size: 10px; font-weight: bold; }
+        .escudo { width: 35px; height: 35px; object-fit: contain; }
+        .placar-in { width: 40px !important; height: 35px !important; margin: 0 !important; font-size: 20px !important; background: #3d3d3d !important; border: 1px solid #555 !important; }
+        .vs { color: var(--primary); font-weight: 900; font-size: 12px; }
 
-        /* Botões e Inputs Padrão */
-        input#userName { width: 80%; padding: 12px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: #fff; margin-bottom: 15px; text-align: center; }
-        button { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.2s; text-transform: uppercase; }
-        button:active { transform: scale(0.98); }
-        .btn-status-pendente { background: #555 !important; color: #fff !important; cursor: not-allowed; }
-        .btn-status-pago { background: #00796b !important; color: #fff !important; cursor: not-allowed; }
         .hidden { display: none; }
-
-        /* Area do Pix */
-        .pix-container { background: #fff; color: #333; padding: 20px; border-radius: 15px; margin-top: 15px; }
-        .chave-box { background: #f0f0f0; border: 1px dashed #999; padding: 12px; font-size: 11px; word-break: break-all; margin: 10px 0; font-family: monospace; }
-        .btn-copiar { background: #333; color: #fff; font-size: 12px; padding: 10px; text-transform: none; width: auto; }
-
-        /* --- ESTILO DOS MODAIS PERSONALIZADOS (Adeus pop-up branco!) --- */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; }
-        .modal-box { background: var(--card-bg); border: 2px solid var(--primary); border-radius: 15px; padding: 25px; width: 80%; max-width: 350px; text-align: center; box-shadow: 0 0 20px rgba(0,255,136,0.3); }
-        .modal-box h3 { margin-top: 0; color: var(--primary); }
-        .modal-box p { color: #ccc; font-size: 14px; margin-bottom: 20px; }
-        .modal-btns { display: flex; gap: 10px; justify-content: center; }
-        .btn-modal { padding: 10px 20px; text-transform: none; font-size: 14px; width: auto; }
-        .btn-confirm { background: var(--primary); color: #000; }
-        .btn-cancel { background: #444; color: #fff; }
+        
+        /* Modais Customizados */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-box { background: var(--card-bg); border: 2px solid var(--primary); border-radius: 20px; padding: 25px; width: 85%; max-width: 320px; }
+        
+        /* Pix Area */
+        .pix-white { background: #fff; color: #333; padding: 15px; border-radius: 15px; margin-top: 15px; }
+        .chave-copy { background: #eee; padding: 10px; font-size: 11px; word-break: break-all; margin: 10px 0; border: 1px dashed #999; }
     </style>
 </head>
 <body>
 
 <div class="card">
     <h1>Bolão <span class="logo-bet">MauBet</span></h1>
-    <p id="statusMsg">Autentique-se para começar</p>
+    <p id="statusMsg" style="color: var(--primary);">Carregando sistema...</p>
 
-    <div id="loginArea">
-        <input type="text" id="userName" placeholder="Seu Nome Completo">
-        <button onclick="entrarFake()">ENTRAR NO BOLÃO</button>
+    <div id="loginArea" class="hidden">
+        <input type="text" id="userName" placeholder="Nome Completo">
+        <input type="text" id="userPhone" placeholder="DDD + Celular (Ex: 24993148000)">
+        <div id="recaptcha-container"></div>
+        <button onclick="enviarSMS()">Receber SMS</button>
+    </div>
+
+    <div id="otpArea" class="hidden">
+        <p>Digite o código de 6 dígitos:</p>
+        <input type="number" id="otpCode" placeholder="000000">
+        <button onclick="confirmarCodigo()">Validar e Entrar</button>
+    </div>
+
+    <div id="mestreChoiceArea" class="hidden">
+        <h3 style="color: var(--accent);">Painel de Controle</h3>
+        <button onclick="irParaAposta()" style="background: var(--accent);">Fazer Minha Aposta</button>
+        <button onclick="exibirSenhaMaster()" style="background: #444; color: #fff;">Painel Gestor</button>
+        <button onclick="sair()" style="background: transparent; color: #ff5252; border: 1px solid #ff5252;">Sair da Conta</button>
+    </div>
+
+    <div id="masterPassArea" class="hidden">
+        <input type="password" id="masterPass" placeholder="Senha Administrativa">
+        <button onclick="validarSenhaMaster()">Acessar Gestão</button>
     </div>
 
     <div id="apostaArea" class="hidden">
-        <span class="instrucao">Dica: Seus palpites ficam salvos como rascunho.</span>
-        
         <div id="listaJogos">
             <div class="jogo-card-horiz">
-                <div class="data-hora-box">
-                    <b>SÁB, 05/04</b>
-                    <span>16:00</span>
-                </div>
-                <div class="confronto-box">
-                    <div class="time-box">
-                        <img src="escudos/flamengo.png" class="escudo-horiz">
-                        <span class="time-nome">Flamengo</span>
-                    </div>
-                    <input type="number" class="placar-box" placeholder="0">
-                    <span class="vs-horiz">X</span>
-                    <input type="number" class="placar-box" placeholder="0">
-                    <div class="time-box">
-                        <img src="escudos/vasco.png" class="escudo-horiz">
-                        <span class="time-nome">Vasco</span>
-                    </div>
+                <div class="data-box"><b>HOJE</b><span>21:30</span></div>
+                <div class="confronto">
+                    <div class="time"><img src="escudos/flamengo.png" class="escudo"><span>FLA</span></div>
+                    <input type="number" class="placar-in" placeholder="0">
+                    <span class="vs">X</span>
+                    <input type="number" class="placar-in" placeholder="0">
+                    <div class="time"><img src="escudos/vasco.png" class="escudo"><span>VAS</span></div>
                 </div>
             </div>
         </div>
 
-        <div id="interacaoApostaArea">
-            <button id="btnEnviar" onclick="abrirModalConfirmacao()">🔒 FINALIZAR E ENVIAR APOSTA</button>
+        <button id="btnFinalizar" onclick="abrirConfirmacao()">🔒 FINALIZAR E ENVIAR</button>
 
-            <div id="pixContainer" class="pix-container hidden">
-                <h3 style="margin:0; color:#00796b;">✅ Quase lá!</h3>
-                <p style="font-size:12px;">Para validar, pague o PIX Copia e Cola:</p>
-                <div class="chave-box" id="chavePixTexto">SUA_CHAVE_ALEATORIA_AQUI_DEPOIS</div>
-                <button class="btn-copiar" onclick="copiarPix()">📋 COPIAR CHAVE PIX</button>
-                <p style="font-size:10px; color:#666; margin-top:10px;">Enviando comprovante no grupo!</p>
-            </div>
-
-            <button id="btnStatusPendente" class="btn-status-pendente hidden">⏳ PAGAMENTO PENDENTE (AGUARDANDO ADMIN)</button>
-            <button id="btnStatusPago" class="btn-status-pago hidden">✅ APOSTA CONFIRMADA</button>
+        <div id="pixArea" class="pix-white hidden">
+            <h3 style="margin:0;">Falta pouco!</h3>
+            <div class="chave-copy" id="chaveTexto">MINHA_CHAVE_PIX_AQUI</div>
+            <button onclick="copiarPix()" style="background:#333; color:#fff; font-size:12px;">📋 COPIAR CHAVE PIX</button>
         </div>
+
+        <button id="btnPendente" class="hidden" style="background:#555; color:#fff; cursor:not-allowed;">⏳ PAGAMENTO PENDENTE</button>
     </div>
 </div>
 
-<div id="modalConfirmar" class="modal-overlay">
+<div id="modalConfirma" class="modal-overlay">
     <div class="modal-box">
-        <h3>CONFIRMAR ENVIO?</h3>
-        <p>⚠️ Atenção: Após o envio, você não poderá mais alterar seus palpites!</p>
-        <div class="modal-btns">
-            <button class="btn-modal btn-cancel" onclick="fecharModais()">CANCELAR</button>
-            <button class="btn-modal btn-confirm" onclick="confirmarEnvioFinal()">SIM, ENVIAR</button>
-        </div>
+        <h3 style="color:var(--primary)">CONFIRMAR?</h3>
+        <p>Após enviar, você não poderá editar seus palpites.</p>
+        <button onclick="confirmarEnvioFinal()">SIM, ENVIAR</button>
+        <button onclick="fecharModais()" style="background:#444; color:#fff; margin-top:5px;">VOLTAR</button>
     </div>
 </div>
 
-<div id="modalAlerta" class="modal-overlay">
+<div id="modalAviso" class="modal-overlay">
     <div class="modal-box">
-        <h3>AVISO</h3>
-        <p id="alertaTexto">Mensagem aqui...</p>
-        <div class="modal-btns">
-            <button class="btn-modal btn-confirm" onclick="fecharModais()">OK</button>
-        </div>
+        <h3 id="avisoTitulo">AVISO</h3>
+        <p id="avisoMsg"></p>
+        <button onclick="fecharModais()">OK</button>
     </div>
 </div>
 
 <script>
-    // --- FUNÇÕES DOS MODAIS ---
-    function abrirModalConfirmacao() {
-        document.getElementById('modalConfirmar').style.display = 'flex';
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
+      authDomain: "bolao-d2baf.firebaseapp.com",
+      projectId: "bolao-d2baf",
+      storageBucket: "bolao-d2baf.firebasestorage.app",
+      messagingSenderId: "955171998764",
+      appId: "1:955171998764:web:2ccf8f2b6f23c300755589"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    let confirmationResult;
+    const MASTER_PHONE = "+5524981035118";
+
+    // --- RECONHECIMENTO AUTOMÁTICO ---
+    window.onload = function() {
+        const nome = localStorage.getItem('maubet_nome');
+        const tel = localStorage.getItem('maubet_tel');
+        if (nome && tel) {
+            verificarAcesso(tel, nome);
+        } else {
+            document.getElementById('loginArea').classList.remove('hidden');
+            document.getElementById('statusMsg').innerText = "Bem-vindo ao MauBet!";
+        }
+    };
+
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
+
+    function enviarSMS() {
+        let phone = '+55' + document.getElementById('userPhone').value.replace(/\D/g, '');
+        auth.signInWithPhoneNumber(phone, window.recaptchaVerifier).then(res => {
+            confirmationResult = res;
+            document.getElementById('loginArea').classList.add('hidden');
+            document.getElementById('otpArea').classList.remove('hidden');
+        }).catch(() => mostrarAviso("Erro", "Erro ao enviar SMS."));
     }
 
-    function abrirAlerta(texto) {
-        document.getElementById('alertaTexto').innerText = texto;
-        document.getElementById('modalAlerta').style.display = 'flex';
-    }
-
-    function fecharModais() {
-        document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-    }
-
-    // --- FLUXO DE APOSTA ---
-    function entrarFake() {
+    function confirmarCodigo() {
+        const code = document.getElementById('otpCode').value;
         const nome = document.getElementById('userName').value;
-        if(!nome) return abrirAlerta("Digite seu nome completo!");
-        document.getElementById('statusMsg').innerText = "Boa sorte, " + nome + "!";
+        confirmationResult.confirm(code).then(res => verificarAcesso(res.user.phoneNumber, nome))
+        .catch(() => mostrarAviso("Erro", "Código Inválido!"));
+    }
+
+    function verificarAcesso(phone, nome) {
+        localStorage.setItem('maubet_nome', nome);
+        localStorage.setItem('maubet_tel', phone);
+        
+        const h = new Date().getHours();
+        let saudacao = h < 12 ? "Bom dia" : h < 18 ? "Boa tarde" : "Boa noite";
+        
         document.getElementById('loginArea').classList.add('hidden');
+        document.getElementById('otpArea').classList.add('hidden');
+        document.getElementById('statusMsg').innerText = `${saudacao}, ${nome}!`;
+
+        if(phone === MASTER_PHONE) document.getElementById('mestreChoiceArea').classList.remove('hidden');
+        else irParaAposta();
+    }
+
+    function irParaAposta() {
+        document.getElementById('mestreChoiceArea').classList.add('hidden');
         document.getElementById('apostaArea').classList.remove('hidden');
+    }
+
+    function abrirConfirmacao() { document.getElementById('modalConfirma').style.display = 'flex'; }
+    function fecharModais() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+    function mostrarAviso(t, m) { 
+        document.getElementById('avisoTitulo').innerText = t;
+        document.getElementById('avisoMsg').innerText = m;
+        document.getElementById('modalAviso').style.display = 'flex'; 
     }
 
     function confirmarEnvioFinal() {
         fecharModais();
-        // Bloqueia os placares
-        const inputs = document.querySelectorAll('.placar-box');
-        inputs.forEach(i => i.disabled = true);
-        
-        // Esconde botão de enviar e mostra o Pix
-        document.getElementById('btnEnviar').classList.add('hidden');
-        document.getElementById('pixContainer').classList.remove('hidden');
-        abrirAlerta("Aposta enviada com sucesso! Use o PIX abaixo para pagar.");
-        // Aqui salvaríamos o status 'pendente' no Firestore
+        document.querySelectorAll('.placar-in').forEach(i => i.disabled = true);
+        document.getElementById('btnFinalizar').classList.add('hidden');
+        document.getElementById('pixArea').classList.remove('hidden');
+        mostrarAviso("Sucesso", "Aposta enviada! Pague o Pix para validar.");
     }
 
     function copiarPix() {
-        const texto = document.getElementById('chavePixTexto').innerText;
-        navigator.clipboard.writeText(texto).then(() => {
-            fecharModais();
-            // Fluxo pós-cópia que você pediu:
-            document.getElementById('pixContainer').classList.add('hidden'); // Some o Pix
-            document.getElementById('btnStatusPendente').classList.remove('hidden'); // Mostra o status pendente
-            abrirAlerta("Chave Pix copiada! Envie o comprovante no grupo.");
-        });
+        navigator.clipboard.writeText(document.getElementById('chaveTexto').innerText);
+        document.getElementById('pixArea').classList.add('hidden');
+        document.getElementById('btnPendente').classList.remove('hidden');
+        mostrarAviso("Copiado", "Chave Pix copiada com sucesso!");
     }
-</script>
 
+    function sair() { localStorage.clear(); location.reload(); }
+    function exibirSenhaMaster() { document.getElementById('mestreChoiceArea').classList.add('hidden'); document.getElementById('masterPassArea').classList.remove('hidden'); }
+    function validarSenhaMaster() { if(document.getElementById('masterPass').value === "931480") irParaAposta(); else alert("Senha incorreta!"); }
+</script>
 </body>
 </html>

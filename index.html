@@ -8,39 +8,29 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
-        :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --danger: #ff5252; --text-muted: #aaa; }
+        :root { --primary: #00ff88; --bg-dark: #121212; --card-bg: #1e1e1e; --accent: #ffb300; --danger: #ff5252; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg-dark); color: #fff; text-align: center; padding: 15px; margin: 0; }
-        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 550px; margin: 10px auto; }
-        
+        .card { background: var(--card-bg); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 500px; margin: 10px auto; }
         h1 { font-size: 26px; font-weight: 900; margin-bottom: 5px; }
         .logo-bet { color: var(--accent); background: #333; padding: 0 10px; border-radius: 8px; }
-        .saudacao { color: var(--primary); font-weight: bold; margin: 10px 0; font-size: 18px; }
-
-        /* Abas do Painel Master */
+        
+        /* Inputs e Botões Estilizados */
+        input { width: 85%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #333; background: #2a2a2a; color: #fff; text-align: center; font-size: 16px; }
+        button { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 90%; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+        
+        /* Abas e Listas */
         .aba-container { display: flex; gap: 5px; margin: 15px 0; background: #000; padding: 5px; border-radius: 12px; }
-        .aba-btn { flex: 1; padding: 12px; background: transparent; border: none; color: #666; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .aba-btn.active { background: var(--accent); color: #000; }
-
-        /* Layout dos Jogos (Horizontal) */
-        .jogo-card { background: #252525; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid var(--accent); position: relative; }
-        .jogo-card.desativado { opacity: 0.4; border-left-color: #555; }
-        .info-data { width: 75px; font-size: 10px; color: var(--text-muted); border-right: 1px solid #444; text-align: left; }
-        .confronto { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .time { display: flex; flex-direction: column; align-items: center; width: 35%; font-size: 10px; font-weight: bold; }
-        .escudo { width: 35px; height: 35px; object-fit: contain; margin-bottom: 3px; }
-        .placar-in { width: 42px !important; height: 38px !important; background: #3d3d3d !important; color: #fff; border: 1px solid #555; border-radius: 8px; text-align: center; font-size: 20px; font-weight: bold; }
-
-        /* Listas Financeiro/Usuários */
-        .user-row { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: left; border-bottom: 2px solid #333; }
+        .aba-btn { flex: 1; padding: 10px; background: transparent; border: none; color: #666; border-radius: 8px; font-size: 11px; cursor: pointer; }
+        .aba-btn.active { background: var(--accent); color: #000; font-weight: bold; }
+        .user-row { background: #2a2a2a; padding: 15px; border-radius: 12px; margin-bottom: 10px; text-align: left; position: relative; }
         .status-tag { font-size: 10px; padding: 4px 8px; border-radius: 5px; font-weight: bold; margin-bottom: 5px; display: inline-block; }
-        .status-pendente { background: var(--accent); color: #000; }
-        .status-pago { background: var(--primary); color: #000; }
 
-        button { background: var(--primary); color: #000; border: none; padding: 16px; border-radius: 12px; width: 100%; font-weight: bold; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
-        .btn-reset { background: none; color: var(--danger); border: 1px solid var(--danger); padding: 5px; font-size: 10px; border-radius: 5px; float: right; }
+        /* Jogo Horizontal */
+        .jogo-card { background: #252525; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; align-items: center; border-left: 4px solid var(--accent); }
+        .confronto { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .placar-in { width: 45px !important; height: 40px !important; background: #3d3d3d !important; color: #fff; border: 1px solid #555; border-radius: 8px; font-size: 20px; font-weight: bold; padding: 0 !important; }
+
         .hidden { display: none; }
-
-        /* Modais MauBet */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 2000; }
         .modal-box { background: var(--card-bg); border: 2px solid var(--accent); border-radius: 20px; padding: 25px; width: 85%; max-width: 350px; }
     </style>
@@ -49,23 +39,18 @@
 
 <div class="card">
     <h1>Bolão <span class="logo-bet">MauBet</span></h1>
-    <div id="statusMsg" class="saudacao">Iniciando...</div>
+    <div id="statusMsg" style="color:var(--primary); font-weight:bold; margin:10px 0;">Carregando...</div>
 
     <div id="loginArea" class="hidden">
-        <input type="text" id="userName" placeholder="Nome Completo" style="width:85%; padding:12px; margin:10px; border-radius:8px;">
-        <input type="text" id="userPhone" placeholder="DDD + Celular" style="width:85%; padding:12px; margin:10px; border-radius:8px;">
+        <input type="text" id="userName" placeholder="Seu Nome Completo">
+        <input type="text" id="userPhone" placeholder="Ex: 24993148000">
         <div id="recaptcha-container"></div>
-        <button onclick="enviarSMS()">RECEBER SMS</button>
+        <button id="btnEnviarSMS" onclick="enviarSMS()">Receber SMS</button>
     </div>
 
     <div id="otpArea" class="hidden">
-        <input type="number" id="otpCode" placeholder="Código SMS">
-        <button onclick="confirmarCodigo()">ENTRAR</button>
-    </div>
-
-    <div id="mestreChoiceArea" class="hidden">
-        <button onclick="irParaAposta()">FAZER MINHA APOSTA</button>
-        <button style="background:var(--accent)" onclick="abrirPainelMaster()">PAINEL DO MESTRE</button>
+        <input type="number" id="otpCode" placeholder="Código de 6 dígitos">
+        <button onclick="confirmarCodigo()">Validar e Entrar</button>
     </div>
 
     <div id="painelGestor" class="hidden">
@@ -74,63 +59,97 @@
             <button class="aba-btn" onclick="mudarAba('tabFinanceiro')">FINANCEIRO</button>
             <button class="aba-btn" onclick="mudarAba('tabApostadores')">OFICIAIS</button>
         </div>
-
         <div id="tabJogos">
             <input type="file" id="fileIA" style="font-size:10px;">
-            <button onclick="lerIA()" style="background:#444; color:#fff; padding:10px; font-size:11px;">LER PRINT DA RODADA</button>
-            <div id="containerJogosAdmin" style="margin-top:15px;"></div>
+            <button onclick="lerIA()" style="background:#444; color:#fff;">LÊR PRINT</button>
+            <div id="jogosAdmin" style="margin-top:15px;"></div>
         </div>
-
         <div id="tabFinanceiro" class="hidden">
-            <div id="listaPendentes"></div>
+            <div id="listaPendentes">
+                <div class="user-row">
+                    <span class="status-tag" style="background:var(--accent); color:#000;">AGUARDANDO PIX</span>
+                    <b>MAURICIO BARCELLOS</b>
+                    <button onclick="aprovarPix('MAURICIO')" style="height:40px; padding:0; margin-top:10px;">APROVAR PIX ✓</button>
+                </div>
+            </div>
         </div>
-
-        <div id="tabApostadores" class="hidden">
-            <div id="listaConfirmados"></div>
-        </div>
+        <div id="tabApostadores" class="hidden"><div id="listaConfirmados"></div></div>
     </div>
 
     <div id="apostaArea" class="hidden">
         <div id="listaJogosCliente"></div>
         <button id="btnFinalizar" onclick="abrirConfirmacao()">🔒 FINALIZAR E ENVIAR</button>
-        <button id="btnVerOutros" class="hidden" style="background:#333; color:#fff; font-size:11px;">👀 VER PALPITES DOS OUTROS</button>
     </div>
 </div>
 
 <div id="modalAviso" class="modal-overlay">
     <div class="modal-box">
-        <h3 id="mTitul">AVISO</h3>
+        <h3 id="mTitul" style="color:var(--accent)">AVISO</h3>
         <p id="mMsg" style="font-size:14px; color:#ccc;"></p>
-        <button style="padding:12px; border-radius:10px; border:none; background:var(--accent); font-weight:bold; width:100%;" onclick="fecharModal()">OK</button>
+        <button onclick="fecharModal()">OK</button>
     </div>
 </div>
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", authDomain: "bolao-d2baf.firebaseapp.com", projectId: "bolao-d2baf", storageBucket: "bolao-d2baf.firebasestorage.app", messagingSenderId: "955171998764", appId: "1:955171998764:web:2ccf8f2b6f23c300755589" };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
     const auth = firebase.auth();
-    const MASTER_PHONE = "+5524981035118";
+    const db = firebase.firestore();
+    let confirmationResult;
 
     window.onload = function() {
         const nome = localStorage.getItem('maubet_nome');
-        const tel = localStorage.getItem('maubet_tel');
-        if (nome && tel) logar(tel, nome);
+        if (nome) logar(nome);
         else {
             document.getElementById('loginArea').classList.remove('hidden');
-            document.getElementById('statusMsg').innerText = "Bem-vindo ao MauBet!";
+            document.getElementById('statusMsg').innerText = "Bem-vindo!";
         }
         window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
     };
 
-    function logar(tel, nome) {
+    function enviarSMS() {
+        const phone = "+55" + document.getElementById('userPhone').value.replace(/\D/g, '');
+        if(phone.length < 13) return mostrarAviso("ERRO", "Digite o número completo com DDD.");
+        
+        document.getElementById('btnEnviarSMS').innerText = "ENVIANDO...";
+        auth.signInWithPhoneNumber(phone, window.recaptchaVerifier).then(res => {
+            confirmationResult = res;
+            document.getElementById('loginArea').classList.add('hidden');
+            document.getElementById('otpArea').classList.remove('hidden');
+        }).catch(err => {
+            mostrarAviso("ERRO", "Falha no SMS: " + err.message);
+            document.getElementById('btnEnviarSMS').innerText = "Receber SMS";
+        });
+    }
+
+    function confirmarCodigo() {
+        const code = document.getElementById('otpCode').value;
+        confirmationResult.confirm(code).then(res => {
+            logar(document.getElementById('userName').value);
+        }).catch(() => mostrarAviso("ERRO", "Código inválido!"));
+    }
+
+    function logar(nome) {
         localStorage.setItem('maubet_nome', nome);
-        localStorage.setItem('maubet_tel', tel);
         document.getElementById('statusMsg').innerText = `Boa sorte, ${nome}!`;
         document.getElementById('loginArea').classList.add('hidden');
         document.getElementById('otpArea').classList.add('hidden');
-        if(tel === MASTER_PHONE) document.getElementById('mestreChoiceArea').classList.remove('hidden');
+        
+        // Se for o seu número, mostra o painel gestor (Exemplo simplificado)
+        if(nome.toUpperCase() === "MAURICIO") document.getElementById('painelGestor').classList.remove('hidden');
         else irParaAposta();
+    }
+
+    function irParaAposta() {
+        document.getElementById('apostaArea').classList.remove('hidden');
+        const container = document.getElementById('listaJogosCliente');
+        container.innerHTML = `<div class="jogo-card">
+            <div class="confronto">
+                <b>FLA</b> <input type="number" class="placar-in"> 
+                <span style="color:var(--primary)">X</span> 
+                <input type="number" class="placar-in"> <b>VAS</b>
+            </div>
+        </div>`;
     }
 
     function mudarAba(id) {
@@ -142,74 +161,18 @@
         event.currentTarget.classList.add('active');
     }
 
-    function lerIA() {
-        mostrarAviso("PROCESSANDO", "A IA está lendo o print e gerando os jogos... Aguarde.");
-        setTimeout(() => {
-            fecharModal();
-            const container = document.getElementById('containerJogosAdmin');
-            container.innerHTML = `
-                <div class="jogo-card">
-                    <div class="info-data"><b>DOM, 16:00</b></div>
-                    <div class="confronto"><b>FLAMENGO x VASCO</b></div>
-                    <button onclick="toggleJogo(this)" style="width:70px; font-size:9px; padding:5px; background:var(--danger); color:#fff; margin:0;">DESATIVAR</button>
-                </div>`;
-            mostrarAviso("SUCESSO", "Jogos carregados! Ative ou desative antes de liberar para a galera.");
-        }, 2500);
-    }
-
-    function toggleJogo(btn) {
-        const card = btn.parentElement;
-        if(btn.innerText === "DESATIVAR") {
-            btn.innerText = "ATIVAR"; btn.style.background = "var(--primary)"; card.classList.add('desativado');
-        } else {
-            btn.innerText = "DESATIVAR"; btn.style.background = "var(--danger)"; card.classList.remove('desativado');
-        }
-    }
-
-    function aprovarPix(nome) {
-        mostrarAviso("PAGO!", `${nome} agora está na lista final e o bilhete dele está valendo.`);
-        // Aqui o código move o cara do Financeiro para a aba de Oficiais
-    }
-
-    function abrirPainelMaster() { 
-        document.getElementById('mestreChoiceArea').classList.add('hidden');
-        document.getElementById('painelGestor').classList.remove('hidden');
-        // Carrega os devedores no financeiro
-        document.getElementById('listaPendentes').innerHTML = `
-            <div class="user-row">
-                <span class="status-tag status-pendente">AGUARDANDO PIX</span>
-                <b>MAURICIO BARCELLOS</b><br>
-                <button class="btn-aprovar" onclick="aprovarPix('MAURICIO')" style="background:var(--primary); padding:10px; margin-top:10px; border-radius:8px; border:none; font-weight:bold;">APROVAR PAGAMENTO ✓</button>
-            </div>`;
-    }
-
-    function irParaAposta() {
-        document.getElementById('mestreChoiceArea').classList.add('hidden');
-        document.getElementById('apostaArea').classList.remove('hidden');
-        carregarJogosCliente();
-    }
-
-    function carregarJogosCliente() {
-        document.getElementById('listaJogosCliente').innerHTML = `
-            <div class="jogo-card">
-                <div class="info-data"><b>DOM, 16:00</b></div>
-                <div class="confronto">
-                    <div class="time"><img src="escudos/fla.png" class="escudo"><span>FLA</span></div>
-                    <input type="number" class="placar-in" placeholder="0">
-                    <span style="color:var(--primary); font-weight:900;">X</span>
-                    <input type="number" class="placar-in" placeholder="0">
-                    <div class="time"><img src="escudos/vas.png" class="escudo"><span>VAS</span></div>
-                </div>
-            </div>`;
-    }
-
     function mostrarAviso(t, m) {
         document.getElementById('mTitul').innerText = t;
         document.getElementById('mMsg').innerText = m;
         document.getElementById('modalAviso').style.display = 'flex';
     }
     function fecharModal() { document.getElementById('modalAviso').style.display = 'none'; }
-    function abrirConfirmacao() { mostrarAviso("CONFIRMAR?", "Na mosca: 10 pts | Resultado: 6 pts. Deseja enviar?"); }
+    function abrirConfirmacao() { mostrarAviso("ENVIAR?", "Placar Exato: 10 pts | Resultado: 6 pts. Confirmar?"); }
+    
+    function lerIA() {
+        mostrarAviso("PROCESSANDO", "IA MauBet lendo o print... Aguarde.");
+        setTimeout(() => { fecharModal(); mostrarAviso("SUCESSO", "Rodada carregada!"); }, 2000);
+    }
 </script>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v37.1 - SOLUÇÃO DEFINITIVA</title>
+    <title>MAUBET v37.2 - VOLTA TELEFONE</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
@@ -12,16 +12,16 @@
         .container { width: 100%; max-width: 500px; }
         .hidden { display: none !important; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff !important; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; opacity: 1 !important; }
+        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; }
         button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .btn-danger { background: var(--danger); color: #fff; padding: 8px; font-size: 12px; width: auto; margin: 0; border-radius: 8px; }
+        .btn-danger { background: var(--danger); color: #fff; padding: 5px 8px; font-size: 12px; width: auto; margin: 0; border-radius: 8px; }
         .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
         .escudo { width: 35px; height: 35px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar-input { width: 42px; height: 42px; background: #000 !important; border: 1px solid var(--primary) !important; color: #fff !important; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
-        .mestre-linha { display: flex; align-items: center; justify-content: space-between; background: #111; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #333; }
+        .placar-input { width: 42px; height: 42px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
+        .mestre-linha { display: flex; align-items: center; justify-content: space-between; background: #111; padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -30,18 +30,20 @@
     <div class="card">
         <div id="view-login">
             <h2>MAU<span>BET</span></h2>
-            <input type="text" id="user-nome" placeholder="SEU NOME">
-            <button class="btn-green" onclick="handleAcesso()">ENTRAR</button>
+            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
+            <input type="tel" id="user-tel" placeholder="TELEFONE (WHATSAPP)">
+            <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
+            
             <div id="login-mestre" class="hidden">
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
-                <button class="btn-accent" onclick="acessoMestre()">PAINEL MESTRE</button>
+                <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
             </div>
-            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:20px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.1</span>
+            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:25px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.2</span>
         </div>
 
         <div id="view-main" class="hidden">
             <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
-                <b style="color:var(--accent)">1. NOVO JOGO:</b>
+                <b style="color:var(--accent)">1. ADICIONAR JOGO:</b>
                 <input type="text" id="input-casa" placeholder="TIME CASA">
                 <input type="text" id="input-fora" placeholder="TIME FORA">
                 <input type="datetime-local" id="input-data">
@@ -49,11 +51,11 @@
                 <button id="btn-toggle-rodada" class="btn-green" onclick="toggleRodada(true)">🚀 LIBERAR PARA TODOS</button>
                 
                 <hr style="border-color:#333; margin:15px 0">
-                <b style="color:var(--primary)">2. RESULTADOS E EXCLUSÃO:</b>
+                <b style="color:var(--primary)">2. RESULTADOS E GESTÃO:</b>
                 <div id="lista-mestre-resultados" style="margin-top:10px"></div>
             </div>
 
-            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">A rodada será liberada em breve pelo Mestre...</div>
+            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">A rodada está sendo preparada. Aguarde a liberação do Mestre!</div>
             <div id="display-jogos"></div>
             <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
             
@@ -61,7 +63,7 @@
                 <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING</h3>
                 <div id="ranking-lista"></div>
             </div>
-            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR / TROCAR NOME</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR / TROCAR CONTA</button>
         </div>
     </div>
 </div>
@@ -83,7 +85,8 @@
 
     function handleAcesso() {
         const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        if(!n) return alert("Nome!");
+        const t = document.getElementById('user-tel').value.trim();
+        if(!n || !t) return alert("Preencha nome e telefone!");
         localStorage.setItem('maubet_n', n);
         localStorage.setItem('maubet_token', 'user');
         startApp();
@@ -94,6 +97,8 @@
             localStorage.setItem('maubet_n', "MESTRE MAU");
             localStorage.setItem('maubet_token', 'admin');
             startApp();
+        } else {
+            alert("Senha incorreta!");
         }
     }
 
@@ -109,7 +114,7 @@
             if(admin) {
                 document.getElementById('bloco-mestre').classList.remove('hidden');
                 const btn = document.getElementById('btn-toggle-rodada');
-                btn.innerText = liberada ? "🔒 TRAVAR AGORA" : "🚀 LIBERAR AGORA";
+                btn.innerText = liberada ? "🔒 TRAVAR RODADA" : "🚀 LIBERAR PARA TODOS";
                 btn.className = liberada ? "btn-accent" : "btn-green";
                 btn.onclick = () => toggleRodada(!liberada);
             }
@@ -126,7 +131,7 @@
 
     async function toggleRodada(v) { 
         await db.collection("config").doc("status").set({ liberada: v });
-        alert(v ? "RODADA ABERTA PARA TODOS!" : "RODADA TRAVADA!");
+        alert(v ? "RODADA ABERTA!" : "RODADA FECHADA!");
     }
 
     async function addJogoNovo() {
@@ -137,12 +142,12 @@
             await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('input-casa').value = ""; 
             document.getElementById('input-fora').value = "";
-            alert("Time salvo com sucesso!");
+            alert("Jogo adicionado!");
         }
     }
 
     async function excluirJogo(id) {
-        if(confirm("Apagar este jogo?")) await db.collection("jogos").doc(id).delete();
+        if(confirm("Excluir este jogo?")) await db.collection("jogos").doc(id).delete();
     }
 
     function renderConteudo(admin) {
@@ -176,7 +181,6 @@
                             <span style="font-size:9px; width:50px">${d.home}</span>
                             <input type="number" id="m-${id}-h" style="width:30px; height:30px; background:#222; color:#fff" value="${d.resH !== null ? d.resH : ''}">
                             <input type="number" id="m-${id}-f" style="width:30px; height:30px; background:#222; color:#fff" value="${d.resF !== null ? d.resF : ''}">
-                            <span style="font-size:9px; width:50px">${d.away}</span>
                             <button onclick="salvarPlacarFinal('${id}')" class="btn-green" style="width:auto; padding:5px; margin:0">OK</button>
                             <button onclick="excluirJogo('${id}')" class="btn-danger">🗑️</button>
                         </div>`;
@@ -191,7 +195,7 @@
         const f = document.getElementById(`m-${id}-f`).value;
         if(h !== "" && f !== "") {
             await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Resultado Salvo!");
+            alert("Salvo!");
         }
     }
 

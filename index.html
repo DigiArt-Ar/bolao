@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MauBet v6.0 - Sistema Oficial e Completo</title>
+    <title>MauBet v17.0 - Sistema Oficial</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <style>
         :root { 
@@ -21,17 +20,14 @@
         }
         
         body { 
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-family: 'Segoe UI', Roboto, sans-serif; 
             background: var(--bg); 
             color: var(--text); 
-            margin: 0; 
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            margin: 0; padding: 10px;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .container { width: 100%; max-width: 500px; }
+        .container { width: 100%; max-width: 500px; padding-bottom: 100px; }
 
         .card { 
             background: var(--card); 
@@ -43,140 +39,54 @@
             margin-top: 20px;
         }
 
-        h1 { font-size: 2.5rem; margin-bottom: 10px; letter-spacing: -1px; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
         h1 span { color: var(--accent); }
 
-        /* Status do Relógio */
         #status-relogio {
-            font-size: 12px;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 11px; padding: 12px; border-radius: 12px;
+            margin-bottom: 20px; font-weight: 900; text-transform: uppercase;
         }
         .status-aberto { background: rgba(0, 255, 136, 0.1); color: var(--primary); border: 1px solid var(--primary); }
         .status-fechado { background: rgba(255, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
 
-        /* Itens de Jogo */
         .jogo-card {
-            background: #222;
-            border-radius: 18px;
-            padding: 15px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            background: #222; border-radius: 18px; padding: 15px; margin-bottom: 15px;
+            display: flex; align-items: center; justify-content: space-between;
             border-left: 5px solid var(--accent);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .time-box {
-            width: 35%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .escudo {
-            width: 40px;
-            height: 40px;
-            object-fit: contain;
-            margin-bottom: 8px;
-        }
+        .time-box { width: 35%; font-size: 11px; font-weight: bold; text-transform: uppercase; }
 
         .placar-input {
-            width: 55px;
-            height: 50px;
-            background: #333;
-            border: 2px solid #444;
-            color: #fff;
-            border-radius: 12px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
+            width: 50px; height: 45px; background: #333; border: 2px solid #444;
+            color: #fff; border-radius: 10px; text-align: center; font-size: 20px; font-weight: bold;
         }
 
-        .placar-input:focus { border-color: var(--primary); outline: none; background: #444; }
-        .placar-input:disabled { opacity: 0.3; cursor: not-allowed; }
-
-        /* Inputs e Botões */
         .hidden { display: none !important; }
 
-        input[type="text"], input[type="tel"], input[type="number"], input[type="password"], input[type="time"] {
-            width: 100%;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #333;
-            background: #1a1a1a;
-            color: #fff;
-            margin: 10px 0;
-            box-sizing: border-box;
-            font-size: 16px;
-            text-align: center;
+        input {
+            width: 100%; padding: 16px; border-radius: 12px; border: 1px solid #333;
+            background: #1a1a1a; color: #fff; margin: 10px 0; box-sizing: border-box; text-align: center;
         }
 
         button {
-            width: 100%;
-            padding: 18px;
-            border-radius: 15px;
-            border: none;
-            font-weight: 900;
-            cursor: pointer;
-            margin-top: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: transform 0.1s, opacity 0.2s;
+            width: 100%; padding: 18px; border-radius: 15px; border: none;
+            font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase;
         }
 
-        button:active { transform: scale(0.98); }
-
-        .btn-principal { background: var(--primary); color: #000; font-size: 16px; }
-        .btn-secundario { background: #333; color: #fff; border: 1px solid #444; }
-        .btn-mestre { background: transparent; color: #333; font-size: 10px; margin-top: 50px; }
-
-        /* Modais */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
+        .btn-principal { background: var(--primary); color: #000; }
+        .btn-secundario { background: #333; color: #fff; }
+        .btn-mestre-fixo { 
+            position: fixed; bottom: 20px; width: 90%; max-width: 460px;
+            background: #111; color: var(--primary); border: 1px solid var(--primary);
+            font-size: 11px; z-index: 999;
         }
 
-        .modal-content {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 25px;
-            border: 2px solid var(--accent);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none; align-items: center;
+            justify-content: center; z-index: 1000;
         }
-
-        /* Loading */
-        #loader {
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid rgba(255,255,255,0.1);
-            border-left-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: auto;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
@@ -184,72 +94,66 @@
 <div class="container">
     <div class="card">
         <h1>MAU<span>BET</span></h1>
-        <div id="status-relogio" class="status-aberto">SINCRONIZANDO COM O SERVIDOR...</div>
+        <div id="status-relogio" class="status-aberto">INICIALIZANDO...</div>
 
-        <div id="sessao-login">
-            <p style="color: #888;">Bem-vindo ao Bolão da Família!</p>
+        <div id="sessao-login" class="aba">
+            <p style="color: #888;">Identifique-se para apostar:</p>
             <input type="text" id="user-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="user-tel" placeholder="DDD + CELULAR (Ex: 24993148000)">
+            <input type="tel" id="user-tel" placeholder="24993148000">
             <div id="recaptcha-container"></div>
-            <button class="btn-principal" onclick="enviarCodigoSMS()">RECEBER CÓDIGO POR SMS</button>
-            <button class="btn-mestre" onclick="irParaSenhaMestre()">ACESSO ADMINISTRATIVO</button>
+            <button class="btn-principal" onclick="enviarSMS()">RECEBER SMS</button>
         </div>
 
-        <div id="sessao-sms" class="hidden">
-            <p>Insira o código de 6 dígitos enviado:</p>
-            <input type="number" id="codigo-sms" placeholder="000000">
-            <button class="btn-principal" onclick="verificarCodigoSMS()">VALIDAR E ENTRAR</button>
+        <div id="sessao-sms" class="aba hidden">
+            <input type="number" id="codigo-sms" placeholder="CÓDIGO DE 6 DÍGITOS">
+            <button class="btn-principal" onclick="validarSMS()">ENTRAR NO SISTEMA</button>
+        </div>
+
+        <div id="sessao-apostas" class="aba hidden">
+            <div id="lista-jogos"></div>
+            <button id="btn-enviar" class="btn-principal" onclick="confirmarBilhete()">🔒 ENVIAR PALPITES</button>
+        </div>
+
+        <div id="sessao-senha-mestre" class="aba hidden">
+            <h3>ACESSO MESTRE</h3>
+            <input type="password" id="senha-adm" placeholder="SENHA MASTER">
+            <button class="btn-principal" onclick="liberarPainel()">ENTRAR NO PAINEL</button>
             <button class="btn-secundario" onclick="location.reload()">VOLTAR</button>
         </div>
 
-        <div id="sessao-mestre-login" class="hidden">
-            <h3>PAINEL DO GESTOR</h3>
-            <input type="password" id="senha-admin" placeholder="SENHA DE ACESSO">
-            <button class="btn-principal" onclick="acessarPainelMestre()">ENTRAR NO PAINEL</button>
-            <button class="btn-secundario" onclick="location.reload()">VOLTAR</button>
-        </div>
-
-        <div id="sessao-apostas" class="hidden">
-            <div id="lista-jogos-api"></div>
-            <button id="btn-enviar-bilhete" class="btn-principal" onclick="abrirConfirmacao()">🔒 FINALIZAR MEU BILHETE</button>
-        </div>
-
-        <div id="sessao-painel-mestre" class="hidden">
-            <h2 style="color:var(--accent)">GESTOR DA RODADA</h2>
+        <div id="sessao-painel-mestre" class="aba hidden">
+            <h2 style="color:var(--accent)">PAINEL GESTOR</h2>
             
-            <div style="background: #111; padding: 15px; border-radius: 15px; margin-bottom: 20px; text-align: left;">
-                <p style="margin:0 0 10px 0; font-weight: bold; color: var(--primary);">1. ATUALIZAR JOGOS VIA IA</p>
-                <input type="file" id="upload-print" accept="image/*">
-                <button class="btn-principal" onclick="processarPrintComIA()">LER PRINT E CRIAR JOGOS</button>
-                
-                <div id="loader">
-                    <div class="spinner"></div>
-                    <p style="font-size: 10px; text-align: center;">IA LENDO IMAGEM... AGUARDE.</p>
-                </div>
+            <div style="background: #111; padding: 15px; border-radius: 15px; margin-bottom: 15px;">
+                <p style="color:var(--primary); font-weight:bold;">ADICIONAR JOGO</p>
+                <input type="text" id="add-casa" placeholder="TIME CASA">
+                <input type="text" id="add-fora" placeholder="TIME FORA">
+                <button class="btn-principal" onclick="salvarNovoJogo()">➕ SALVAR JOGO</button>
+                <button class="btn-secundario" style="background:var(--danger); font-size:10px;" onclick="limparTudo()">🗑️ APAGAR RODADA</button>
             </div>
 
-            <div style="background: #111; padding: 15px; border-radius: 15px; text-align: left;">
-                <p style="margin:0 0 10px 0; font-weight: bold; color: var(--primary);">2. HORÁRIO LIMITE</p>
+            <div style="background: #111; padding: 15px; border-radius: 15px;">
+                <p style="color:var(--primary); font-weight:bold;">FECHAMENTO</p>
                 <input type="time" id="config-hora">
-                <button class="btn-principal" onclick="salvarHoraLimite()">SALVAR HORÁRIO</button>
+                <button class="btn-principal" onclick="salvarHora()">SALVAR HORÁRIO</button>
             </div>
-
-            <button class="btn-secundario" style="margin-top: 30px;" onclick="location.reload()">SAIR DO MESTRE</button>
+            
+            <button class="btn-secundario" style="margin-top:20px;" onclick="location.reload()">SAIR DO MESTRE</button>
         </div>
     </div>
 </div>
 
-<div id="modal-confirmar" class="modal-overlay">
-    <div class="modal-content">
-        <h3 style="margin-top:0;">CONFIRMAR ENVIO?</h3>
-        <p style="font-size: 14px; color: #bbb;">Você revisou todos os placares? Após o envio, o bilhete será travado no sistema e não poderá ser editado.</p>
-        <button class="btn-principal" onclick="salvarApostaNoFirebase()">SIM, CONFIRMO MEUS VOTOS</button>
-        <button class="btn-secundario" onclick="fecharConfirmacao()">REVISAR NOVAMENTE</button>
+<button class="btn-mestre-fixo" onclick="irParaMestre()">⚙️ CONFIGURAÇÕES MASTER (MAUMAU)</button>
+
+<div id="modal-confirm" class="overlay">
+    <div style="background:var(--card); padding:30px; border-radius:20px; border:2px solid var(--accent); width:85%; max-width:350px; text-align:center;">
+        <h3>ENVIAR AGORA?</h3>
+        <button class="btn-principal" onclick="enviarPalpites()">SIM, CONFIRMO!</button>
+        <button class="btn-secundario" onclick="document.getElementById('modal-confirm').style.display='none'">REVISAR</button>
     </div>
 </div>
 
 <script>
-    // --- CONFIGURAÇÃO INICIAL DO FIREBASE ---
     const firebaseConfig = { 
         apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
         authDomain: "bolao-d2baf.firebaseapp.com", 
@@ -262,212 +166,79 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    let confirmacaoSMS;
-    let horaLimiteGlobal = "";
-    let nomeUsuario = "";
-    let telefoneUsuario = "";
+    let smsConfirm, horaLim = "", uNome = "", uTel = "";
 
-    // --- SISTEMA DE RELÓGIO E TRAVA EM TEMPO REAL ---
-    function monitorarTempo() {
-        if(!horaLimiteGlobal) return;
-        
+    function resetAbas() { document.querySelectorAll('.aba').forEach(a => a.classList.add('hidden')); }
+
+    // RELÓGIO
+    function timer() {
+        if(!horaLim) return;
         const agora = new Date();
-        const horaMinutoAtual = agora.getHours().toString().padStart(2, '0') + ":" + agora.getMinutes().toString().padStart(2, '0');
-        const display = document.getElementById('status-relogio');
-        const btnEnviar = document.getElementById('btn-enviar-bilhete');
-        const inputs = document.querySelectorAll('.placar-input');
-
-        if(horaMinutoAtual >= horaLimiteGlobal) {
-            display.innerText = "🚨 RODADA ENCERRADA ÀS " + horaLimiteGlobal;
-            display.className = "status-fechado";
-            if(btnEnviar) btnEnviar.classList.add('hidden');
-            inputs.forEach(input => input.disabled = true);
+        const atual = agora.getHours().toString().padStart(2,'0') + ":" + agora.getMinutes().toString().padStart(2,'0');
+        const d = document.getElementById('status-relogio');
+        if(atual >= horaLim) {
+            d.innerText = "🚨 FECHADO ÀS " + horaLim; d.className = "status-fechado";
+            document.getElementById('btn-enviar')?.classList.add('hidden');
         } else {
-            display.innerText = "⏳ APOSTAS ABERTAS ATÉ " + horaLimiteGlobal;
-            display.className = "status-aberto";
+            d.innerText = "⏳ ABERTO ATÉ " + horaLim; d.className = "status-aberto";
         }
     }
-    setInterval(monitorarTempo, 5000);
+    setInterval(timer, 5000);
+    db.collection("config").doc("rodada").onSnapshot(doc => { if(doc.exists) { horaLim = doc.data().limite; timer(); }});
 
-    // --- BUSCAR DADOS DE CONFIGURAÇÃO (HORA) ---
-    db.collection("config").doc("rodada").onSnapshot(doc => {
-        if(doc.exists) {
-            horaLimiteGlobal = doc.data().limite;
-            document.getElementById('config-hora').value = horaLimiteGlobal;
-            monitorarTempo();
-        }
-    });
-
-    // --- SEGURANÇA SMS (AUTH) ---
-    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { 'size': 'invisible' });
-
-    async function enviarCodigoSMS() {
-        nomeUsuario = document.getElementById('user-nome').value.trim();
-        telefoneUsuario = document.getElementById('user-tel').value.replace(/\D/g, '');
-
-        if(nomeUsuario.length < 3) return alert("Por favor, digite seu nome completo.");
-        if(telefoneUsuario.length < 10) return alert("Digite um celular válido com DDD.");
-
-        const telFormatado = "+55" + telefoneUsuario;
-
-        auth.signInWithPhoneNumber(telFormatado, window.recaptchaVerifier)
-            .then(result => {
-                confirmacaoSMS = result;
-                document.getElementById('sessao-login').classList.add('hidden');
-                document.getElementById('sessao-sms').classList.remove('hidden');
-                alert("Código enviado para o número " + telefoneUsuario);
-            }).catch(error => {
-                alert("Erro ao enviar SMS: " + error.message);
-            });
+    // LOGIN & SMS
+    window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+    function enviarSMS() {
+        uNome = document.getElementById('user-nome').value;
+        uTel = document.getElementById('user-tel').value.replace(/\D/g, '');
+        auth.signInWithPhoneNumber("+55"+uTel, window.recaptchaVerifier).then(res => {
+            smsConfirm = res; resetAbas(); document.getElementById('sessao-sms').classList.remove('hidden');
+        }).catch(e => alert("Erro: " + e.message));
+    }
+    function validarSMS() {
+        const c = document.getElementById('codigo-sms').value;
+        smsConfirm.confirm(c).then(() => { 
+            resetAbas(); document.getElementById('sessao-apostas').classList.remove('hidden'); carregarJogos(); 
+        }).catch(() => alert("Código inválido!"));
     }
 
-    async function verificarCodigoSMS() {
-        const codigo = document.getElementById('codigo-sms').value;
-        confirmacaoSMS.confirm(codigo).then(() => {
-            document.getElementById('sessao-sms').classList.add('hidden');
-            document.getElementById('sessao-apostas').classList.remove('hidden');
-            carregarJogosParaAposta();
-        }).catch(() => {
-            alert("Código incorreto. Tente novamente.");
-        });
-    }
-
-    // --- CARREGAMENTO DINÂMICO DE JOGOS ---
-    function carregarJogosParaAposta() {
-        const container = document.getElementById('lista-jogos-api');
+    // JOGOS
+    function carregarJogos() {
+        const container = document.getElementById('lista-jogos');
         db.collection("jogos").onSnapshot(snap => {
             container.innerHTML = "";
             snap.forEach(doc => {
                 const j = doc.data();
-                container.innerHTML += `
-                    <div class="jogo-card">
-                        <div class="time-box">
-                            <img src="escudos/${j.home.toLowerCase()}.png" class="escudo" onerror="this.src='escudos/default.png'">
-                            ${j.home}
-                        </div>
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <input type="number" class="placar-input" id="${doc.id}-h" min="0">
-                            <span style="font-weight:bold; color:var(--accent);">X</span>
-                            <input type="number" class="placar-input" id="${doc.id}-a" min="0">
-                        </div>
-                        <div class="time-box">
-                            <img src="escudos/${j.away.toLowerCase()}.png" class="escudo" onerror="this.src='escudos/default.png'">
-                            ${j.away}
-                        </div>
-                    </div>
-                `;
+                container.innerHTML += `<div class="jogo-card"><div class="time-box">${j.home}</div><div><input type="number" class="placar-input" id="${doc.id}-h"> x <input type="number" class="placar-input" id="${doc.id}-a"></div><div class="time-box" style="text-align:right">${j.away}</div></div>`;
             });
-            monitorarTempo();
         });
     }
 
-    // --- FUNÇÕES DO MESTRE (ADMIN) ---
-    function irParaSenhaMestre() {
-        document.getElementById('sessao-login').classList.add('hidden');
-        document.getElementById('sessao-mestre-login').classList.remove('hidden');
+    // PAINEL MASTER
+    function irParaMestre() { resetAbas(); document.getElementById('sessao-senha-mestre').classList.remove('hidden'); }
+    function liberarPainel() {
+        if(document.getElementById('senha-adm').value === "2026") {
+            resetAbas(); document.getElementById('sessao-painel-mestre').classList.remove('hidden');
+        } else { alert("Senha Incorreta!"); }
     }
 
-    function acessarPainelMestre() {
-        const senha = document.getElementById('senha-admin').value;
-        if(senha === "2026") { // SENHA QUE VOCÊ PODE MUDAR AQUI
-            document.getElementById('sessao-mestre-login').classList.add('hidden');
-            document.getElementById('sessao-painel-mestre').classList.remove('hidden');
-        } else {
-            alert("Senha Incorreta!");
-        }
+    async function salvarNovoJogo() {
+        const h = document.getElementById('add-casa').value;
+        const a = document.getElementById('add-fora').value;
+        if(h && a) { await db.collection("jogos").add({ home: h, away: a }); document.getElementById('add-casa').value=""; document.getElementById('add-fora').value=""; }
     }
 
-    async function salvarHoraLimite() {
-        const novaHora = document.getElementById('config-hora').value;
-        await db.collection("config").doc("rodada").set({ limite: novaHora });
-        alert("Horário de fechamento atualizado para " + novaHora);
+    async function limparTudo() { if(confirm("Apagar rodada?")) { const s = await db.collection("jogos").get(); const b = db.batch(); s.forEach(d => b.delete(d.ref)); await b.commit(); }}
+    async function salvarHora() { const h = document.getElementById('config-hora').value; await db.collection("config").doc("rodada").set({ limite: h }); alert("Salvo!"); }
+
+    // ENVIO
+    function confirmarBilhete() { document.getElementById('modal-confirm').style.display = 'flex'; }
+    async function enviarPalpites() {
+        const p = {};
+        document.querySelectorAll('.placar-input').forEach(i => { if(i.value !== "") p[i.id] = i.value; });
+        await db.collection("apostas").doc(uTel).set({ nome: uNome, palpites: p, data: firebase.firestore.FieldValue.serverTimestamp() });
+        alert("Enviado com sucesso!"); location.reload();
     }
-
-    // --- MOTOR IA: PROCESSAR PRINT DO GE ---
-    async function processarPrintComIA() {
-        const arquivo = document.getElementById('upload-print').files[0];
-        if(!arquivo) return alert("Selecione a imagem primeiro!");
-
-        document.getElementById('loader').style.display = 'flex';
-
-        const leitor = new FileReader();
-        leitor.readAsDataURL(arquivo);
-        leitor.onload = async () => {
-            const imagemBase64 = leitor.result.split(',')[1];
-            
-            // CHAVE DA API GEMINI (Precisa gerar uma gratuita no Google AI Studio)
-            const MINHA_CHAVE_API = "SUA_API_KEY_AQUI"; 
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${MINHA_CHAVE_API}`;
-
-            const payloadIA = {
-                contents: [{
-                    parts: [
-                        { text: "Liste os times do print no formato: TimeCasa x TimeFora. Um por linha. Não escreva nada além disso." },
-                        { inline_data: { mime_type: "image/png", data: imagemBase64 } }
-                    ]
-                }]
-            };
-
-            try {
-                const rawResponse = await fetch(endpoint, { method: 'POST', body: JSON.stringify(payloadIA) });
-                const jsonResponse = await rawResponse.json();
-                const textoGerado = jsonResponse.candidates[0].content.parts[0].text;
-
-                // Limpar rodada antiga
-                const batchLimpeza = db.batch();
-                const jogosAntigos = await db.collection("jogos").get();
-                jogosAntigos.forEach(doc => batchLimpeza.delete(doc.ref));
-                await batchLimpeza.commit();
-
-                // Criar novos jogos
-                const linhas = textoGerado.split('\n');
-                for(let linha of linhas) {
-                    if(linha.includes('x')) {
-                        const partes = linha.split('x');
-                        await db.collection("jogos").add({
-                            home: partes[0].trim(),
-                            away: partes[1].trim()
-                        });
-                    }
-                }
-                alert("Rodada atualizada pela IA com sucesso!");
-            } catch (err) {
-                alert("Erro ao processar imagem: " + err.message);
-            } finally {
-                document.getElementById('loader').style.display = 'none';
-            }
-        };
-    }
-
-    // --- FINALIZAÇÃO DE BILHETE ---
-    function abrirConfirmacao() { document.getElementById('modal-confirmar').style.display = 'flex'; }
-    function fecharConfirmacao() { document.getElementById('modal-confirmar').style.display = 'none'; }
-
-    async function salvarApostaNoFirebase() {
-        const apostaFinal = {};
-        const inputs = document.querySelectorAll('.placar-input');
-        
-        inputs.forEach(input => {
-            if(input.value !== "") apostaFinal[input.id] = input.value;
-        });
-
-        if(Object.keys(apostaFinal).length === 0) return alert("Preencha ao menos um resultado!");
-
-        try {
-            await db.collection("apostas").doc(telefoneUsuario).set({
-                nome: nomeUsuario,
-                telefone: telefoneUsuario,
-                palpites: apostaFinal,
-                data: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            fecharConfirmacao();
-            alert("Bilhete de " + nomeUsuario + " enviado! Boa sorte!");
-            location.reload();
-        } catch (e) {
-            alert("Erro ao salvar: " + e.message);
-        }
-    }
-
 </script>
 </body>
 </html>

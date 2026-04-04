@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v36.0 - RANKING PARCIAL</title>
+    <title>MAUBET v36.1 - CORREÇÃO TOTAL</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
@@ -12,18 +12,17 @@
         .container { width: 100%; max-width: 500px; }
         .hidden { display: none !important; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; }
         button { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
+        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
         .escudo { width: 40px; height: 40px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar { width: 40px; height: 40px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
+        .placar-input { width: 45px; height: 45px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; }
         .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 2px solid var(--accent); }
-        .ranking-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #222; }
+        .ranking-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; }
         .btn-secreto { color: #222; font-size: 9px; cursor: pointer; margin-top: 30px; display: inline-block; }
-        .badge-final { font-size: 10px; color: var(--accent); display: block; margin-bottom: 5px; }
     </style>
 </head>
 <body>
@@ -39,31 +38,30 @@
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
                 <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
             </div>
-            <span class="btn-secreto" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v36.0</span>
+            <span class="btn-secreto" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v36.1</span>
         </div>
 
         <div id="view-main" class="hidden">
             <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
-                <b style="color:var(--accent)">ADICIONAR JOGOS:</b>
+                <b style="color:var(--accent)">1. CADASTRAR JOGO:</b>
                 <input type="text" id="input-casa" placeholder="TIME CASA">
                 <input type="text" id="input-fora" placeholder="TIME FORA">
                 <input type="datetime-local" id="input-data">
-                <button class="btn-accent" onclick="addJogoNovo()">+ CADASTRAR JOGO</button>
+                <button class="btn-accent" onclick="addJogoNovo()">+ SALVAR TIME</button>
                 <button class="btn-green" onclick="setRodada(true)">🚀 LIBERAR PARA TODOS</button>
-                <hr style="border-color:#333; margin:20px 0">
-                <b style="color:var(--primary)">FINALIZAR JOGOS (UM POR UM):</b>
+                <hr style="border-color:#333; margin:15px 0">
+                <b style="color:var(--primary)">2. RESULTADOS REAIS:</b>
                 <div id="lista-mestre-resultados"></div>
-                <div id="painel-pagamentos" style="font-size:11px; margin-top:15px"></div>
             </div>
 
             <div id="display-jogos"></div>
             <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
             
             <div id="ranking-container" class="ranking-box">
-                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING ATUALIZADO</h3>
+                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING</h3>
                 <div id="ranking-lista"></div>
             </div>
-            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR / LOGOUT</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR</button>
         </div>
     </div>
 </div>
@@ -85,7 +83,7 @@
 
     function handleAcesso() {
         const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        if(!n) return alert("Seu nome!");
+        if(!n) return alert("Nome!");
         localStorage.setItem('maubet_n', n);
         localStorage.setItem('maubet_token', 'user');
         startApp();
@@ -105,26 +103,27 @@
         document.getElementById('msg-boas-vindas').innerText = "Olá, " + localStorage.getItem('maubet_n');
 
         db.collection("config").doc("status").onSnapshot(doc => {
+            const liberada = doc.exists && doc.data().liberada;
             const admin = localStorage.getItem('maubet_token') === 'admin';
             if(admin) document.getElementById('bloco-mestre').classList.remove('hidden');
-            renderConteudo(doc.exists && doc.data().liberada);
+            renderConteudo(liberada, admin);
         });
     }
 
     async function addJogoNovo() {
-        const c = document.getElementById('input-casa').value.toUpperCase();
-        const f = document.getElementById('input-fora').value.toUpperCase();
+        const c = document.getElementById('input-casa').value.toUpperCase().trim();
+        const f = document.getElementById('input-fora').value.toUpperCase().trim();
         const d = document.getElementById('input-data').value;
         if(c && f && d) {
             await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            location.reload();
+            alert("Jogo adicionado!");
+            document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
         }
     }
 
-    async function setRodada(val) { await db.collection("config").doc("status").set({ liberada: val }); }
+    async function setRodada(v) { await db.collection("config").doc("status").set({ liberada: v }); alert("Rodada Liberada!"); }
 
-    function renderConteudo(liberada) {
-        const admin = localStorage.getItem('maubet_token') === 'admin';
+    function renderConteudo(liberada, admin) {
         db.collection("jogos").orderBy("timestamp", "asc").onSnapshot(snap => {
             const container = document.getElementById('display-jogos');
             const listaMestre = document.getElementById('lista-mestre-resultados');
@@ -132,34 +131,36 @@
             let jogosFinais = {};
 
             snap.forEach(doc => {
-                const data = doc.data();
+                const d = doc.data();
                 const id = doc.id;
-                if(data.resH !== null) jogosFinais[id] = {h: data.resH, f: data.resF};
-                
-                const hI = data.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-                const aI = data.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-                
+                if(d.resH !== null) jogosFinais[id] = {h: d.resH, f: d.resF};
+
+                const hI = d.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+                const aI = d.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
+
+                // LISTA PARA TODOS
                 if(liberada || admin) {
                     container.innerHTML += `
                         <div class="jogo-item">
-                            <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.home}</div>
+                            <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.home}</div>
                             <div>
-                                ${data.resH !== null ? `<span class="badge-final">FINAL: ${data.resH} x ${data.resF}</span>` : ''}
+                                ${d.resH !== null ? `<span style="color:var(--accent); font-size:10px">FINAL: ${d.resH}x${d.resF}</span>` : ''}
                                 <div style="display:flex; gap:5px">
-                                    <input type="number" class="placar" id="${id}-h" oninput="checkInputs()" ${data.resH !== null ? 'disabled' : ''}>
-                                    <input type="number" class="placar" id="${id}-f" oninput="checkInputs()" ${data.resH !== null ? 'disabled' : ''}>
+                                    <input type="number" class="placar-input user-p" id="p-${id}-h" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
+                                    <input type="number" class="placar-input user-p" id="p-${id}-f" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
                                 </div>
                             </div>
-                            <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${data.away}</div>
+                            <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.away}</div>
                         </div>`;
                 }
 
+                // PAINEL DE RESULTADOS (MESTRE)
                 if(admin) {
                     listaMestre.innerHTML += `
-                        <div style="margin-bottom:10px; font-size:12px">
-                            ${data.home} <input type="number" id="final-h-${id}" style="width:35px" value="${data.resH}"> x 
-                            <input type="number" id="final-f-${id}" style="width:35px" value="${data.resF}"> ${data.away}
-                            <button onclick="salvarPlacarFinal('${id}')" style="width:auto; padding:5px 10px; font-size:10px; margin:0">✔</button>
+                        <div style="margin-bottom:8px; font-size:11px">
+                            ${d.home} <input type="number" id="m-${id}-h" style="width:30px; background:#000; color:#fff" value="${d.resH}"> x 
+                            <input type="number" id="m-${id}-f" style="width:30px; background:#000; color:#fff" value="${d.resF}"> ${d.away}
+                            <button onclick="salvarPlacarFinal('${id}')" style="width:auto; padding:5px; margin:0">OK</button>
                         </div>`;
                 }
             });
@@ -168,68 +169,55 @@
     }
 
     async function salvarPlacarFinal(id) {
-        const h = document.getElementById(`final-h-${id}`).value;
-        const f = document.getElementById(`final-f-${id}`).value;
+        const h = document.getElementById(`m-${id}-h`).value;
+        const f = document.getElementById(`m-${id}-f`).value;
         if(h !== "" && f !== "") {
             await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Resultado atualizado!");
+            alert("Placar Salvo!");
         }
     }
 
-    async function atualizarRanking(jogosFinais) {
-        const apostasSnap = await db.collection("apostas").get();
-        let ranking = [];
-
-        apostasSnap.forEach(doc => {
-            const a = doc.data();
-            let totalPontos = 0;
-
-            for(let jId in jogosFinais) {
-                const realH = jogosFinais[jId].h;
-                const realF = jogosFinais[jId].f;
-                const palpH = parseInt(a.palpites[`${jId}-h`]);
-                const palpF = parseInt(a.palpites[`${jId}-f`]);
-
-                if(!isNaN(palpH) && !isNaN(palpF)) {
-                    // REGRA: 10 PONTOS NA MOSCA
-                    if(palpH === realH && palpF === realF) {
-                        totalPontos += 10;
-                    } 
-                    // REGRA: 6 PONTOS VENCEDOR OU EMPATE
-                    else {
-                        const ganhouCasa = realH > realF && palpH > palpF;
-                        const ganhouFora = realF > realH && palpF > palpH;
-                        const empatou = realH === realF && palpH === palpF;
-                        if(ganhouCasa || ganhouFora || empatou) totalPontos += 6;
-                    }
-                }
-            }
-            ranking.push({nome: a.nome, pts: totalPontos});
-        });
-
-        ranking.sort((a,b) => b.pts - a.pts);
-        const listaUI = document.getElementById('ranking-lista');
-        listaUI.innerHTML = "";
-        ranking.forEach((r, i) => {
-            listaUI.innerHTML += `<div class="ranking-item"><span>${i+1}º ${r.nome}</span> <b>${r.pts} pts</b></div>`;
-        });
-    }
-
     function checkInputs() {
-        const inputs = document.querySelectorAll('.placar:not([disabled])');
+        const inputs = document.querySelectorAll('.user-p:not([disabled])');
         const preenchido = Array.from(inputs).every(i => i.value !== "");
         document.getElementById('btn-salvar-jogo').classList.toggle('hidden', !preenchido || inputs.length === 0);
     }
 
     async function salvarPalpites() {
         const p = {}; 
-        document.querySelectorAll('.placar').forEach(i => p[i.id] = i.value);
+        document.querySelectorAll('.user-p').forEach(i => p[i.id] = i.value);
         await db.collection("apostas").add({
             nome: localStorage.getItem('maubet_n'),
             palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("Palpites salvos!");
+        alert("Enviado com sucesso!");
         location.reload();
+    }
+
+    async function atualizarRanking(jogosFinais) {
+        const snap = await db.collection("apostas").get();
+        let rank = [];
+        snap.forEach(doc => {
+            const a = doc.data();
+            let pts = 0;
+            for(let jId in jogosFinais) {
+                const rH = jogosFinais[jId].h;
+                const rF = jogosFinais[jId].f;
+                const pH = parseInt(a.palpites[`p-${jId}-h`]);
+                const pF = parseInt(a.palpites[`p-${jId}-f`]);
+                if(!isNaN(pH) && !isNaN(pF)) {
+                    if(pH === rH && pF === rF) pts += 10;
+                    else if((rH > rF && pH > pF) || (rF > rH && pF > pH) || (rH === rF && pH === pF)) pts += 6;
+                }
+            }
+            rank.push({n: a.nome, p: pts});
+        });
+        rank.sort((a,b) => b.p - a.p);
+        const list = document.getElementById('ranking-lista');
+        list.innerHTML = "";
+        rank.forEach((r, i) => {
+            list.innerHTML += `<div class="ranking-item"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`;
+        });
     }
 </script>
 </body>

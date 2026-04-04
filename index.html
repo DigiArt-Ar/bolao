@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v37.0 - FINAL FIX</title>
+    <title>MAUBET v37.1 - SOLUÇÃO DEFINITIVA</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
@@ -12,16 +12,16 @@
         .container { width: 100%; max-width: 500px; }
         .hidden { display: none !important; }
         .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; }
+        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff !important; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; opacity: 1 !important; }
         button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .btn-danger { background: var(--danger); color: #fff; padding: 5px 10px; font-size: 10px; width: auto; margin: 0; }
-        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
+        .btn-danger { background: var(--danger); color: #fff; padding: 8px; font-size: 12px; width: auto; margin: 0; border-radius: 8px; }
+        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
         .escudo { width: 35px; height: 35px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar-input { width: 42px; height: 42px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
-        .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 1px solid var(--accent); }
+        .placar-input { width: 42px; height: 42px; background: #000 !important; border: 1px solid var(--primary) !important; color: #fff !important; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
+        .mestre-linha { display: flex; align-items: center; justify-content: space-between; background: #111; padding: 10px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #333; }
     </style>
 </head>
 <body>
@@ -36,31 +36,32 @@
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
                 <button class="btn-accent" onclick="acessoMestre()">PAINEL MESTRE</button>
             </div>
-            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:20px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.0</span>
+            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:20px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.1</span>
         </div>
 
         <div id="view-main" class="hidden">
             <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
-                <b style="color:var(--accent)">1. ADICIONAR JOGO:</b>
+                <b style="color:var(--accent)">1. NOVO JOGO:</b>
                 <input type="text" id="input-casa" placeholder="TIME CASA">
                 <input type="text" id="input-fora" placeholder="TIME FORA">
                 <input type="datetime-local" id="input-data">
                 <button class="btn-accent" onclick="addJogoNovo()">+ SALVAR TIME</button>
-                <button id="btn-toggle-rodada" class="btn-green" onclick="toggleRodada(true)">🚀 LIBERAR RODADA AGORA</button>
+                <button id="btn-toggle-rodada" class="btn-green" onclick="toggleRodada(true)">🚀 LIBERAR PARA TODOS</button>
+                
                 <hr style="border-color:#333; margin:15px 0">
-                <b style="color:var(--primary)">2. PLACAR FINAL E GESTÃO:</b>
+                <b style="color:var(--primary)">2. RESULTADOS E EXCLUSÃO:</b>
                 <div id="lista-mestre-resultados" style="margin-top:10px"></div>
             </div>
 
-            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">Aguardando liberação do Mestre...</div>
+            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">A rodada será liberada em breve pelo Mestre...</div>
             <div id="display-jogos"></div>
-            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR BILHETE</button>
+            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
             
             <div id="ranking-container" class="ranking-box hidden">
-                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING DA RODADA</h3>
+                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING</h3>
                 <div id="ranking-lista"></div>
             </div>
-            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR</button>
+            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR / TROCAR NOME</button>
         </div>
     </div>
 </div>
@@ -82,7 +83,7 @@
 
     function handleAcesso() {
         const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        if(!n) return alert("Digite seu nome!");
+        if(!n) return alert("Nome!");
         localStorage.setItem('maubet_n', n);
         localStorage.setItem('maubet_token', 'user');
         startApp();
@@ -108,7 +109,7 @@
             if(admin) {
                 document.getElementById('bloco-mestre').classList.remove('hidden');
                 const btn = document.getElementById('btn-toggle-rodada');
-                btn.innerText = liberada ? "🔒 TRAVAR RODADA" : "🚀 LIBERAR RODADA AGORA";
+                btn.innerText = liberada ? "🔒 TRAVAR AGORA" : "🚀 LIBERAR AGORA";
                 btn.className = liberada ? "btn-accent" : "btn-green";
                 btn.onclick = () => toggleRodada(!liberada);
             }
@@ -125,6 +126,7 @@
 
     async function toggleRodada(v) { 
         await db.collection("config").doc("status").set({ liberada: v });
+        alert(v ? "RODADA ABERTA PARA TODOS!" : "RODADA TRAVADA!");
     }
 
     async function addJogoNovo() {
@@ -135,14 +137,12 @@
             await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('input-casa').value = ""; 
             document.getElementById('input-fora').value = "";
-            alert("Time Salvo!");
+            alert("Time salvo com sucesso!");
         }
     }
 
     async function excluirJogo(id) {
-        if(confirm("Deseja apagar este jogo permanentemente?")) {
-            await db.collection("jogos").doc(id).delete();
-        }
+        if(confirm("Apagar este jogo?")) await db.collection("jogos").doc(id).delete();
     }
 
     function renderConteudo(admin) {
@@ -162,7 +162,6 @@
                     <div class="jogo-item">
                         <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.home}</div>
                         <div>
-                            ${d.resH !== null ? `<span style="color:var(--accent); font-size:10px">FINAL: ${d.resH}x${d.resF}</span>` : ''}
                             <div style="display:flex; gap:5px">
                                 <input type="number" class="placar-input user-p" id="p-${id}-h" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
                                 <input type="number" class="placar-input user-p" id="p-${id}-f" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
@@ -173,11 +172,12 @@
 
                 if(admin) {
                     listaMestre.innerHTML += `
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; background:#111; padding:5px; border-radius:8px">
-                            <span style="font-size:9px; width:60px">${d.home}</span>
-                            <input type="number" id="m-${id}-h" style="width:30px; height:25px; background:#000; color:#fff; border:1px solid #444" value="${d.resH !== null ? d.resH : ''}">
-                            <input type="number" id="m-${id}-f" style="width:30px; height:25px; background:#000; color:#fff; border:1px solid #444" value="${d.resF !== null ? d.resF : ''}">
-                            <button onclick="salvarPlacarFinal('${id}')" class="btn-green" style="width:auto; padding:3px 8px; margin:0; font-size:10px">OK</button>
+                        <div class="mestre-linha">
+                            <span style="font-size:9px; width:50px">${d.home}</span>
+                            <input type="number" id="m-${id}-h" style="width:30px; height:30px; background:#222; color:#fff" value="${d.resH !== null ? d.resH : ''}">
+                            <input type="number" id="m-${id}-f" style="width:30px; height:30px; background:#222; color:#fff" value="${d.resF !== null ? d.resF : ''}">
+                            <span style="font-size:9px; width:50px">${d.away}</span>
+                            <button onclick="salvarPlacarFinal('${id}')" class="btn-green" style="width:auto; padding:5px; margin:0">OK</button>
                             <button onclick="excluirJogo('${id}')" class="btn-danger">🗑️</button>
                         </div>`;
                 }
@@ -191,7 +191,7 @@
         const f = document.getElementById(`m-${id}-f`).value;
         if(h !== "" && f !== "") {
             await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Placar Salvo!");
+            alert("Resultado Salvo!");
         }
     }
 
@@ -204,7 +204,7 @@
     async function salvarPalpites() {
         const p = {}; document.querySelectorAll('.user-p').forEach(i => p[i.id] = i.value);
         await db.collection("apostas").add({ nome: localStorage.getItem('maubet_n'), palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-        alert("BILHETE ENVIADO COM SUCESSO!");
+        alert("BILHETE ENVIADO!");
         location.reload();
     }
 

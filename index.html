@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET OFICIAL v31.0</title>
+    <title>MAUBET v33.0 - ACESSO DIRETO</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <style>
@@ -22,13 +21,11 @@
         .btn-accent { background: var(--accent); color: #000; }
         
         .del-game { position: absolute; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.4); color: #fff; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 20; }
-        
-        .saudacao-user { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; width: 100%; }
-        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; overflow: visible; }
-        .time-box { width: 35%; font-size: 10px; font-weight: bold; text-transform: uppercase; text-align: center; line-height: 1.2; }
+        .saudacao-user { font-weight: bold; color: var(--primary); margin-bottom: 15px; font-size: 18px; text-align: center; }
+        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; position: relative; }
+        .time-box { width: 35%; font-size: 10px; font-weight: bold; text-transform: uppercase; text-align: center; }
         .escudo { width: 45px; height: 45px; object-fit: contain; display: block; margin: 0 auto 5px; }
         .placar { width: 45px; height: 45px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 20px; font-weight: bold; border-radius: 8px; }
-
         .painel-mestre { background: #000; padding: 15px; border-radius: 15px; border: 2px dashed var(--accent); margin-bottom: 20px; text-align: left; }
         .lista-apostas { margin-top: 15px; background: #111; border-radius: 10px; padding: 10px; }
         .row-apostador { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #222; font-size: 12px; }
@@ -42,15 +39,10 @@
     <div class="card">
         <div id="view-login">
             <h2>MAU<span>BET</span></h2>
-            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="user-tel" placeholder="DDD + CELULAR">
-            <div id="recaptcha-box"></div>
-            <button class="btn-green" onclick="handleSms()">ENTRAR</button>
-        </div>
-
-        <div id="view-sms" class="hidden">
-            <input type="number" id="user-code" placeholder="CÓDIGO OU SENHA">
-            <button class="btn-green" onclick="handleAcesso()">CONFIRMAR</button>
+            <p style="font-size: 12px; color: #888; margin-bottom: 20px;">FAÇA SEU PALPITE AGORA</p>
+            <input type="text" id="user-nome" placeholder="SEU NOME COMPLETO">
+            <input type="text" id="user-tel" placeholder="TELEFONE (DDD + NÚMERO)">
+            <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
         </div>
 
         <div id="view-main" class="hidden">
@@ -72,7 +64,7 @@
 
             <div id="display-jogos"></div>
             <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
-            <button onclick="logout()" style="background:none; color:#444; font-size:10px; margin-top:30px; border:none">SAIR DA CONTA</button>
+            <button onclick="logout()" style="background:none; color:#444; font-size:10px; margin-top:30px; border:none">SAIR / TROCAR NOME</button>
         </div>
     </div>
 </div>
@@ -88,42 +80,31 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    const auth = firebase.auth();
 
-    const MASTER_KEY = "259225";
-    let smsSession;
+    const MASTER_KEY = "259225"; // SUA SENHA DE MESTRE
 
     window.onload = () => { if(localStorage.getItem('maubet_token')) startApp(); };
 
-    function handleSms() {
-        const n = document.getElementById('user-nome').value.toUpperCase();
-        const t = "+55" + document.getElementById('user-tel').value.replace(/\D/g, '');
-        localStorage.setItem('maubet_tmp_n', n);
-        auth.signInWithPhoneNumber(t, new firebase.auth.RecaptchaVerifier('recaptcha-box', {size:'invisible'})).then(r => {
-            smsSession = r;
-            document.getElementById('view-login').classList.add('hidden');
-            document.getElementById('view-sms').classList.remove('hidden');
-        });
-    }
-
     function handleAcesso() {
-        const c = document.getElementById('user-code').value;
-        if(c === MASTER_KEY) {
+        const n = document.getElementById('user-nome').value.toUpperCase().trim();
+        const t = document.getElementById('user-tel').value.trim();
+
+        if(!n || !t) return alert("Por favor, preencha nome e telefone!");
+
+        // Se no campo de telefone digitar a senha mestre
+        if(t === MASTER_KEY) {
             localStorage.setItem('maubet_n', "MESTRE MAU");
             localStorage.setItem('maubet_token', 'admin');
             startApp();
         } else {
-            smsSession.confirm(c).then(() => {
-                localStorage.setItem('maubet_n', localStorage.getItem('maubet_tmp_n'));
-                localStorage.setItem('maubet_token', 'user');
-                startApp();
-            });
+            localStorage.setItem('maubet_n', n);
+            localStorage.setItem('maubet_token', 'user');
+            startApp();
         }
     }
 
     function startApp() {
         document.getElementById('view-login').classList.add('hidden');
-        document.getElementById('view-sms').classList.add('hidden');
         document.getElementById('view-main').classList.remove('hidden');
         document.getElementById('msg-boas-vindas').innerText = "Olá, " + localStorage.getItem('maubet_n');
 
@@ -142,7 +123,10 @@
                 }
                 renderAdmin();
             }
+            
+            // Todos vêem os jogos se estiver liberado OU se for o admin
             if(open || admin) renderJogos();
+            else document.getElementById('display-jogos').innerHTML = "<p style='color:#666'>A rodada ainda não foi liberada pelo organizador.</p>";
         });
     }
 
@@ -165,7 +149,6 @@
             container.innerHTML = "";
             snap.forEach(doc => {
                 const data = doc.data();
-                // LIMPEZA REFORÇADA: remove espaços, acentos e traços para bater com o nome do arquivo
                 const hI = data.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                 const aI = data.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
                 
@@ -183,7 +166,7 @@
     function renderAdmin() {
         db.collection("apostas").orderBy("timestamp", "desc").onSnapshot(snap => {
             const box = document.getElementById('painel-clientes');
-            box.innerHTML = "<b>QUEM JÁ JOGOU:</b>";
+            box.innerHTML = "<b>PAGAMENTOS:</b>";
             snap.forEach(doc => {
                 const a = doc.data();
                 box.innerHTML += `
@@ -213,8 +196,9 @@
             nome: localStorage.getItem('maubet_n'),
             palpites: p, pago: false, timestamp: firebase.firestore.FieldValue.serverTimestamp()
         });
-        alert("Bilhete enviado com sucesso! Agora você aparecerá na lista.");
+        alert("Palpites enviados! Boa sorte!");
         document.getElementById('btn-salvar-jogo').classList.add('hidden');
+        // Uma vez enviado, ele "trava" o botão para essa sessão.
     }
 </script>
 </body>

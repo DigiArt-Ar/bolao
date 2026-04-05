@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v37.2 - VOLTA TELEFONE</title>
+    <title>MAUBET v37.5 - RANKING AUTOMÁTICO</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
@@ -16,12 +16,13 @@
         button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         .btn-green { background: var(--primary); color: #000; }
         .btn-accent { background: var(--accent); color: #000; }
-        .btn-danger { background: var(--danger); color: #fff; padding: 5px 8px; font-size: 12px; width: auto; margin: 0; border-radius: 8px; }
+        .btn-danger { background: var(--danger); color: #fff; padding: 5px 8px; font-size: 10px; width: auto; margin: 0; border-radius: 8px; }
         .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
         .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
         .escudo { width: 35px; height: 35px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar-input { width: 42px; height: 42px; background: #000; border: 1px solid var(--primary); color: #fff; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
+        .placar-input { width: 42px; height: 42px; background: #000 !important; border: 1px solid var(--primary) !important; color: #fff !important; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
         .mestre-linha { display: flex; align-items: center; justify-content: space-between; background: #111; padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #333; }
+        .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 1px solid var(--accent); text-align: left; }
     </style>
 </head>
 <body>
@@ -31,39 +32,39 @@
         <div id="view-login">
             <h2>MAU<span>BET</span></h2>
             <input type="text" id="user-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="user-tel" placeholder="TELEFONE (WHATSAPP)">
-            <button class="btn-green" onclick="handleAcesso()">ENTRAR NO BOLÃO</button>
-            
+            <input type="tel" id="user-tel" placeholder="WHATSAPP">
+            <button class="btn-green" onclick="handleAcesso()">ENTRAR</button>
             <div id="login-mestre" class="hidden">
                 <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
-                <button class="btn-accent" onclick="acessoMestre()">LIBERAR PAINEL</button>
+                <button class="btn-accent" onclick="acessoMestre()">PAINEL MESTRE</button>
             </div>
-            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:25px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.2</span>
+            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:25px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.5</span>
         </div>
 
         <div id="view-main" class="hidden">
             <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
-                <b style="color:var(--accent)">1. ADICIONAR JOGO:</b>
+                <b style="color:var(--accent)">CONTROLE:</b>
                 <input type="text" id="input-casa" placeholder="TIME CASA">
                 <input type="text" id="input-fora" placeholder="TIME FORA">
                 <input type="datetime-local" id="input-data">
                 <button class="btn-accent" onclick="addJogoNovo()">+ SALVAR TIME</button>
-                <button id="btn-toggle-rodada" class="btn-green" onclick="toggleRodada(true)">🚀 LIBERAR PARA TODOS</button>
-                
+                <button id="btn-toggle-rodada" class="btn-green"></button>
                 <hr style="border-color:#333; margin:15px 0">
-                <b style="color:var(--primary)">2. RESULTADOS E GESTÃO:</b>
+                <b style="color:var(--primary)">PLACAR FINAL:</b>
                 <div id="lista-mestre-resultados" style="margin-top:10px"></div>
             </div>
 
-            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">A rodada está sendo preparada. Aguarde a liberação do Mestre!</div>
+            <h3 id="titulo-aposta" style="color:var(--primary)">MEUS PALPITES:</h3>
+            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">Rodada em preparação...</div>
             <div id="display-jogos"></div>
-            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR MEU BILHETE</button>
+            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR BILHETE</button>
             
             <div id="ranking-container" class="ranking-box hidden">
-                <h3 style="color:var(--accent); margin:0 0 10px 0">🏆 RANKING</h3>
+                <h3 style="color:var(--accent); margin:0 0 10px 0; text-align:center">🏆 RANKING DA RODADA</h3>
                 <div id="ranking-lista"></div>
             </div>
-            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">SAIR / TROCAR CONTA</button>
+            
+            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">TROCAR USUÁRIO</button>
         </div>
     </div>
 </div>
@@ -86,7 +87,7 @@
     function handleAcesso() {
         const n = document.getElementById('user-nome').value.toUpperCase().trim();
         const t = document.getElementById('user-tel').value.trim();
-        if(!n || !t) return alert("Preencha nome e telefone!");
+        if(!n || !t) return alert("Dados incompletos!");
         localStorage.setItem('maubet_n', n);
         localStorage.setItem('maubet_token', 'user');
         startApp();
@@ -97,8 +98,6 @@
             localStorage.setItem('maubet_n', "MESTRE MAU");
             localStorage.setItem('maubet_token', 'admin');
             startApp();
-        } else {
-            alert("Senha incorreta!");
         }
     }
 
@@ -122,16 +121,17 @@
             if(!liberada && !admin) {
                 document.getElementById('status-msg').classList.remove('hidden');
                 document.getElementById('display-jogos').innerHTML = "";
+                document.getElementById('titulo-aposta').classList.add('hidden');
             } else {
                 document.getElementById('status-msg').classList.add('hidden');
+                document.getElementById('titulo-aposta').classList.remove('hidden');
                 renderConteudo(admin);
             }
         });
     }
 
     async function toggleRodada(v) { 
-        await db.collection("config").doc("status").set({ liberada: v });
-        alert(v ? "RODADA ABERTA!" : "RODADA FECHADA!");
+        await db.collection("config").doc("status").set({ liberada: v }, { merge: true });
     }
 
     async function addJogoNovo() {
@@ -140,14 +140,12 @@
         const d = document.getElementById('input-data').value;
         if(c && f && d) {
             await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('input-casa').value = ""; 
-            document.getElementById('input-fora').value = "";
-            alert("Jogo adicionado!");
+            document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
         }
     }
 
     async function excluirJogo(id) {
-        if(confirm("Excluir este jogo?")) await db.collection("jogos").doc(id).delete();
+        if(confirm("Excluir?")) await db.collection("jogos").doc(id).delete();
     }
 
     function renderConteudo(admin) {
@@ -179,8 +177,8 @@
                     listaMestre.innerHTML += `
                         <div class="mestre-linha">
                             <span style="font-size:9px; width:50px">${d.home}</span>
-                            <input type="number" id="m-${id}-h" style="width:30px; height:30px; background:#222; color:#fff" value="${d.resH !== null ? d.resH : ''}">
-                            <input type="number" id="m-${id}-f" style="width:30px; height:30px; background:#222; color:#fff" value="${d.resF !== null ? d.resF : ''}">
+                            <input type="number" id="m-${id}-h" style="width:30px; height:30px; background:#000; color:#fff" value="${d.resH !== null ? d.resH : ''}">
+                            <input type="number" id="m-${id}-f" style="width:30px; height:30px; background:#000; color:#fff" value="${d.resF !== null ? d.resF : ''}">
                             <button onclick="salvarPlacarFinal('${id}')" class="btn-green" style="width:auto; padding:5px; margin:0">OK</button>
                             <button onclick="excluirJogo('${id}')" class="btn-danger">🗑️</button>
                         </div>`;
@@ -195,7 +193,7 @@
         const f = document.getElementById(`m-${id}-f`).value;
         if(h !== "" && f !== "") {
             await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Salvo!");
+            alert("Placar gravado!");
         }
     }
 
@@ -229,7 +227,7 @@
         });
         rank.sort((a,b) => b.p - a.p);
         const list = document.getElementById('ranking-lista'); list.innerHTML = "";
-        rank.forEach((r, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #222"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`; });
+        rank.forEach((r, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #333"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`; });
         document.getElementById('ranking-container').classList.remove('hidden');
     }
 </script>

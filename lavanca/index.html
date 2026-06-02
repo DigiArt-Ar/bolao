@@ -231,6 +231,20 @@
         .btn-res.vermelho { background-color: var(--vermelho-erro); }
         
         .btn-res.ativo { opacity: 1; }
+
+        .btn-reset-total {
+            display: block;
+            width: 100%;
+            background: none;
+            border: 1px dashed #3a3a40;
+            color: var(--texto-escuro);
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -259,8 +273,9 @@
 
     <div id="conteudo-jogos"></div>
 
+    <button class="btn-reset-total" onclick="limparMemoriasLocais()">⚠️ Limpar Dados e Resetar App</button>
+
     <script>
-        // Banco de dados base original com todos os confrontos salvos
         const dadosCopaOriginais = [
             { dia: "11/06", jogos: [{id:1, t1:"México", t2:"África do Sul", o1:1.45, o2:7.90}, {id:2, t1:"Coreia do Sul", t2:"República Tcheca", o1:2.75, o2:2.75}] },
             { dia: "12/06", jogos: [{id:3, t1:"Canadá", t2:"Bósnia-Herzegovina", o1:1.85, o2:4.35}, {id:4, t1:"EUA", t2:"Paraguai", o1:2.00, o2:3.90}] },
@@ -281,14 +296,30 @@
             { dia: "27/06", jogos: [{id:66, t1:"Nova Zelândia", t2:"Bélgica", o1:9.75, o2:1.31}, {id:67, t1:"Croácia", t2:"Gana", o1:1.75, o2:4.90}, {id:68, t1:"Panamá", t2:"Inglaterra", o1:15.50, o2:1.20}, {id:69, t1:"Colômbia", t2:"Portugal", o1:3.60, o2:2.12}, {id:70, t1:"RD Congo", t2:"Uzbequistão", o1:2.55, o2:2.90}, {id:71, t1:"Argélia", t2:"Áustria", o1:3.40, o2:2.25}, {id:72, t1:"Jordânia", t2:"Argentina", o1:15.00, o2:1.20}] }
         ];
 
-        // Carrega dados persistidos salvos ou assume o padrão
-        let dadosCopa = JSON.parse(localStorage.getItem('dadosCopa_banca')) || dadosCopaOriginais;
-        let escolhas = JSON.parse(localStorage.getItem('escolhas_banca')) || {}; 
-        let ordemCronologicaDeCliques = JSON.parse(localStorage.getItem('ordem_banca')) || [];
+        let dadosCopa = dadosCopaOriginais;
+        let escolhas = {}; 
+        let ordemCronologicaDeCliques = [];
         let modoEdicaoAtivo = false;
 
+        function carregarDadosComSeguranca() {
+            try {
+                const dadosSalvos = localStorage.getItem('dadosCopa_banca');
+                const escolhasSalvas = localStorage.getItem('escolhas_banca');
+                const ordemSalva = localStorage.getItem('ordem_banca');
+
+                if (dadosSalvos && dadosSalvos !== "undefined") dadosCopa = JSON.parse(dadosSalvos);
+                if (escolhasSalvas && escolhasSalvas !== "undefined") escolhas = JSON.parse(escolhasSalvas);
+                if (ordemSalva && ordemSalva !== "undefined") ordemCronologicaDeCliques = JSON.parse(ordemSalva);
+            } catch(e) {
+                console.log("Erro ao ler dados, redefinindo pro padrão estável.");
+                dadosCopa = dadosCopaOriginais;
+                escolhas = {};
+                ordemCronologicaDeCliques = [];
+            }
+        }
+
         function inicializarApp() {
-            // Ajusta valor inicial se houver histórico
+            carregarDadosComSeguranca();
             if(localStorage.getItem('valorInicial_banca')) {
                 document.getElementById('valor-inicial').value = localStorage.getItem('valorInicial_banca');
             }
@@ -305,4 +336,198 @@
                 
                 const titulo = document.createElement('div');
                 titulo.className = 'dia-titulo';
-                titulo.innerText
+                titulo.innerText = `Dia ${secao.dia}`;
+                divDia.appendChild(titulo);
+
+                const lista = document.createElement('div');
+                lista.className = 'lista-jogos';
+
+                secao.jogos.forEach(jogo => {
+                    const escolha = escolhas[jogo.id] || null;
+                    const statusClass = escolha && escolha.resultado ? `status-${escolha.resultado}` : '';
+
+                    const card = document.createElement('div');
+                    card.className = `card-jogo ${statusClass}`;
+
+                    let blocoSelecaoOdds = '';
+                    if (modoEdicaoAtivo) {
+                        blocoSelecaoOdds = `
+                            <div style="flex: 1; text-align: center;">
+                                <label style="font-size:0.75rem; color:var(--texto-escuro)">ODD ${jogo.t1}</label>
+                                <input type="number" step="0.01" class="input-edit-odd" value="${jogo.o1}" onchange="salvarNovaOdd(${jogo.id}, 1, this.value)">
+                            </div>
+                            <div style="flex: 1; text-align: center;">
+                                <label style="font-size:0.75rem; color:var(--texto-escuro)">ODD ${jogo.t2}</label>
+                                <input type="number" step="0.01" class="input-edit-odd" value="${jogo.o2}" onchange="salvarNovaOdd(${jogo.id}, 2, this.value)">
+                            </div>
+                        `;
+                    } else {
+                        blocoSelecaoOdds = `
+                            <button class="btn-odd ${escolha && escolha.time === 1 ? 'selecionado' : ''}" onclick="selecionarOdd(${jogo.id}, 1, ${jogo.o1})">
+                                Vitória ${jogo.t1} <span>${jogo.o1.toFixed(2)}</span>
+                            </button>
+                            <button class="btn-odd ${escolha && escolha.time === 2 ? 'selecionado' : ''}" onclick="selecionarOdd(${jogo.id}, 2, ${jogo.o2})">
+                                Vitória ${jogo.t2} <span>${jogo.o2.toFixed(2)}</span>
+                            </button>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="confronto">
+                            <span>${jogo.t1}</span>
+                            <span>x</span>
+                            <span>${jogo.t2}</span>
+                        </div>
+                        <div class="botoes-odds">
+                            ${blocoSelecaoOdds}
+                        </div>
+                        <div class="rodape-card">
+                            <div>
+                                Simulação: <span id="calc-jogo-${jogo.id}">Entrada: R$ 0.00 | Retorno: R$ 0.00</span>
+                            </div>
+                            <div class="botoes-resultado">
+                                <button class="btn-res verde ${escolha && escolha.resultado === 'ganhou' ? 'ativo' : ''}" onclick="definirResultado(${jogo.id}, 'ganhou')">✓</button>
+                                <button class="btn-res vermelho ${escolha && escolha.resultado === 'perdeu' ? 'ativo' : ''}" onclick="definirResultado(${jogo.id}, 'perdeu')">✗</button>
+                            </div>
+                        </div>
+                    `;
+                    lista.appendChild(card);
+                });
+
+                divDia.appendChild(lista);
+                container.appendChild(divDia);
+            });
+
+            calcularTudo();
+        }
+
+        function alternarModoConfig() {
+            modoEdicaoAtivo = !modoEdicaoAtivo;
+            const btn = document.getElementById('btn-config');
+            if (modoEdicaoAtivo) {
+                btn.innerText = "💾 Salvar Configurações";
+                btn.classList.add('ativo');
+            } else {
+                btn.innerText = "⚙️ Editar ODDs";
+                btn.classList.remove('ativo');
+                
+                ordemCronologicaDeCliques.forEach(id => {
+                    if (escolhas[id]) {
+                        const jogoOriginal = encontrarJogoPorId(id);
+                        if(jogoOriginal) {
+                            escolhas[id].odd = escolhas[id].time === 1 ? jogoOriginal.o1 : jogoOriginal.o2;
+                        }
+                    }
+                });
+                localStorage.setItem('dadosCopa_banca', JSON.stringify(dadosCopa));
+                localStorage.setItem('escolhas_banca', JSON.stringify(escolhas));
+            }
+            renderizarInterface();
+        }
+
+        function salvarNovaOdd(jogoId, col, valor) {
+            const novoValor = parseFloat(valor) || 1.00;
+            const jogo = encontrarJogoPorId(jogoId);
+            if (jogo) {
+                if (col === 1) jogo.o1 = novoValor;
+                if (col === 2) jogo.o2 = novoValor;
+            }
+        }
+
+        function encontrarJogoPorId(id) {
+            for (let s of dadosCopa) {
+                for (let j of s.jogos) {
+                    if (j.id === id) return j;
+                }
+            }
+            return null;
+        }
+
+        function selecionarOdd(jogoId, time, oddValor) {
+            if (modoEdicaoAtivo) return;
+
+            if (escolhas[jogoId] && escolhas[jogoId].time === time) {
+                delete escolhas[jogoId];
+                ordemCronologicaDeCliques = ordemCronologicaDeCliques.filter(id => id !== jogoId);
+            } else {
+                escolhas[jogoId] = { time: time, odd: oddValor, resultado: null };
+                if (!ordemCronologicaDeCliques.includes(jogoId)) {
+                    ordemCronologicaDeCliques.push(jogoId);
+                }
+            }
+            salvarMudancasFluxo();
+            renderizarInterface();
+        }
+
+        function definirResultado(jogoId, status) {
+            if (modoEdicaoAtivo || !escolhas[jogoId]) return;
+
+            if (escolhas[jogoId].resultado === status) {
+                escolhas[jogoId].resultado = null;
+            } else {
+                escolhas[jogoId].resultado = status;
+                if (status === 'perdeu') {
+                    alert("Aposta com RED! O montante atualizado da alavancagem foi zerado.");
+                }
+            }
+            salvarMudancasFluxo();
+            renderizarInterface();
+        }
+
+        function salvarValorInicial() {
+            const val = document.getElementById('valor-inicial').value;
+            localStorage.setItem('valorInicial_banca', val);
+        }
+
+        function salvarMudancasFluxo() {
+            localStorage.setItem('escolhas_banca', JSON.stringify(escolhas));
+            localStorage.setItem('ordem_banca', JSON.stringify(ordemCronologicaDeCliques));
+        }
+
+        function calcularTudo() {
+            const valorInicialInput = parseFloat(document.getElementById('valor-inicial').value) || 0;
+            let bancaViva = valorInicialInput;
+            let ativosContador = 0;
+
+            dadosCopa.forEach(s => {
+                s.jogos.forEach(j => {
+                    const el = document.getElementById(`calc-jogo-${j.id}`);
+                    if (el) el.innerText = "Entrada: R$ 0.00 | Retorno: R$ 0.00";
+                });
+            });
+
+            ordemCronologicaDeCliques.forEach(id => {
+                const aposta = escolhas[id];
+                if (!aposta) return;
+
+                ativosContador++;
+                let entradaDoDegrau = bancaViva;
+                let retornoDoDegrau = entradaDoDegrau * aposta.odd;
+
+                const elText = document.getElementById(`calc-jogo-${id}`);
+                if (elText) {
+                    elText.innerHTML = `Entrada: <strong>R$ ${entradaDoDegrau.toFixed(2)}</strong> | Retorno: <strong style="color: var(--verde-sucesso)">R$ ${retornoDoDegrau.toFixed(2)}</strong>`;
+                }
+
+                if (aposta.resultado === 'ganhou') {
+                    bancaViva = retornoDoDegrau;
+                } else if (aposta.resultado === 'perdeu') {
+                    bancaViva = 0;
+                }
+            });
+
+            document.getElementById('total-acumulado').innerText = `R$ ${bancaViva === 0 ? valorInicialInput.toFixed(2) : bancaViva.toFixed(2)}`;
+            document.getElementById('qtd-ativos').innerText = ativosContador;
+        }
+
+        function limparMemoriasLocais() {
+            if(confirm("Deseja realmente resetar o app? Isso limpará todas as modificações e apostas atuais.")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        window.onload = inicializarApp;
+    </script>
+</body>
+</html>

@@ -70,18 +70,11 @@
             border: 1px solid var(--cor-borda);
         }
 
-        /* Ajuste do layout dos inputs no topo */
-        .grid-inputs {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
         .input-group {
             display: flex;
             flex-direction: column;
             gap: 8px;
+            margin-bottom: 12px;
         }
 
         .input-group label {
@@ -98,12 +91,20 @@
             border-radius: 6px;
             font-size: 1.1rem;
             font-weight: bold;
-            width: 100%;
         }
 
         .input-group input:focus {
             border-color: var(--laranja-bet);
             outline: none;
+        }
+
+        /* Seção oculta de ajuste manual dentro das configurações */
+        .painel-edicao-banca {
+            background-color: rgba(242, 90, 34, 0.05);
+            border: 1px dashed var(--laranja-bet);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
         }
 
         .painel-valores {
@@ -268,16 +269,20 @@
     </header>
 
     <div class="config-banca">
-        <div class="grid-inputs">
-            <div class="input-group">
-                <label for="valor-inicial">Valor Inicial (R$)</label>
-                <input type="number" id="valor-inicial" value="50" min="1" oninput="salvarValorInicial(); limparEntradaManual();">
-            </div>
-            <div class="input-group">
-                <label for="valor-ajustado" style="color: var(--laranja-bet);">Próxima Entrada (R$)</label>
-                <input type="number" id="valor-ajustado" placeholder="Deixe vazio p/ total" min="0" oninput="salvarValorAjustado(); calcularTudo();">
+        <!-- Campo Inicial Tradicional -->
+        <div class="input-group">
+            <label for="valor-inicial">Valor Inicial da Operação (R$)</label>
+            <input type="number" id="valor-inicial" value="50" min="1" oninput="salvarValorInicial(); calcularTudo();">
+        </div>
+
+        <!-- Painel de Ajuste que SÓ aparece no Modo Edição -->
+        <div id="painel-ajuste-manual" class="painel-edicao-banca" style="display: none;">
+            <div class="input-group" style="margin-bottom: 0;">
+                <label for="banca-manual" style="color: var(--laranja-bet);">Editar Valor Acumulado Corrente (R$)</label>
+                <input type="number" id="banca-manual" placeholder="Deixe em branco para cálculo automático" min="0" oninput="salvarBancaManual(); calcularTudo();">
             </div>
         </div>
+
         <div class="painel-valores">
             <div class="bloco-valor">
                 <span>Total Acumulado</span>
@@ -342,8 +347,8 @@
             if(localStorage.getItem('valorInicial_banca')) {
                 document.getElementById('valor-inicial').value = localStorage.getItem('valorInicial_banca');
             }
-            if(localStorage.getItem('valorAjustado_banca')) {
-                document.getElementById('valor-ajustado').value = localStorage.getItem('valorAjustado_banca');
+            if(localStorage.getItem('bancaManual_banca')) {
+                document.getElementById('banca-manual').value = localStorage.getItem('bancaManual_banca');
             }
             renderizarInterface();
         }
@@ -426,12 +431,16 @@
         function alternarModoConfig() {
             modoEdicaoAtivo = !modoEdicaoAtivo;
             const btn = document.getElementById('btn-config');
+            const painelAjuste = document.getElementById('painel-ajuste-manual');
+
             if (modoEdicaoAtivo) {
                 btn.innerText = "💾 Salvar Configurações";
                 btn.classList.add('ativo');
+                painelAjuste.style.display = 'block'; // Mostra o input de ajuste manual
             } else {
                 btn.innerText = "⚙️ Editar ODDs";
                 btn.classList.remove('ativo');
+                painelAjuste.style.display = 'none'; // Oculta o input de ajuste manual ao salvar
                 
                 ordemCronologicaDeCliques.forEach(id => {
                     if (escolhas[id]) {
@@ -499,17 +508,18 @@
         function salvarValorInicial() {
             const val = document.getElementById('valor-inicial').value;
             localStorage.setItem('valorInicial_banca', val);
+            // Limpa o ajuste se o inicial mudar para evitar quebras
+            document.getElementById('banca-manual').value = '';
+            localStorage.removeItem('bancaManual_banca');
         }
 
-        function salvarValorAjustado() {
-            const val = document.getElementById('valor-ajustado').value;
-            localStorage.setItem('valorAjustado_banca', val);
-        }
-
-        function limparEntradaManual() {
-            document.getElementById('valor-ajustado').value = '';
-            localStorage.removeItem('valorAjustado_banca');
-            calcularTudo();
+        function salvarBancaManual() {
+            const val = document.getElementById('banca-manual').value;
+            if(val === '') {
+                localStorage.removeItem('bancaManual_banca');
+            } else {
+                localStorage.setItem('bancaManual_banca', val);
+            }
         }
 
         function salvarMudancasFluxo() {
@@ -519,7 +529,7 @@
 
         function calcularTudo() {
             const valorInicialInput = parseFloat(document.getElementById('valor-inicial').value) || 0;
-            const inputAjustado = document.getElementById('valor-ajustado').value;
+            const inputManualVal = document.getElementById('banca-manual').value;
             
             let bancaViva = valorInicialInput;
             let ativosContador = 0;
@@ -531,6 +541,11 @@
                 });
             });
 
+            // Se o usuário digitou um ajuste manual, a banca viva corrente recebe esse valor imediatamente
+            if (inputManualVal !== '') {
+                bancaViva = parseFloat(inputManualVal) || 0;
+            }
+
             for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
                 const id = ordemCronologicaDeCliques[i];
                 const aposta = escolhas[id];
@@ -538,12 +553,6 @@
 
                 ativosContador++;
                 let entradaDoDegrau = bancaViva;
-
-                // Se houver valor no input de ajuste manual, ele passa a ser o valor do degrau corrente ativo
-                if (i === ordemCronologicaDeCliques.length - 1 && inputAjustado !== '') {
-                    entradaDoDegrau = parseFloat(inputAjustado) || 0;
-                }
-
                 let retornoDoDegrau = entradaDoDegrau * aposta.odd;
 
                 const elText = document.getElementById(`calc-jogo-${id}`);
@@ -559,16 +568,14 @@
             }
 
             let exibicaoBancaFinal = bancaViva;
+            
+            // Ajusta o display do "Valor Verde" caso o último jogo selecionado ainda esteja pendente (sem resultado)
             if (ordemCronologicaDeCliques.length > 0) {
                 const ultimoId = ordemCronologicaDeCliques[ordemCronologicaDeCliques.length - 1];
                 const ultimaAposta = escolhas[ultimoId];
                 
                 if (ultimaAposta && ultimaAposta.resultado === null) {
-                    let ultimaEntrada = bancaViva;
-                    if (inputAjustado !== '') {
-                        ultimaEntrada = parseFloat(inputAjustado) || 0;
-                    }
-                    exibicaoBancaFinal = ultimaEntrada * ultimaAposta.odd;
+                    exibicaoBancaFinal = bancaViva * ultimaAposta.odd;
                 }
             }
 

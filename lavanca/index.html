@@ -98,7 +98,6 @@
             outline: none;
         }
 
-        /* Seção oculta de ajuste manual dentro das configurações */
         .painel-edicao-banca {
             background-color: rgba(242, 90, 34, 0.05);
             border: 1px dashed var(--laranja-bet);
@@ -156,11 +155,25 @@
         .card-jogo.status-ganhou { border-color: var(--verde-sucesso); }
         .card-jogo.status-perdeu { border-color: var(--vermelho-erro); }
 
-        .confronto {
+        /* Novo layout alinhado com o desenho enviado */
+        .confronto-probabilidades {
             font-size: 0.95rem;
             font-weight: bold;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+
+        .time-prob {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .prob-badge {
+            color: var(--texto-escuro);
+            font-size: 0.85rem;
+            font-weight: normal;
         }
 
         .botoes-odds {
@@ -173,7 +186,7 @@
             background-color: var(--bg-principal);
             border: 1px solid var(--cor-borda);
             color: var(--texto-claro);
-            padding: 8px;
+            padding: 10px;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.85rem;
@@ -183,7 +196,7 @@
 
         .btn-odd span {
             display: block;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: var(--laranja-bet);
             margin-top: 2px;
@@ -269,13 +282,11 @@
     </header>
 
     <div class="config-banca">
-        <!-- Campo Inicial Tradicional -->
         <div class="input-group">
             <label for="valor-inicial">Valor Inicial da Operação (R$)</label>
             <input type="number" id="valor-inicial" value="50" min="1" oninput="salvarValorInicial(); calcularTudo();">
         </div>
 
-        <!-- Painel de Ajuste que SÓ aparece no Modo Edição -->
         <div id="painel-ajuste-manual" class="painel-edicao-banca" style="display: none;">
             <div class="input-group" style="margin-bottom: 0;">
                 <label for="banca-manual" style="color: var(--laranja-bet);">Editar Valor Acumulado Corrente (R$)</label>
@@ -325,6 +336,20 @@
         let ordemCronologicaDeCliques = [];
         let modoEdicaoAtivo = false;
 
+        // Função interna matemática para calcular probabilidades reais limpando o juice
+        function calcularProbabilidadesReais(o1, o2) {
+            const raw1 = 1 / o1;
+            const raw2 = 1 / o2;
+            const totalRaw = raw1 + raw2;
+            
+            // Tratamento matemático caso haja empate implícito alto
+            const margemRestante = 1.0 - (totalRaw * 0.85); 
+            const p1 = Math.round((raw1 / totalRaw) * (1.0 - Math.max(0, margemRestante)) * 100);
+            const p2 = Math.round((raw2 / totalRaw) * (1.0 - Math.max(0, margemRestante)) * 100);
+            
+            return { p1: p1, p2: p2 };
+        }
+
         function carregarDadosComSeguranca() {
             try {
                 const dadosSalvos = localStorage.getItem('dadosCopa_banca');
@@ -335,7 +360,6 @@
                 if (escolhasSalvas && escolhasSalvas !== "undefined") escolhas = JSON.parse(escolhasSalvas);
                 if (ordemSalva && ordemSalva !== "undefined") ordemCronologicaDeCliques = JSON.parse(ordemSalva);
             } catch(e) {
-                console.log("Erro ao ler dados, redefinindo pro padrão estável.");
                 dadosCopa = dadosCopaOriginais;
                 escolhas = {};
                 ordemCronologicaDeCliques = [];
@@ -373,6 +397,8 @@
                     const escolha = escolhas[jogo.id] || null;
                     const statusClass = escolha && escolha.resultado ? `status-${escolha.resultado}` : '';
 
+                    const probs = calcularProbabilidadesReais(jogo.o1, jogo.o2);
+
                     const card = document.createElement('div');
                     card.className = `card-jogo ${statusClass}`;
 
@@ -391,19 +417,26 @@
                     } else {
                         blocoSelecaoOdds = `
                             <button class="btn-odd ${escolha && escolha.time === 1 ? 'selecionado' : ''}" onclick="selecionarOdd(${jogo.id}, 1, ${jogo.o1})">
-                                Vitória ${jogo.t1} <span>${jogo.o1.toFixed(2)}</span>
+                                ${jogo.t1} <span>${jogo.o1.toFixed(2)}</span>
                             </button>
                             <button class="btn-odd ${escolha && escolha.time === 2 ? 'selecionado' : ''}" onclick="selecionarOdd(${jogo.id}, 2, ${jogo.o2})">
-                                Vitória ${jogo.t2} <span>${jogo.o2.toFixed(2)}</span>
+                                ${jogo.t2} <span>${jogo.o2.toFixed(2)}</span>
                             </button>
                         `;
                     }
 
+                    // Layout ajustado exatamente conforme o desenho da folha de papel recebida
                     card.innerHTML = `
-                        <div class="confronto">
-                            <span>${jogo.t1}</span>
-                            <span>x</span>
-                            <span>${jogo.t2}</span>
+                        <div class="confronto-probabilidades">
+                            <div class="time-prob">
+                                <span>${jogo.t1}</span>
+                                <span class="prob-badge">${probs.p1}%</span>
+                            </div>
+                            <span>X</span>
+                            <div class="time-prob">
+                                <span>${jogo.t2}</span>
+                                <span class="prob-badge">${probs.p2}%</span>
+                            </div>
                         </div>
                         <div class="botoes-odds">
                             ${blocoSelecaoOdds}
@@ -436,11 +469,11 @@
             if (modoEdicaoAtivo) {
                 btn.innerText = "💾 Salvar Configurações";
                 btn.classList.add('ativo');
-                painelAjuste.style.display = 'block'; // Mostra o input de ajuste manual
+                painelAjuste.style.display = 'block';
             } else {
                 btn.innerText = "⚙️ Editar ODDs";
                 btn.classList.remove('ativo');
-                painelAjuste.style.display = 'none'; // Oculta o input de ajuste manual ao salvar
+                painelAjuste.style.display = 'none';
                 
                 ordemCronologicaDeCliques.forEach(id => {
                     if (escolhas[id]) {
@@ -508,7 +541,6 @@
         function salvarValorInicial() {
             const val = document.getElementById('valor-inicial').value;
             localStorage.setItem('valorInicial_banca', val);
-            // Limpa o ajuste se o inicial mudar para evitar quebras
             document.getElementById('banca-manual').value = '';
             localStorage.removeItem('bancaManual_banca');
         }
@@ -541,7 +573,6 @@
                 });
             });
 
-            // Se o usuário digitou um ajuste manual, a banca viva corrente recebe esse valor imediatamente
             if (inputManualVal !== '') {
                 bancaViva = parseFloat(inputManualVal) || 0;
             }
@@ -569,7 +600,6 @@
 
             let exibicaoBancaFinal = bancaViva;
             
-            // Ajusta o display do "Valor Verde" caso o último jogo selecionado ainda esteja pendente (sem resultado)
             if (ordemCronologicaDeCliques.length > 0) {
                 const ultimoId = ordemCronologicaDeCliques[ordemCronologicaDeCliques.length - 1];
                 const ultimaAposta = escolhas[ultimoId];

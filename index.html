@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copa 2026 - Bolão</title>
-    <!-- FontAwesome para o ícone da engrenagem -->
+    <title>Copa 2026 DigiArt - Bolão</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -172,7 +171,6 @@
             font-weight: bold;
         }
 
-        /* Remove as setinhas nativas do input number para ficar mais limpo */
         input::-webkit-outer-spin-button,
         input::-webkit-inner-spin-button {
             -webkit-appearance: none;
@@ -185,11 +183,16 @@
             padding: 12px 10px;
             border-bottom: 1px solid #2a2f3a;
         }
+        
+        .cabecalho-ranking {
+            font-weight: bold;
+            border-bottom: 2px solid #007bff;
+            color: #007bff;
+        }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN / NOME -->
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
         <p>Digite seu nome para entrar no bolão:</p>
@@ -197,46 +200,32 @@
         <button id="btn-entrar">Confirmar e Entrar</button>
     </div>
 
-    <!-- TELA PRINCIPAL DO APP -->
     <div id="tela-principal" class="container hidden">
         <header>
             <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
             <button id="btn-admin" title="Área do Administrador"><i class="fas fa-cog"></i></button>
         </header>
 
-        <!-- ABAS DE NAVEGAÇÃO -->
         <div class="tabs">
             <button id="tab-palpites" class="tab-btn active">Meus Palpites</button>
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
-        <!-- CONTEÚDO: PALPITES -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <p class="aviso-trava">Os palpites travam 30 minutos antes do primeiro jogo (14/06 às 18:00)!</p>
             <div id="lista-jogos">
-                <!-- Jogos gerados via JavaScript -->
-            </div>
+                </div>
             <button id="btn-salvar-palpites">Salvar Todos os Palpites</button>
         </div>
 
-        <!-- CONTEÚDO: RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação Geral</h3>
             <div id="lista-ranking">
-                <!-- Exemplo visual de como ficará o ranking puxado do banco -->
-                <div class="linha-ranking"><strong>Posição / Nome</strong> <strong>Pontos (Exatos)</strong></div>
-                <div class="linha-ranking"><span>1º João</span> <span>0 pts (0)</span></div>
-                <div class="linha-ranking"><span>2º Pedro</span> <span>0 pts (0)</span></div>
-                <div class="linha-ranking"><span>3º Antônio</span> <span>0 pts (0)</span></div>
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- ==========================================
-       LÓGICA DO SISTEMA (JAVASCRIPT)
-       ========================================== -->
     <script>
-        // Lista oficial dos 24 jogos que selecionamos
         const jogosBolao = [
             { id: "j01", grupo: "A", t1: "México", t2: "Croácia", data: "2026-06-16T17:00:00" },
             { id: "j02", grupo: "A", t1: "Croácia", t2: "Coreia do Sul", data: "2026-06-24T21:00:00" },
@@ -261,17 +250,17 @@
             { id: "j21", grupo: "K", t1: "Portugal", t2: "Camarões", data: "2026-06-21T21:00:00" },
             { id: "j22", grupo: "K", t1: "Camarões", t2: "Polônia", data: "2026-06-27T21:00:00" },
             { id: "j23", grupo: "L", t1: "Argentina", t2: "Sérvia", data: "2026-06-22T15:00:00" },
-            { id: "j24", grupo: "L", t1: "Sérvia", t2: "Canadá", data: "2026-06-14T18:00:00" } // Primeiro jogo cronológico
+            { id: "j24", grupo: "L", t1: "Sérvia", t2: "Canadá", data: "2026-06-14T18:00:00" }
         ];
 
-        const SENHA_ADMIN_PRE_ESTABELECIDA = "1052"; // Sua senha configurada!
+        const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
         let isAdmin = false;
 
         document.addEventListener("DOMContentLoaded", () => {
             renderizarJogos();
             checarUsuarioExistente();
 
-            // Ação do Botão Secreto da Engrenagem
+            // Clique da Engrenagem Master
             document.getElementById("btn-admin").addEventListener("click", () => {
                 const senhaDigitada = prompt("Digite a senha Master do Administrador:");
                 if (senhaDigitada === SENHA_ADMIN_PRE_ESTABELECIDA) {
@@ -283,11 +272,10 @@
                 }
             });
 
-            // Clique nas Abas
             document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
             document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
 
-            // Botão de Login
+            // Botão Confirmar Entrada
             document.getElementById("btn-entrar").addEventListener("click", () => {
                 const nome = document.getElementById("input-nome").value.trim();
                 if (nome) {
@@ -298,17 +286,23 @@
                 }
             });
 
-            // Botão de Salvar (Simulação local por enquanto)
+            // Botão Misto (Salvar Palpites / Salvar Admin)
             document.getElementById("btn-salvar-palpites").addEventListener("click", () => {
                 if (isAdmin) {
-                    alert("Resultados Oficiais salvos com sucesso no sistema! (Simulação)");
+                    alert("Resultados Oficiais salvos no Firebase! Voltando para a tela de palpites.");
+                    
+                    // CORREÇÃO: Reseta o estado do administrador e bloqueia as caixas
+                    isAdmin = false;
+                    
+                    // Atualiza a tela para visualização comum e vai para a home de palpites
+                    checarTravaDoSistema(); 
+                    alternarAbas("palpites");
                 } else {
-                    alert("Seus palpites foram salvos localmente com sucesso!");
+                    alert("Seus palpites foram salvos com sucesso!");
                 }
             });
         });
 
-        // Constrói os cards dos jogos dinamicamente
         function renderizarJogos() {
             const listaDiv = document.getElementById("lista-jogos");
             listaDiv.innerHTML = "";
@@ -319,7 +313,7 @@
                 const card = document.createElement("div");
                 card.className = "card-jogo";
                 card.innerHTML = `
-                    <div class="info-jogo">Grupo ${jogo.grupo} — ${dataFormatada} (Horário de Brasília)</div>
+                    <div class="info-jogo">Grupo ${jogo.grupo} — ${dataFormatada}</div>
                     <div class="confronto">
                         <span class="time">${jogo.t1}</span>
                         <div class="placar-inputs">
@@ -334,14 +328,12 @@
             });
         }
 
-        // Transforma a tela do usuário comum na tela de Admin
         function liberarModoAdminVisual() {
             jogosBolao.forEach(jogo => {
                 document.getElementById(`p1-${jogo.id}`).disabled = false;
                 document.getElementById(`p2-${jogo.id}`).disabled = false;
             });
             const btnSalvar = document.getElementById("btn-salvar-palpites");
-            btnSalvar.classList.remove("hidden");
             btnSalvar.innerText = "Salvar Resultados Oficiais (Admin)";
             btnSalvar.style.backgroundColor = "#ff3d00";
             
@@ -350,7 +342,6 @@
             aviso.style.color = "#ff3d00";
         }
 
-        // Pula o login se o usuário já acessou antes no aparelho
         function checarUsuarioExistente() {
             const nomeSalvo = localStorage.getItem("bolao_nome_usuario");
             if (nomeSalvo) {
@@ -362,28 +353,52 @@
             document.getElementById("tela-login").classList.add("hidden");
             document.getElementById("tela-principal").classList.remove("hidden");
             document.getElementById("nome-usuario").innerText = nome;
+            
+            atualizarRankingDinamico(nome);
             checarTravaDoSistema();
         }
 
-        // Lógica que bloqueia os inputs de palpites caso passe do tempo limite
+        // CORREÇÃO: Gera o ranking limpo apenas com o nome real cadastrado
+        function atualizarRankingDinamico(nomeCadastrado) {
+            const containerRanking = document.getElementById("lista-ranking");
+            containerRanking.innerHTML = `
+                <div class="linha-ranking cabecalho-ranking">
+                    <span>Posição / Nome</span>
+                    <span>Pontos (Exatos)</span>
+                </div>
+                <div class="linha-ranking">
+                    <span>1º ${nomeCadastrado}</span>
+                    <span>0 pts (0)</span>
+                </div>
+            `;
+        }
+
         function checarTravaDoSistema() {
-            // Primeiro jogo: Sérvia x Canadá (14 de Junho às 18:00)
             const dataPrimeiroJogo = new Date("2026-06-14T18:00:00");
             const trintaMinutosEmMs = 30 * 60 * 1000;
             const limiteTrava = new Date(dataPrimeiroJogo.getTime() - trintaMinutosEmMs);
             const agora = new Date();
 
+            const btnSalvar = document.getElementById("btn-salvar-palpites");
+            const aviso = document.querySelector(".aviso-trava");
+
+            // Reseta cores padrões do botão caso venha do modo admin
+            btnSalvar.style.backgroundColor = "#00c853";
+            btnSalvar.innerText = "Salvar Todos os Palpites";
+
             if (agora >= limiteTrava && !isAdmin) {
                 document.querySelectorAll(".placar-inputs input").forEach(input => input.disabled = true);
-                document.getElementById("btn-salvar-palpites").classList.add("hidden");
-                document.querySelector(".aviso-trava").innerText = "SISTEMA TRAVADO! Os palpites foram encerrados.";
-                document.querySelector(".aviso-trava").style.color = "#ff3d00";
+                btnSalvar.classList.add("hidden");
+                aviso.innerText = "SISTEMA TRAVADO! Os palpites foram encerrados.";
+                aviso.style.color = "#ff3d00";
             } else if (!isAdmin) {
                 document.querySelectorAll(".placar-inputs input").forEach(input => input.disabled = false);
+                btnSalvar.classList.remove("hidden");
+                aviso.innerText = "Os palpites travam 30 minutos antes do primeiro jogo (14/06 às 18:00)!";
+                aviso.style.color = "#ffb300";
             }
         }
 
-        // Alterna a exibição entre as abas de Palpites e Ranking
         function alternarAbas(aba) {
             if (aba === "palpites") {
                 document.getElementById("tab-palpites").classList.add("active");

@@ -1,1 +1,23 @@
-effcc
+{
+  "short_name": "Bolão Copa 2026",
+  "name": "Bolão Oficial - Copa do Mundo 2026",
+  "icons": [
+    {
+      "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/advanced-options/metadata/icons.json",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/advanced-options/metadata/icons.json",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "index.html",
+  "background_color": "#0f1115",
+  "theme-color": "#1a1d24",
+  "display": "standalone",
+  "orientation": "portrait"
+}

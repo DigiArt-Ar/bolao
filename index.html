@@ -453,6 +453,8 @@
 
             database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').set(dadosPalpites).then(() => {
                 alert("Seus palpites foram salvos com sucesso!");
+                // Rola suavemente a página até o topo após a confirmação
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         }
 
@@ -505,7 +507,7 @@
                     });
                 });
 
-                alert("Pontuações e ranking atualizados com absoluto sucesso!");
+                alert("Pontuações e ranking updated com sucesso!");
                 isAdmin = false;
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");

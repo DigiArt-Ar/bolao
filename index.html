@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copa 2026 DigiArt - Bolão</title>
+    <title>Copa 2026 DigiArt - Bolão Oficial</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -33,7 +33,7 @@
         .btn-secundario:hover { background-color: #374151; }
 
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; }
+        .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
         .tab-btn.active { background-color: #007bff; color: #fff; }
 
         .aviso-trava { font-size: 13px; color: #ffb300; margin-bottom: 20px; text-align: center; font-weight: 500; padding: 8px; border-radius: 6px; background-color: rgba(255, 179, 0, 0.1); }
@@ -41,6 +41,9 @@
         .status-aberto { color: #00c853; }
         .status-travado { color: #ff3d00; }
 
+        /* Divisores de Data */
+        .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 6px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #38bdf8; }
+        
         .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
         .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -62,7 +65,6 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
         <p>Digite seu nome para entrar no bolão:</p>
@@ -70,7 +72,6 @@
         <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
-    <!-- TELA PRINCIPAL -->
     <div id="tela-principal" class="container hidden">
         <header>
             <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
@@ -82,7 +83,6 @@
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
-        <!-- CONTEÚDO: PALPITES / JOGOS -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <div id="banner-spy" class="visualizando-banner hidden">
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
@@ -91,14 +91,12 @@
             <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
             
             <div id="lista-jogos">
-                <!-- Organizado cronologicamente -->
-            </div>
+                </div>
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Todos os Meus Palpites</button>
             <button id="btn-cancelar-admin" class="btn-secundario hidden">Sair do Modo Admin</button>
         </div>
 
-        <!-- CONTEÚDO: RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação Geral</h3>
             <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
@@ -106,7 +104,6 @@
         </div>
     </div>
 
-    <!-- FIREBASE COMPAT -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -124,25 +121,45 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // LISTA DE JOGOS PROGRAMADOS EM SEQUÊNCIA PARA HOJE (09/06/2026)
+        // TABELA OFICIAL COMPLETA - 24 JOGOS CRONOLÓGICOS DA FASE DE GRUPOS
         const jogosBolao = [
-            { id: "j01", grupo: "A", t1: "México", t2: "Croácia", data: "2026-06-09T14:40:00" },
-            { id: "j24", grupo: "L", t1: "Sérvia", t2: "Canadá", data: "2026-06-09T15:00:00" },
-            { id: "j06", grupo: "C", t1: "Marrocos", t2: "Uruguai", data: "2026-06-09T15:30:00" },
-            { id: "j18", grupo: "I", t1: "Gana", t2: "Escócia", data: "2026-06-09T16:00:00" },
-            { id: "j04", grupo: "B", t1: "Equador", t2: "Nigéria", data: "2026-06-09T16:30:00" },
-            { id: "j07", grupo: "D", t1: "Dinamarca", t2: "Turquia", data: "2026-06-09T17:00:00" }
+            { id: "j01", grupo: "A", t1: "México", t2: "Croácia", data: "2026-06-11T17:00:00" },
+            { id: "j02", grupo: "A", t1: "Estados Unidos", t2: "Marrocos", data: "2026-06-12T14:00:00" },
+            { id: "j03", grupo: "B", t1: "Canadá", t2: "Gana", data: "2026-06-12T17:00:00" },
+            { id: "j04", grupo: "B", t1: "Equador", t2: "Nigéria", data: "2026-06-12T20:00:00" },
+            { id: "j05", grupo: "C", t1: "Argentina", t2: "Escócia", data: "2026-06-13T13:00:00" },
+            { id: "j06", grupo: "C", t1: "Espanha", t2: "Tunísia", data: "2026-06-13T16:00:00" },
+            { id: "j07", grupo: "D", t1: "França", t2: "Arábia Saudita", data: "2026-06-13T19:00:00" },
+            { id: "j08", grupo: "D", t1: "Austrália", t2: "Togo", data: "2026-06-13T22:00:00" },
+            { id: "j09", grupo: "E", t1: "Brasil", t2: "Ucrânia", data: "2026-06-14T14:00:00" },
+            { id: "j10", grupo: "E", t1: "Bélgica", t2: "Argélia", data: "2026-06-14T17:00:00" },
+            { id: "j11", grupo: "F", t1: "Itália", t2: "Camarões", data: "2026-06-14T20:00:00" },
+            { id: "j12", grupo: "F", t1: "Alemanha", t2: "Nova Zelândia", data: "2026-06-15T13:00:00" },
+            { id: "j13", grupo: "G", t1: "Inglaterra", t2: "Chile", data: "2026-06-15T16:00:00" },
+            { id: "j14", grupo: "G", t1: "Holanda", t2: "Coreia do Sul", data: "2026-06-15T19:00:00" },
+            { id: "j15", grupo: "H", t1: "Portugal", t2: "Egito", data: "2026-06-16T14:00:00" },
+            { id: "j16", grupo: "H", t1: "Uruguai", t2: "Japão", data: "2026-06-16T17:00:00" },
+            { id: "j17", grupo: "I", t1: "Colômbia", t2: "Suécia", data: "2026-06-16T20:00:00" },
+            { id: "j18", grupo: "I", t1: "Dinamarca", t2: "Senegal", data: "2026-06-17T13:00:00" },
+            { id: "j19", grupo: "J", t1: "Suíça", t2: "Irã", data: "2026-06-17T16:00:00" },
+            { id: "j20", grupo: "J", t1: "Croácia", t2: "Costa do Marfim", data: "2026-06-17T19:00:00" },
+            { id: "j21", grupo: "K", t1: "Polônia", t2: "Paraguai", data: "2026-06-18T14:00:00" },
+            { id: "j22", grupo: "K", t1: "Gales", t2: "África do Sul", data: "2026-06-18T17:00:00" },
+            { id: "j23", grupo: "L", t1: "Sérvia", t2: "Honduras", data: "2026-06-18T20:00:00" },
+            { id: "j24", grupo: "L", t1: "Áustria", t2: "Catar", data: "2026-06-19T14:00:00" }
         ];
 
         const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
         let isAdmin = false;
         let modoEspiaoAtivo = false;
         let meuNomeUsuario = "";
+        let nomeArmazenamentoBanco = "";
 
+        // Garante ordenação temporal correta
         jogosBolao.sort((a, b) => new Date(a.data) - new Date(b.data));
 
         document.addEventListener("DOMContentLoaded", () => {
-            renderizarJogos();
+            renderizarJogosAgrupados();
             checarUsuarioExistente();
             ouvirRankingDoFirebase();
 
@@ -173,12 +190,19 @@
             document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
 
             document.getElementById("btn-entrar").addEventListener("click", () => {
-                const nome = document.getElementById("input-nome").value.trim().replace(/[.#$\[\]]/g, "");
-                if (nome) {
-                    localStorage.setItem("bolao_nome_usuario", nome);
-                    meuNomeUsuario = nome;
-                    database.ref('participantes/' + nome).update({ nome: nome }).then(() => {
-                        mostrarTelaPrincipal(nome);
+                const nomeInput = document.getElementById("input-nome").value.trim();
+                if (nomeInput) {
+                    // Chave de segurança: Sanitiza e padroniza caixa baixa para evitar duplicados idênticos no banco
+                    nomeArmazenamentoBanco = nomeInput.toLowerCase().replace(/[.#$\[\]]/g, "");
+                    meuNomeUsuario = nomeInput; 
+                    
+                    localStorage.setItem("bolao_nome_exibicao", meuNomeUsuario);
+                    localStorage.setItem("bolao_nome_banco", nomeArmazenamentoBanco);
+                    
+                    database.ref('participantes/' + nomeArmazenamentoBanco).update({ 
+                        nome: meuNomeUsuario 
+                    }).then(() => {
+                        mostrarTelaPrincipal(meuNomeUsuario);
                     });
                 } else {
                     alert("Por favor, digite seu nome!");
@@ -193,19 +217,34 @@
                 }
             });
             
-            setInterval(atualizarEstadoDasTravasEInputs, 3000);
+            setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
 
-        function renderizarJogos() {
+        function renderizarJogosAgrupados() {
             const listaDiv = document.getElementById("lista-jogos");
             listaDiv.innerHTML = "";
+            
+            let ultimaDataGrupo = "";
+
             jogosBolao.forEach(jogo => {
-                const dataFormatada = new Date(jogo.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                const objData = new Date(jogo.data);
+                const dataTextoDia = objData.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+                const horaFormatada = objData.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                // Injeta separador de data inteligente quando muda o dia
+                if (dataTextoDia !== ultimaDataGrupo) {
+                    ultimaDataGrupo = dataTextoDia;
+                    const divisor = document.createElement("div");
+                    divisor.className = "separador-data";
+                    divisor.innerText = dataTextoDia;
+                    listaDiv.appendChild(divisor);
+                }
+
                 const card = document.createElement("div");
                 card.className = "card-jogo";
                 card.id = `card-${jogo.id}`;
                 card.innerHTML = `
-                    <div class="info-jogo">Grupo ${jogo.grupo} — ${dataFormatada}</div>
+                    <div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div>
                     <div class="confronto">
                         <span class="time">${jogo.t1}</span>
                         <div class="placar-inputs">
@@ -222,9 +261,11 @@
         }
 
         function checarUsuarioExistente() {
-            const nomeSalvo = localStorage.getItem("bolao_nome_usuario");
-            if (nomeSalvo) {
-                mostrarTelaPrincipal(nomeSalvo);
+            const nomeExibicaoSalvo = localStorage.getItem("bolao_nome_exibicao");
+            const nomeBancoSalvo = localStorage.getItem("bolao_nome_banco");
+            if (nomeExibicaoSalvo && nomeBancoSalvo) {
+                nomeArmazenamentoBanco = nomeBancoSalvo;
+                mostrarTelaPrincipal(nomeExibicaoSalvo);
             }
         }
 
@@ -237,7 +278,7 @@
         }
 
         function puxarMeusPalpitesDoFirebase() {
-            database.ref('participantes/' + meuNomeUsuario + '/palpites').once('value').then((snapshot) => {
+            database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
                 jogosBolao.forEach(jogo => {
                     document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
@@ -285,22 +326,31 @@
                     input1.disabled = false;
                     input2.disabled = false;
                     cardDiv.classList.remove("travado");
-                    const restam = Math.ceil((limiteTrava - agora) / (1000 * 60));
-                    statusDiv.innerText = `🔓 Aberto (Trava em ${restam} min)`;
+                    
+                    const diferencaMs = limiteTrava - agora;
+                    const totalMinutos = Math.ceil(diferencaMs / (1000 * 60));
+                    
+                    if(totalMinutos > 60) {
+                        const horas = Math.floor(totalMinutos / 60);
+                        const mins = totalMinutos % 60;
+                        statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
+                    } else {
+                        statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
+                    }
                     statusDiv.className = "status-jogo status-aberto";
                 }
             });
         }
 
-        function espiarParticipante(nomeAlvo) {
-            if (nomeAlvo === meuNomeUsuario) {
+        function espiarParticipante(chaveBancoAlvo, nomeExibicaoAlvo) {
+            if (chaveBancoAlvo === nomeArmazenamentoBanco) {
                 modoEspiaoAtivo = false;
                 document.getElementById("banner-spy").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();
                 return;
             }
 
-            database.ref('participantes/' + nomeAlvo + '/palpites').once('value').then((snapshot) => {
+            database.ref('participantes/' + chaveBancoAlvo + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
                 const agora = new Date();
                 const trintaMinutos = 30 * 60 * 1000;
@@ -308,7 +358,7 @@
                 modoEspiaoAtivo = true;
                 alternarAbas("palpites");
                 
-                document.getElementById("spy-nome").innerText = nomeAlvo;
+                document.getElementById("spy-nome").innerText = nomeExibicaoAlvo;
                 document.getElementById("banner-spy").classList.remove("hidden");
                 document.getElementById("btn-salvar-palpites").classList.add("hidden");
 
@@ -352,7 +402,7 @@
                     input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
                     input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
                     
-                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo Admin — Resultados";
+                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo Admin — Resultados Oficial";
                     document.getElementById(`status-${jogo.id}`).className = "status-jogo";
                 });
                 
@@ -369,17 +419,27 @@
 
         function salvarPalpitesUsuario() {
             let dadosPalpites = {};
+            let preencheuAlgum = false;
+            
             jogosBolao.forEach(jogo => {
                 const val1 = document.getElementById(`p1-${jogo.id}`).value;
                 const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                
+                // Só empurra pro objeto se o par de campos estiver preenchido de verdade
                 if(val1 !== "" && val2 !== "") {
                     dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
                     dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
+                    preencheuAlgum = true;
                 }
             });
 
-            database.ref('participantes/' + meuNomeUsuario + '/palpites').set(dadosPalpites).then(() => {
-                alert("Seus palpites salvos com sucesso!");
+            if(!preencheuAlgum) {
+                alert("Digite pelo menos um placar completo antes de salvar!");
+                return;
+            }
+
+            database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').set(dadosPalpites).then(() => {
+                alert("Seus palpites foram salvos com sucesso!");
             });
         }
 
@@ -416,10 +476,13 @@
                         const pal2 = palpites[`p2-${jogo.id}`];
 
                         if (res1 !== undefined && res2 !== undefined && pal1 !== undefined && pal2 !== undefined) {
+                            // Regra 1: Placar em cheio (5 pontos)
                             if (res1 === pal1 && res2 === pal2) {
                                 pontosTotal += 5;
                                 exatosTotal += 1;   
-                            } else if ((res1 > res2 && pal1 > pal2) || (res1 < res2 && pal1 < pal2) || (res1 === res2 && pal1 === pal2)) {
+                            } 
+                            // Regra 2: Acertou quem venceu ou o empate (3 pontos)
+                            else if ((res1 > res2 && pal1 > pal2) || (res1 < res2 && pal1 < pal2) || (res1 === res2 && pal1 === pal2)) {
                                 pontosTotal += 3;
                             }
                         }
@@ -431,7 +494,7 @@
                     });
                 });
 
-                alert("Pontuações updated com sucesso!");
+                alert("Pontuações e ranking atualizados com absoluto sucesso!");
                 isAdmin = false;
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");
@@ -446,12 +509,14 @@
                 Object.keys(participantes).forEach(key => {
                     const u = participantes[key];
                     listaRanking.push({
+                        chaveBanco: key,
                         nome: u.nome,
                         pontos: u.pontuacoes || 0,
                         exatos: u.exatos || 0
                     });
                 });
 
+                // Ordenação matemática precisa: Maior pontuação, Critério de desempate = Placares Exatos
                 listaRanking.sort((a, b) => {
                     if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                     return b.exatos - a.exatos;
@@ -472,7 +537,7 @@
                         <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
                         <span>${usuario.pontos} pts (${usuario.exatos})</span>
                     `;
-                    linha.addEventListener("click", () => espiarParticipante(usuario.nome));
+                    linha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));
                     containerRanking.appendChild(linha);
                 });
             });

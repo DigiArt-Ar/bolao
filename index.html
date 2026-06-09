@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Copa 2026 DigiArt - Bolão Oficial</title>
+    <title>Bolão Oficial - Copa 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- VÍNCULO DO MANIFEST PARA PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1d24">
     
     <style>
         /* ==========================================
@@ -65,6 +69,7 @@
 </head>
 <body>
 
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
         <p>Digite seu nome para entrar no bolão:</p>
@@ -72,6 +77,7 @@
         <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
+    <!-- TELA PRINCIPAL -->
     <div id="tela-principal" class="container hidden">
         <header>
             <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
@@ -83,6 +89,7 @@
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
+        <!-- CONTEÚDO: PALPITES / JOGOS -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <div id="banner-spy" class="visualizando-banner hidden">
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
@@ -91,12 +98,14 @@
             <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
             
             <div id="lista-jogos">
-                </div>
+                <!-- Injetado dinamicamente via JS estruturado por grupos de datas -->
+            </div>
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Todos os Meus Palpites</button>
             <button id="btn-cancelar-admin" class="btn-secundario hidden">Sair do Modo Admin</button>
         </div>
 
+        <!-- CONTEÚDO: RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação Geral</h3>
             <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
@@ -104,6 +113,7 @@
         </div>
     </div>
 
+    <!-- FIREBASE COMPAT -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -155,7 +165,6 @@
         let meuNomeUsuario = "";
         let nomeArmazenamentoBanco = "";
 
-        // Garante ordenação temporal correta
         jogosBolao.sort((a, b) => new Date(a.data) - new Date(b.data));
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -192,7 +201,6 @@
             document.getElementById("btn-entrar").addEventListener("click", () => {
                 const nomeInput = document.getElementById("input-nome").value.trim();
                 if (nomeInput) {
-                    // Chave de segurança: Sanitiza e padroniza caixa baixa para evitar duplicados idênticos no banco
                     nomeArmazenamentoBanco = nomeInput.toLowerCase().replace(/[.#$\[\]]/g, "");
                     meuNomeUsuario = nomeInput; 
                     
@@ -231,7 +239,6 @@
                 const dataTextoDia = objData.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
                 const horaFormatada = objData.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-                // Injeta separador de data inteligente quando muda o dia
                 if (dataTextoDia !== ultimaDataGrupo) {
                     ultimaDataGrupo = dataTextoDia;
                     const divisor = document.createElement("div");
@@ -425,7 +432,6 @@
                 const val1 = document.getElementById(`p1-${jogo.id}`).value;
                 const val2 = document.getElementById(`p2-${jogo.id}`).value;
                 
-                // Só empurra pro objeto se o par de campos estiver preenchido de verdade
                 if(val1 !== "" && val2 !== "") {
                     dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
                     dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
@@ -476,12 +482,10 @@
                         const pal2 = palpites[`p2-${jogo.id}`];
 
                         if (res1 !== undefined && res2 !== undefined && pal1 !== undefined && pal2 !== undefined) {
-                            // Regra 1: Placar em cheio (5 pontos)
                             if (res1 === pal1 && res2 === pal2) {
                                 pontosTotal += 5;
                                 exatosTotal += 1;   
                             } 
-                            // Regra 2: Acertou quem venceu ou o empate (3 pontos)
                             else if ((res1 > res2 && pal1 > pal2) || (res1 < res2 && pal1 < pal2) || (res1 === res2 && pal1 === pal2)) {
                                 pontosTotal += 3;
                             }
@@ -516,7 +520,6 @@
                     });
                 });
 
-                // Ordenação matemática precisa: Maior pontuação, Critério de desempate = Placares Exatos
                 listaRanking.sort((a, b) => {
                     if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                     return b.exatos - a.exatos;

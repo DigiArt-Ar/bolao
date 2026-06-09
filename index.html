@@ -81,7 +81,6 @@
         input[type="text"] { width: 100%; margin-bottom: 20px; font-size: 16px; }
 
         button {
-            background-color: #00c853;
             color: white;
             border: none;
             padding: 14px;
@@ -91,9 +90,17 @@
             cursor: pointer;
             width: 100%;
             transition: background 0.2s;
+            margin-bottom: 10px;
         }
 
-        button:hover { background-color: #00a844; }
+        .btn-sucesso { background-color: #00c853; }
+        .btn-sucesso:hover { background-color: #00a844; }
+
+        .btn-alerta { background-color: #ff3d00; }
+        .btn-alerta:hover { background-color: #dd3300; }
+
+        .btn-secundario { background-color: #4b5563; }
+        .btn-secundario:hover { background-color: #374151; }
 
         .tabs {
             display: flex;
@@ -112,8 +119,6 @@
             background-color: #007bff;
             color: #fff;
         }
-
-        .tab-btn.active:hover { background-color: #007bff; }
 
         .aviso-trava {
             font-size: 13px;
@@ -197,7 +202,7 @@
         <h2>Bolão Copa 2026</h2>
         <p>Digite seu nome para entrar no bolão:</p>
         <input type="text" id="input-nome" placeholder="Seu nome ou apelido">
-        <button id="btn-entrar">Confirmar e Entrar</button>
+        <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
     <div id="tela-principal" class="container hidden">
@@ -215,7 +220,9 @@
             <p class="aviso-trava">Os palpites travam 30 minutos antes do primeiro jogo (14/06 às 18:00)!</p>
             <div id="lista-jogos">
                 </div>
-            <button id="btn-salvar-palpites">Salvar Todos os Palpites</button>
+            
+            <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Todos os Palpites</button>
+            <button id="btn-cancelar-admin" class="btn-secundario hidden">Cancelar / Voltar</button>
         </div>
 
         <div id="conteudo-ranking" class="tab-conteudo hidden">
@@ -256,26 +263,37 @@
         const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
         let isAdmin = false;
 
+        // Memória temporária para simular o comportamento de separação
+        let palpitesSalvosUsuario = {}; 
+        let resultadosOficiaisAdmin = {};
+
         document.addEventListener("DOMContentLoaded", () => {
             renderizarJogos();
             checarUsuarioExistente();
 
-            // Clique da Engrenagem Master
+            // Ativação do Painel Admin via Engrenagem
             document.getElementById("btn-admin").addEventListener("click", () => {
                 const senhaDigitada = prompt("Digite a senha Master do Administrador:");
                 if (senhaDigitada === SENHA_ADMIN_PRE_ESTABELECIDA) {
                     isAdmin = true;
-                    alert("Modo Administrador Ativado! Campos de resultado liberados.");
+                    alert("Modo Administrador Ativado! Digite os resultados oficiais.");
                     liberarModoAdminVisual();
                 } else {
                     alert("Senha incorreta!");
                 }
             });
 
+            // Botão Cancelar Admin
+            document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
+                isAdmin = false;
+                checarTravaDoSistema();
+                alert("Modo Administrador encerrado. Seus palpites originais foram preservados.");
+            });
+
             document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
             document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
 
-            // Botão Confirmar Entrada
+            // Tela de Login
             document.getElementById("btn-entrar").addEventListener("click", () => {
                 const nome = document.getElementById("input-nome").value.trim();
                 if (nome) {
@@ -286,19 +304,26 @@
                 }
             });
 
-            // Botão Misto (Salvar Palpites / Salvar Admin)
+            // Botão Misto de Salvar
             document.getElementById("btn-salvar-palpites").addEventListener("click", () => {
                 if (isAdmin) {
-                    alert("Resultados Oficiais salvos no Firebase! Voltando para a tela de palpites.");
+                    // Salva o que foi digitado na memória do Admin
+                    jogosBolao.forEach(jogo => {
+                        resultadosOficiaisAdmin[`p1-${jogo.id}`] = document.getElementById(`p1-${jogo.id}`).value;
+                        resultadosOficiaisAdmin[`p2-${jogo.id}`] = document.getElementById(`p2-${jogo.id}`).value;
+                    });
                     
-                    // CORREÇÃO: Reseta o estado do administrador e bloqueia as caixas
+                    alert("Resultados Oficiais salvos no Firebase! Voltando para a visão do usuário.");
                     isAdmin = false;
-                    
-                    // Atualiza a tela para visualização comum e vai para a home de palpites
                     checarTravaDoSistema(); 
                     alternarAbas("palpites");
                 } else {
-                    alert("Seus palpites foram salvos com sucesso!");
+                    // Salva os palpites normais do Usuário
+                    jogosBolao.forEach(jogo => {
+                        palpitesSalvosUsuario[`p1-${jogo.id}`] = document.getElementById(`p1-${jogo.id}`).value;
+                        palpitesSalvosUsuario[`p2-${jogo.id}`] = document.getElementById(`p2-${jogo.id}`).value;
+                    });
+                    alert("Seus palpites de usuário foram salvos com sucesso!");
                 }
             });
         });
@@ -328,17 +353,28 @@
             });
         }
 
+        // CORREÇÃO: Limpa a tela e deixa os campos vazios para preenchimento oficial do admin
         function liberarModoAdminVisual() {
             jogosBolao.forEach(jogo => {
-                document.getElementById(`p1-${jogo.id}`).disabled = false;
-                document.getElementById(`p2-${jogo.id}`).disabled = false;
+                const input1 = document.getElementById(`p1-${jogo.id}`);
+                const input2 = document.getElementById(`p2-${jogo.id}`);
+                
+                input1.disabled = false;
+                input2.disabled = false;
+                
+                // Puxa o resultado oficial já salvo ou deixa totalmente em branco (sem trazer o palpite do usuário)
+                input1.value = resultadosOficiaisAdmin[`p1-${jogo.id}`] || "";
+                input2.value = resultadosOficiaisAdmin[`p2-${jogo.id}`] || "";
             });
+            
+            document.getElementById("btn-cancelar-admin").classList.remove("hidden");
+            
             const btnSalvar = document.getElementById("btn-salvar-palpites");
             btnSalvar.innerText = "Salvar Resultados Oficiais (Admin)";
-            btnSalvar.style.backgroundColor = "#ff3d00";
+            btnSalvar.className = "btn-alerta";
             
             const aviso = document.querySelector(".aviso-trava");
-            aviso.innerText = "MODO ADMINISTRADOR ATIVO";
+            aviso.innerText = "MODO ADMINISTRADOR ATIVO — INSIRA OS PLACARES REAIS";
             aviso.style.color = "#ff3d00";
         }
 
@@ -358,7 +394,6 @@
             checarTravaDoSistema();
         }
 
-        // CORREÇÃO: Gera o ranking limpo apenas com o nome real cadastrado
         function atualizarRankingDinamico(nomeCadastrado) {
             const containerRanking = document.getElementById("lista-ranking");
             containerRanking.innerHTML = `
@@ -373,18 +408,25 @@
             `;
         }
 
+        // Restaura os palpites do usuário comum na tela
         function checarTravaDoSistema() {
             const dataPrimeiroJogo = new Date("2026-06-14T18:00:00");
             const trintaMinutosEmMs = 30 * 60 * 1000;
             const limiteTrava = new Date(dataPrimeiroJogo.getTime() - trintaMinutosEmMs);
             const agora = new Date();
 
+            document.getElementById("btn-cancelar-admin").classList.add("hidden");
             const btnSalvar = document.getElementById("btn-salvar-palpites");
             const aviso = document.querySelector(".aviso-trava");
 
-            // Reseta cores padrões do botão caso venha do modo admin
-            btnSalvar.style.backgroundColor = "#00c853";
+            btnSalvar.className = "btn-sucesso";
             btnSalvar.innerText = "Salvar Todos os Palpites";
+
+            // Devolve os valores dos palpites do usuário para a tela
+            jogosBolao.forEach(jogo => {
+                document.getElementById(`p1-${jogo.id}`).value = palpitesSalvosUsuario[`p1-${jogo.id}`] || "";
+                document.getElementById(`p2-${jogo.id}`).value = palpitesSalvosUsuario[`p2-${jogo.id}`] || "";
+            });
 
             if (agora >= limiteTrava && !isAdmin) {
                 document.querySelectorAll(".placar-inputs input").forEach(input => input.disabled = true);

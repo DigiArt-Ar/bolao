@@ -3,13 +3,13 @@
   "name": "Bolão Oficial - Copa do Mundo 2026",
   "icons": [
     {
-      "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/advanced-options/metadata/icons.json",
+      "src": "ico.png",
       "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/advanced-options/metadata/icons.json",
+      "src": "ico.png",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"

@@ -1,235 +1,402 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MAUBET v37.5 - RANKING AUTOMÁTICO</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <title>Copa 2026 DigiArt - Bolão</title>
+    <!-- FontAwesome para o ícone da engrenagem -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        :root { --primary: #00ff88; --bg: #0a0a0a; --card: #161616; --accent: #ffb300; --text: #ffffff; --danger: #ff4444; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 500px; }
+        /* ==========================================
+           ESTILIZAÇÃO VISUAL (CSS)
+           ========================================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #0f1115;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: #1a1d24;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
         .hidden { display: none !important; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; border-top: 5px solid var(--primary); margin-top: 10px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 5px 0; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 10px; box-sizing: border-box; text-align: center; font-size: 16px; }
-        button { width: 100%; padding: 14px; border-radius: 12px; border: none; font-weight: 900; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
-        .btn-green { background: var(--primary); color: #000; }
-        .btn-accent { background: var(--accent); color: #000; }
-        .btn-danger { background: var(--danger); color: #fff; padding: 5px 8px; font-size: 10px; width: auto; margin: 0; border-radius: 8px; }
-        .jogo-item { background: #222; padding: 15px; border-radius: 15px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #333; }
-        .time-box { width: 30%; font-size: 10px; font-weight: bold; text-align: center; }
-        .escudo { width: 35px; height: 35px; object-fit: contain; display: block; margin: 0 auto 5px; }
-        .placar-input { width: 42px; height: 42px; background: #000 !important; border: 1px solid var(--primary) !important; color: #fff !important; text-align: center; font-size: 18px; font-weight: bold; border-radius: 8px; }
-        .mestre-linha { display: flex; align-items: center; justify-content: space-between; background: #111; padding: 8px; border-radius: 10px; margin-bottom: 8px; border: 1px solid #333; }
-        .ranking-box { background: #111; margin-top: 20px; padding: 15px; border-radius: 15px; border: 1px solid var(--accent); text-align: left; }
+
+        h2, h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #ccc;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #2a2f3a;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        #btn-admin {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        #btn-admin:hover { color: #fff; }
+
+        input[type="text"], input[type="number"] {
+            background-color: #252a34;
+            border: 1px solid #3a4252;
+            color: #fff;
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            outline: none;
+        }
+
+        input[type="text"] { width: 100%; margin-bottom: 20px; font-size: 16px; }
+
+        button {
+            background-color: #00c853;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button:hover { background-color: #00a844; }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background-color: #252a34;
+            color: #aaa;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .tab-btn.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .tab-btn.active:hover { background-color: #007bff; }
+
+        .aviso-trava {
+            font-size: 13px;
+            color: #ffb300;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        #lista-jogos {
+            margin-bottom: 20px;
+        }
+
+        .card-jogo {
+            background-color: #252a34;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #007bff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .info-jogo {
+            font-size: 11px;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .confronto {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .time { 
+            width: 35%; 
+            text-align: center; 
+            font-size: 14px; 
+            font-weight: 600;
+        }
+        
+        .placar-inputs { 
+            display: flex; 
+            gap: 8px; 
+            align-items: center; 
+        }
+        
+        .placar-inputs input { 
+            width: 45px; 
+            height: 38px; 
+            font-size: 18px; 
+            font-weight: bold;
+        }
+
+        /* Remove as setinhas nativas do input number para ficar mais limpo */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .linha-ranking {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 10px;
+            border-bottom: 1px solid #2a2f3a;
+        }
     </style>
 </head>
 <body>
-<div class="container">
-    <div id="msg-boas-vindas" style="color:var(--primary); font-weight:bold; text-align:center; margin-bottom:10px"></div>
-    <div class="card">
-        <div id="view-login">
-            <h2>MAU<span>BET</span></h2>
-            <input type="text" id="user-nome" placeholder="NOME COMPLETO">
-            <input type="tel" id="user-tel" placeholder="WHATSAPP">
-            <button class="btn-green" onclick="handleAcesso()">ENTRAR</button>
-            <div id="login-mestre" class="hidden">
-                <input type="password" id="pass-mestre" placeholder="SENHA MASTER">
-                <button class="btn-accent" onclick="acessoMestre()">PAINEL MESTRE</button>
-            </div>
-            <span style="color:#222; font-size:9px; cursor:pointer; display:block; margin-top:25px" onclick="document.getElementById('login-mestre').classList.toggle('hidden')">v37.5</span>
+
+    <!-- TELA DE LOGIN / NOME -->
+    <div id="tela-login" class="container">
+        <h2>Bolão Copa 2026</h2>
+        <p>Digite seu nome para entrar no bolão:</p>
+        <input type="text" id="input-nome" placeholder="Seu nome ou apelido">
+        <button id="btn-entrar">Confirmar e Entrar</button>
+    </div>
+
+    <!-- TELA PRINCIPAL DO APP -->
+    <div id="tela-principal" class="container hidden">
+        <header>
+            <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
+            <button id="btn-admin" title="Área do Administrador"><i class="fas fa-cog"></i></button>
+        </header>
+
+        <!-- ABAS DE NAVEGAÇÃO -->
+        <div class="tabs">
+            <button id="tab-palpites" class="tab-btn active">Meus Palpites</button>
+            <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
-        <div id="view-main" class="hidden">
-            <div id="bloco-mestre" class="hidden" style="background:#000; padding:15px; border-radius:15px; border:1px dashed var(--accent); margin-bottom:20px; text-align:left">
-                <b style="color:var(--accent)">CONTROLE:</b>
-                <input type="text" id="input-casa" placeholder="TIME CASA">
-                <input type="text" id="input-fora" placeholder="TIME FORA">
-                <input type="datetime-local" id="input-data">
-                <button class="btn-accent" onclick="addJogoNovo()">+ SALVAR TIME</button>
-                <button id="btn-toggle-rodada" class="btn-green"></button>
-                <hr style="border-color:#333; margin:15px 0">
-                <b style="color:var(--primary)">PLACAR FINAL:</b>
-                <div id="lista-mestre-resultados" style="margin-top:10px"></div>
+        <!-- CONTEÚDO: PALPITES -->
+        <div id="conteudo-palpites" class="tab-conteudo">
+            <p class="aviso-trava">Os palpites travam 30 minutos antes do primeiro jogo (14/06 às 18:00)!</p>
+            <div id="lista-jogos">
+                <!-- Jogos gerados via JavaScript -->
             </div>
+            <button id="btn-salvar-palpites">Salvar Todos os Palpites</button>
+        </div>
 
-            <h3 id="titulo-aposta" style="color:var(--primary)">MEUS PALPITES:</h3>
-            <div id="status-msg" style="padding: 20px; color: #888;" class="hidden">Rodada em preparação...</div>
-            <div id="display-jogos"></div>
-            <button id="btn-salvar-jogo" class="hidden btn-green" onclick="salvarPalpites()">🔒 ENVIAR BILHETE</button>
-            
-            <div id="ranking-container" class="ranking-box hidden">
-                <h3 style="color:var(--accent); margin:0 0 10px 0; text-align:center">🏆 RANKING DA RODADA</h3>
-                <div id="ranking-lista"></div>
+        <!-- CONTEÚDO: RANKING -->
+        <div id="conteudo-ranking" class="tab-conteudo hidden">
+            <h3>Classificação Geral</h3>
+            <div id="lista-ranking">
+                <!-- Exemplo visual de como ficará o ranking puxado do banco -->
+                <div class="linha-ranking"><strong>Posição / Nome</strong> <strong>Pontos (Exatos)</strong></div>
+                <div class="linha-ranking"><span>1º João</span> <span>0 pts (0)</span></div>
+                <div class="linha-ranking"><span>2º Pedro</span> <span>0 pts (0)</span></div>
+                <div class="linha-ranking"><span>3º Antônio</span> <span>0 pts (0)</span></div>
             </div>
-            
-            <button onclick="localStorage.clear(); location.reload();" style="background:none; color:#444; font-size:10px; border:none; margin-top:30px">TROCAR USUÁRIO</button>
         </div>
     </div>
-</div>
 
-<script>
-    const firebaseConfig = { 
-        apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU", 
-        authDomain: "bolao-d2baf.firebaseapp.com", 
-        projectId: "bolao-d2baf", 
-        storageBucket: "bolao-d2baf.firebasestorage.app", 
-        messagingSenderId: "955171998764", 
-        appId: "1:955171998764:web:2ccf8f2b6f23c300755589" 
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const MASTER_KEY = "259225";
+    <!-- ==========================================
+       LÓGICA DO SISTEMA (JAVASCRIPT)
+       ========================================== -->
+    <script>
+        // Lista oficial dos 24 jogos que selecionamos
+        const jogosBolao = [
+            { id: "j01", grupo: "A", t1: "México", t2: "Croácia", data: "2026-06-16T17:00:00" },
+            { id: "j02", grupo: "A", t1: "Croácia", t2: "Coreia do Sul", data: "2026-06-24T21:00:00" },
+            { id: "j03", grupo: "B", t1: "Inglaterra", t2: "Equador", data: "2026-06-22T21:00:00" },
+            { id: "j04", grupo: "B", t1: "Equador", t2: "Nigéria", data: "2026-06-17T14:00:00" },
+            { id: "j05", grupo: "C", t1: "Uruguai", t2: "Romênia", data: "2026-06-23T18:00:00" },
+            { id: "j06", grupo: "C", t1: "Marrocos", t2: "Uruguai", data: "2026-06-15T21:00:00" },
+            { id: "j07", grupo: "D", t1: "Dinamarca", t2: "Turquia", data: "2026-06-17T18:00:00" },
+            { id: "j08", grupo: "D", t1: "Estados Unidos", t2: "Dinamarca", data: "2026-06-23T21:00:00" },
+            { id: "j09", grupo: "E", t1: "Colômbia", t2: "Suíça", data: "2026-06-18T15:00:00" },
+            { id: "j10", grupo: "E", t1: "Suíça", t2: "Japão", data: "2026-06-24T15:00:00" },
+            { id: "j11", grupo: "F", t1: "Itália", t2: "Paraguai", data: "2026-06-18T21:00:00" },
+            { id: "j12", grupo: "F", t1: "Ucrânia", t2: "Paraguai", data: "2026-06-25T15:00:00" },
+            { id: "j13", grupo: "G", t1: "França", t2: "Suécia", data: "2026-06-19T21:00:00" },
+            { id: "j14", grupo: "G", t1: "Suécia", t2: "Irã", data: "2026-06-25T21:00:00" },
+            { id: "j15", grupo: "H", t1: "Espanha", t2: "Tunísia", data: "2026-06-20T15:00:00" },
+            { id: "j16", grupo: "H", t1: "Tunísia", t2: "Austrália", data: "2026-06-26T15:00:00" },
+            { id: "j17", grupo: "I", t1: "Holanda", t2: "Escócia", data: "2026-06-20T21:00:00" },
+            { id: "j18", grupo: "I", t1: "Gana", t2: "Escócia", data: "2026-06-16T15:00:00" },
+            { id: "j19", grupo: "J", t1: "Bélgica", t2: "Chile", data: "2026-06-21T15:00:00" },
+            { id: "j20", grupo: "J", t1: "Chile", t2: "Argélia", data: "2026-06-27T15:00:00" },
+            { id: "j21", grupo: "K", t1: "Portugal", t2: "Camarões", data: "2026-06-21T21:00:00" },
+            { id: "j22", grupo: "K", t1: "Camarões", t2: "Polônia", data: "2026-06-27T21:00:00" },
+            { id: "j23", grupo: "L", t1: "Argentina", t2: "Sérvia", data: "2026-06-22T15:00:00" },
+            { id: "j24", grupo: "L", t1: "Sérvia", t2: "Canadá", data: "2026-06-14T18:00:00" } // Primeiro jogo cronológico
+        ];
 
-    window.onload = () => { if(localStorage.getItem('maubet_token')) startApp(); };
+        const SENHA_ADMIN_PRE_ESTABELECIDA = "1052"; // Sua senha configurada!
+        let isAdmin = false;
 
-    function handleAcesso() {
-        const n = document.getElementById('user-nome').value.toUpperCase().trim();
-        const t = document.getElementById('user-tel').value.trim();
-        if(!n || !t) return alert("Dados incompletos!");
-        localStorage.setItem('maubet_n', n);
-        localStorage.setItem('maubet_token', 'user');
-        startApp();
-    }
+        document.addEventListener("DOMContentLoaded", () => {
+            renderizarJogos();
+            checarUsuarioExistente();
 
-    function acessoMestre() {
-        if(document.getElementById('pass-mestre').value === MASTER_KEY) {
-            localStorage.setItem('maubet_n', "MESTRE MAU");
-            localStorage.setItem('maubet_token', 'admin');
-            startApp();
-        }
-    }
-
-    function startApp() {
-        document.getElementById('view-login').classList.add('hidden');
-        document.getElementById('view-main').classList.remove('hidden');
-        document.getElementById('msg-boas-vindas').innerText = "Olá, " + localStorage.getItem('maubet_n');
-        
-        db.collection("config").doc("status").onSnapshot(doc => {
-            const liberada = doc.exists ? doc.data().liberada : false;
-            const admin = localStorage.getItem('maubet_token') === 'admin';
-            
-            if(admin) {
-                document.getElementById('bloco-mestre').classList.remove('hidden');
-                const btn = document.getElementById('btn-toggle-rodada');
-                btn.innerText = liberada ? "🔒 TRAVAR RODADA" : "🚀 LIBERAR PARA TODOS";
-                btn.className = liberada ? "btn-accent" : "btn-green";
-                btn.onclick = () => toggleRodada(!liberada);
-            }
-
-            if(!liberada && !admin) {
-                document.getElementById('status-msg').classList.remove('hidden');
-                document.getElementById('display-jogos').innerHTML = "";
-                document.getElementById('titulo-aposta').classList.add('hidden');
-            } else {
-                document.getElementById('status-msg').classList.add('hidden');
-                document.getElementById('titulo-aposta').classList.remove('hidden');
-                renderConteudo(admin);
-            }
-        });
-    }
-
-    async function toggleRodada(v) { 
-        await db.collection("config").doc("status").set({ liberada: v }, { merge: true });
-    }
-
-    async function addJogoNovo() {
-        const c = document.getElementById('input-casa').value.toUpperCase().trim();
-        const f = document.getElementById('input-fora').value.toUpperCase().trim();
-        const d = document.getElementById('input-data').value;
-        if(c && f && d) {
-            await db.collection("jogos").add({ home: c, away: f, inicio: d, resH: null, resF: null, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-            document.getElementById('input-casa').value = ""; document.getElementById('input-fora').value = "";
-        }
-    }
-
-    async function excluirJogo(id) {
-        if(confirm("Excluir?")) await db.collection("jogos").doc(id).delete();
-    }
-
-    function renderConteudo(admin) {
-        db.collection("jogos").orderBy("timestamp", "asc").onSnapshot(snap => {
-            const container = document.getElementById('display-jogos');
-            const listaMestre = document.getElementById('lista-mestre-resultados');
-            container.innerHTML = ""; listaMestre.innerHTML = "";
-            let jogosFinais = {};
-
-            snap.forEach(doc => {
-                const d = doc.data(); const id = doc.id;
-                if(d.resH !== null) jogosFinais[id] = {h: d.resH, f: d.resF};
-                const hI = d.home.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-                const aI = d.away.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '');
-
-                container.innerHTML += `
-                    <div class="jogo-item">
-                        <div class="time-box"><img src="escudos/${hI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.home}</div>
-                        <div>
-                            <div style="display:flex; gap:5px">
-                                <input type="number" class="placar-input user-p" id="p-${id}-h" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
-                                <input type="number" class="placar-input user-p" id="p-${id}-f" oninput="checkInputs()" ${d.resH !== null ? 'disabled' : ''}>
-                            </div>
-                        </div>
-                        <div class="time-box"><img src="escudos/${aI}.png" class="escudo" onerror="this.src='escudos/default.png'">${d.away}</div>
-                    </div>`;
-
-                if(admin) {
-                    listaMestre.innerHTML += `
-                        <div class="mestre-linha">
-                            <span style="font-size:9px; width:50px">${d.home}</span>
-                            <input type="number" id="m-${id}-h" style="width:30px; height:30px; background:#000; color:#fff" value="${d.resH !== null ? d.resH : ''}">
-                            <input type="number" id="m-${id}-f" style="width:30px; height:30px; background:#000; color:#fff" value="${d.resF !== null ? d.resF : ''}">
-                            <button onclick="salvarPlacarFinal('${id}')" class="btn-green" style="width:auto; padding:5px; margin:0">OK</button>
-                            <button onclick="excluirJogo('${id}')" class="btn-danger">🗑️</button>
-                        </div>`;
+            // Ação do Botão Secreto da Engrenagem
+            document.getElementById("btn-admin").addEventListener("click", () => {
+                const senhaDigitada = prompt("Digite a senha Master do Administrador:");
+                if (senhaDigitada === SENHA_ADMIN_PRE_ESTABELECIDA) {
+                    isAdmin = true;
+                    alert("Modo Administrador Ativado! Campos de resultado liberados.");
+                    liberarModoAdminVisual();
+                } else {
+                    alert("Senha incorreta!");
                 }
             });
-            if(Object.keys(jogosFinais).length > 0) atualizarRanking(jogosFinais);
-        });
-    }
 
-    async function salvarPlacarFinal(id) {
-        const h = document.getElementById(`m-${id}-h`).value;
-        const f = document.getElementById(`m-${id}-f`).value;
-        if(h !== "" && f !== "") {
-            await db.collection("jogos").doc(id).update({ resH: parseInt(h), resF: parseInt(f) });
-            alert("Placar gravado!");
-        }
-    }
+            // Clique nas Abas
+            document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
+            document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
 
-    function checkInputs() {
-        const inputs = document.querySelectorAll('.user-p:not([disabled])');
-        const preenchido = Array.from(inputs).every(i => i.value !== "");
-        document.getElementById('btn-salvar-jogo').classList.toggle('hidden', !preenchido || inputs.length === 0);
-    }
-
-    async function salvarPalpites() {
-        const p = {}; document.querySelectorAll('.user-p').forEach(i => p[i.id] = i.value);
-        await db.collection("apostas").add({ nome: localStorage.getItem('maubet_n'), palpites: p, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
-        alert("BILHETE ENVIADO!");
-        location.reload();
-    }
-
-    async function atualizarRanking(jogosFinais) {
-        const snap = await db.collection("apostas").get();
-        let rank = [];
-        snap.forEach(doc => {
-            const a = doc.data(); let pts = 0;
-            for(let jId in jogosFinais) {
-                const rH = jogosFinais[jId].h; const rF = jogosFinais[jId].f;
-                const pH = parseInt(a.palpites[`p-${jId}-h`]); const pF = parseInt(a.palpites[`p-${jId}-f`]);
-                if(!isNaN(pH) && !isNaN(pF)) {
-                    if(pH === rH && pF === rF) pts += 10;
-                    else if((rH > rF && pH > pF) || (rF > rH && pF > pH) || (rH === rF && pH === pF)) pts += 6;
+            // Botão de Login
+            document.getElementById("btn-entrar").addEventListener("click", () => {
+                const nome = document.getElementById("input-nome").value.trim();
+                if (nome) {
+                    localStorage.setItem("bolao_nome_usuario", nome);
+                    mostrarTelaPrincipal(nome);
+                } else {
+                    alert("Por favor, digite seu nome!");
                 }
-            }
-            rank.push({n: a.nome, p: pts});
+            });
+
+            // Botão de Salvar (Simulação local por enquanto)
+            document.getElementById("btn-salvar-palpites").addEventListener("click", () => {
+                if (isAdmin) {
+                    alert("Resultados Oficiais salvos com sucesso no sistema! (Simulação)");
+                } else {
+                    alert("Seus palpites foram salvos localmente com sucesso!");
+                }
+            });
         });
-        rank.sort((a,b) => b.p - a.p);
-        const list = document.getElementById('ranking-lista'); list.innerHTML = "";
-        rank.forEach((r, i) => { list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #333"><span>${i+1}º ${r.n}</span> <b>${r.p} pts</b></div>`; });
-        document.getElementById('ranking-container').classList.remove('hidden');
-    }
-</script>
+
+        // Constrói os cards dos jogos dinamicamente
+        function renderizarJogos() {
+            const listaDiv = document.getElementById("lista-jogos");
+            listaDiv.innerHTML = "";
+
+            jogosBolao.forEach(jogo => {
+                const dataFormatada = new Date(jogo.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+                
+                const card = document.createElement("div");
+                card.className = "card-jogo";
+                card.innerHTML = `
+                    <div class="info-jogo">Grupo ${jogo.grupo} — ${dataFormatada} (Horário de Brasília)</div>
+                    <div class="confronto">
+                        <span class="time">${jogo.t1}</span>
+                        <div class="placar-inputs">
+                            <input type="number" id="p1-${jogo.id}" min="0" disabled placeholder="-">
+                            <span>x</span>
+                            <input type="number" id="p2-${jogo.id}" min="0" disabled placeholder="-">
+                        </div>
+                        <span class="time">${jogo.t2}</span>
+                    </div>
+                `;
+                listaDiv.appendChild(card);
+            });
+        }
+
+        // Transforma a tela do usuário comum na tela de Admin
+        function liberarModoAdminVisual() {
+            jogosBolao.forEach(jogo => {
+                document.getElementById(`p1-${jogo.id}`).disabled = false;
+                document.getElementById(`p2-${jogo.id}`).disabled = false;
+            });
+            const btnSalvar = document.getElementById("btn-salvar-palpites");
+            btnSalvar.classList.remove("hidden");
+            btnSalvar.innerText = "Salvar Resultados Oficiais (Admin)";
+            btnSalvar.style.backgroundColor = "#ff3d00";
+            
+            const aviso = document.querySelector(".aviso-trava");
+            aviso.innerText = "MODO ADMINISTRADOR ATIVO";
+            aviso.style.color = "#ff3d00";
+        }
+
+        // Pula o login se o usuário já acessou antes no aparelho
+        function checarUsuarioExistente() {
+            const nomeSalvo = localStorage.getItem("bolao_nome_usuario");
+            if (nomeSalvo) {
+                mostrarTelaPrincipal(nomeSalvo);
+            }
+        }
+
+        function mostrarTelaPrincipal(nome) {
+            document.getElementById("tela-login").classList.add("hidden");
+            document.getElementById("tela-principal").classList.remove("hidden");
+            document.getElementById("nome-usuario").innerText = nome;
+            checarTravaDoSistema();
+        }
+
+        // Lógica que bloqueia os inputs de palpites caso passe do tempo limite
+        function checarTravaDoSistema() {
+            // Primeiro jogo: Sérvia x Canadá (14 de Junho às 18:00)
+            const dataPrimeiroJogo = new Date("2026-06-14T18:00:00");
+            const trintaMinutosEmMs = 30 * 60 * 1000;
+            const limiteTrava = new Date(dataPrimeiroJogo.getTime() - trintaMinutosEmMs);
+            const agora = new Date();
+
+            if (agora >= limiteTrava && !isAdmin) {
+                document.querySelectorAll(".placar-inputs input").forEach(input => input.disabled = true);
+                document.getElementById("btn-salvar-palpites").classList.add("hidden");
+                document.querySelector(".aviso-trava").innerText = "SISTEMA TRAVADO! Os palpites foram encerrados.";
+                document.querySelector(".aviso-trava").style.color = "#ff3d00";
+            } else if (!isAdmin) {
+                document.querySelectorAll(".placar-inputs input").forEach(input => input.disabled = false);
+            }
+        }
+
+        // Alterna a exibição entre as abas de Palpites e Ranking
+        function alternarAbas(aba) {
+            if (aba === "palpites") {
+                document.getElementById("tab-palpites").classList.add("active");
+                document.getElementById("tab-ranking").classList.remove("active");
+                document.getElementById("conteudo-palpites").classList.remove("hidden");
+                document.getElementById("conteudo-ranking").classList.add("hidden");
+            } else {
+                document.getElementById("tab-palpites").classList.remove("active");
+                document.getElementById("tab-ranking").classList.add("active");
+                document.getElementById("conteudo-palpites").classList.add("hidden");
+                document.getElementById("conteudo-ranking").classList.remove("hidden");
+            }
+        }
+    </script>
 </body>
 </html>

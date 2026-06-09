@@ -6,8 +6,7 @@
     <title>Bolão Oficial - Copa 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- VÍNCULO DO MANIFEST PARA PWA -->
-    <link rel="manifest" href="manifest.json">
+    <link class="pwa" rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1d24">
     
     <style>
@@ -69,7 +68,6 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
         <p>Digite seu nome para entrar no bolão:</p>
@@ -77,7 +75,6 @@
         <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
-    <!-- TELA PRINCIPAL -->
     <div id="tela-principal" class="container hidden">
         <header>
             <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
@@ -89,7 +86,6 @@
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
-        <!-- CONTEÚDO: PALPITES / JOGOS -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <div id="banner-spy" class="visualizando-banner hidden">
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
@@ -98,14 +94,12 @@
             <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
             
             <div id="lista-jogos">
-                <!-- Injetado dinamicamente via JS estruturado por grupos de datas -->
-            </div>
+                </div>
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Todos os Meus Palpites</button>
             <button id="btn-cancelar-admin" class="btn-secundario hidden">Sair do Modo Admin</button>
         </div>
 
-        <!-- CONTEÚDO: RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação Geral</h3>
             <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
@@ -113,7 +107,6 @@
         </div>
     </div>
 
-    <!-- FIREBASE COMPAT -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -131,32 +124,45 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // TABELA OFICIAL COMPLETA - 24 JOGOS CRONOLÓGICOS DA FASE DE GRUPOS
+        // CONFRONTOS REAIS EXTRAÍDOS FIELMENTE DAS IMAGENS DA TABELA OFICIAL (ORDEM CRONOLÓGICA)
         const jogosBolao = [
-            { id: "j01", grupo: "A", t1: "México", t2: "Croácia", data: "2026-06-11T17:00:00" },
-            { id: "j02", grupo: "A", t1: "Estados Unidos", t2: "Marrocos", data: "2026-06-12T14:00:00" },
-            { id: "j03", grupo: "B", t1: "Canadá", t2: "Gana", data: "2026-06-12T17:00:00" },
-            { id: "j04", grupo: "B", t1: "Equador", t2: "Nigéria", data: "2026-06-12T20:00:00" },
-            { id: "j05", grupo: "C", t1: "Argentina", t2: "Escócia", data: "2026-06-13T13:00:00" },
-            { id: "j06", grupo: "C", t1: "Espanha", t2: "Tunísia", data: "2026-06-13T16:00:00" },
-            { id: "j07", grupo: "D", t1: "França", t2: "Arábia Saudita", data: "2026-06-13T19:00:00" },
-            { id: "j08", grupo: "D", t1: "Austrália", t2: "Togo", data: "2026-06-13T22:00:00" },
-            { id: "j09", grupo: "E", t1: "Brasil", t2: "Ucrânia", data: "2026-06-14T14:00:00" },
-            { id: "j10", grupo: "E", t1: "Bélgica", t2: "Argélia", data: "2026-06-14T17:00:00" },
-            { id: "j11", grupo: "F", t1: "Itália", t2: "Camarões", data: "2026-06-14T20:00:00" },
-            { id: "j12", grupo: "F", t1: "Alemanha", t2: "Nova Zelândia", data: "2026-06-15T13:00:00" },
-            { id: "j13", grupo: "G", t1: "Inglaterra", t2: "Chile", data: "2026-06-15T16:00:00" },
-            { id: "j14", grupo: "G", t1: "Holanda", t2: "Coreia do Sul", data: "2026-06-15T19:00:00" },
-            { id: "j15", grupo: "H", t1: "Portugal", t2: "Egito", data: "2026-06-16T14:00:00" },
-            { id: "j16", grupo: "H", t1: "Uruguai", t2: "Japão", data: "2026-06-16T17:00:00" },
-            { id: "j17", grupo: "I", t1: "Colômbia", t2: "Suécia", data: "2026-06-16T20:00:00" },
-            { id: "j18", grupo: "I", t1: "Dinamarca", t2: "Senegal", data: "2026-06-17T13:00:00" },
-            { id: "j19", grupo: "J", t1: "Suíça", t2: "Irã", data: "2026-06-17T16:00:00" },
-            { id: "j20", grupo: "J", t1: "Croácia", t2: "Costa do Marfim", data: "2026-06-17T19:00:00" },
-            { id: "j21", grupo: "K", t1: "Polônia", t2: "Paraguai", data: "2026-06-18T14:00:00" },
-            { id: "j22", grupo: "K", t1: "Gales", t2: "África do Sul", data: "2026-06-18T17:00:00" },
-            { id: "j23", grupo: "L", t1: "Sérvia", t2: "Honduras", data: "2026-06-18T20:00:00" },
-            { id: "j24", grupo: "L", t1: "Áustria", t2: "Catar", data: "2026-06-19T14:00:00" }
+            // --- 11 DE JUNHO ---
+            { id: "j01", grupo: "A", t1: "México", t2: "África do Sul", data: "2026-06-11T16:00:00" },
+            { id: "j02", grupo: "A", t1: "Coreia do Sul", t2: "Rep. Checa", data: "2026-06-11T23:00:00" },
+            
+            // --- 12 DE JUNHO ---
+            { id: "j03", grupo: "B", t1: "Canadá", t2: "Bósnia", data: "2026-06-12T16:00:00" },
+            { id: "j04", grupo: "D", t1: "Estados Unidos", t2: "Paraguai", data: "2026-06-12T22:00:00" },
+            
+            // --- 13 DE JUNHO ---
+            { id: "j05", grupo: "B", t1: "Catar", t2: "Suíça", data: "2026-06-13T16:00:00" },
+            { id: "j06", grupo: "C", t1: "Brasil", t2: "Marrocos", data: "2026-06-13T19:00:00" },
+            { id: "j07", grupo: "C", t1: "Haiti", t2: "Escócia", data: "2026-06-13T22:00:00" },
+            
+            // --- 14 DE JUNHO ---
+            { id: "j08", grupo: "D", t1: "Austrália", t2: "Turquia", data: "2026-06-14T01:00:00" },
+            { id: "j09", grupo: "E", t1: "Alemanha", t2: "Curaçao", data: "2026-06-14T14:00:00" },
+            { id: "j10", grupo: "F", t1: "Holanda", t2: "Japão", data: "2026-06-14T17:00:00" },
+            { id: "j11", grupo: "E", t1: "Costa do Marfim", t2: "Equador", data: "2026-06-14T20:00:00" },
+            { id: "j12", grupo: "F", t1: "Suécia", t2: "Tunísia", data: "2026-06-14T23:00:00" },
+            
+            // --- 15 DE JUNHO ---
+            { id: "j13", grupo: "H", t1: "Espanha", t2: "Cabo Verde", data: "2026-06-15T13:00:00" },
+            { id: "j14", grupo: "G", t1: "Bélgica", t2: "Egito", data: "2026-06-15T16:00:00" },
+            { id: "j15", grupo: "H", t1: "Arábia Saudita", t2: "Uruguai", data: "2026-06-15T19:00:00" },
+            { id: "j16", grupo: "G", t1: "Irã", t2: "Nova Zelândia", data: "2026-06-15T22:00:00" },
+            
+            // --- 16 DE JUNHO ---
+            { id: "j17", grupo: "I", t1: "França", t2: "Senegal", data: "2026-06-16T16:00:00" },
+            { id: "j18", grupo: "I", t1: "Iraque", t2: "Noruega", data: "2026-06-16T19:00:00" },
+            { id: "j19", grupo: "J", t1: "Argentina", t2: "Argélia", data: "2026-06-16T22:00:00" },
+            
+            // --- 17 DE JUNHO ---
+            { id: "j20", grupo: "J", t1: "Áustria", t2: "Jordânia", data: "2026-06-17T01:00:00" },
+            { id: "j21", grupo: "K", t1: "Portugal", t2: "Rep. Dom. Congo", data: "2026-06-17T14:00:00" },
+            { id: "j22", grupo: "L", t1: "Inglaterra", t2: "Croácia", data: "2026-06-17T17:00:00" },
+            { id: "j23", grupo: "L", t1: "Gana", t2: "Panamá", data: "2026-06-17T20:00:00" },
+            { id: "j24", grupo: "K", t1: "Uzbequistão", t2: "Colômbia", data: "2026-06-17T23:00:00" }
         ];
 
         const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
@@ -165,6 +171,7 @@
         let meuNomeUsuario = "";
         let nomeArmazenamentoBanco = "";
 
+        // Ordena estritamente por tempo real de jogo
         jogosBolao.sort((a, b) => new Date(a.data) - new Date(b.data));
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -534,14 +541,14 @@
                 `;
 
                 listaRanking.forEach((usuario, index) => {
-                    const linha = document.createElement("div");
-                    linha.className = "linha-ranking clicavel";
-                    linha.innerHTML = `
+                    const htmlLinha = document.createElement("div");
+                    htmlLinha.className = "linha-ranking clicavel";
+                    htmlLinha.innerHTML = `
                         <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
                         <span>${usuario.pontos} pts (${usuario.exatos})</span>
                     `;
-                    linha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));
-                    containerRanking.appendChild(linha);
+                    htmlLinha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));
+                    containerRanking.appendChild(htmlLinha);
                 });
             });
         }

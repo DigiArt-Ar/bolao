@@ -6,6 +6,8 @@
     <title>Bolão Oficial - Copa 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    
     <link class="pwa" rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1d24">
     
@@ -50,10 +52,16 @@
         .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
         .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Ajuste do confronto para alinhar as bandeiras */
         .confronto { display: flex; justify-content: space-between; align-items: center; }
-        .time { width: 35%; text-align: center; font-size: 14px; font-weight: 600; }
-        .placar-inputs { display: flex; gap: 8px; align-items: center; }
-        .placar-inputs input { width: 45px; height: 38px; font-size: 18px; font-weight: bold; }
+        .time { width: 38%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; text-align: center; gap: 6px; }
+        
+        /* Estilização das Bandeiras Redondas */
+        .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
+
+        .placar-inputs { display: flex; gap: 6px; align-items: center; }
+        .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -124,45 +132,45 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // CONFRONTOS REAIS EXTRAÍDOS FIELMENTE DAS IMAGENS DA TABELA OFICIAL (ORDEM CRONOLÓGICA)
+        // LISTA DE CONFRONTOS COM AS SIGLAS OFICIAIS DE BANDEIRAS INSERIDAS AUTOMATICAMENTE
         const jogosBolao = [
             // --- 11 DE JUNHO ---
-            { id: "j01", grupo: "A", t1: "México", t2: "África do Sul", data: "2026-06-11T16:00:00" },
-            { id: "j02", grupo: "A", t1: "Coreia do Sul", t2: "Rep. Checa", data: "2026-06-11T23:00:00" },
+            { id: "j01", grupo: "A", t1: "México", sigla1: "mx", t2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
+            { id: "j02", grupo: "A", t1: "Coreia do Sul", sigla1: "kr", t2: "Rep. Checa", sigla2: "cz", data: "2026-06-11T23:00:00" },
             
             // --- 12 DE JUNHO ---
-            { id: "j03", grupo: "B", t1: "Canadá", t2: "Bósnia", data: "2026-06-12T16:00:00" },
-            { id: "j04", grupo: "D", t1: "Estados Unidos", t2: "Paraguai", data: "2026-06-12T22:00:00" },
+            { id: "j03", grupo: "B", t1: "Canadá", sigla1: "ca", t2: "Básnia", sigla2: "ba", data: "2026-06-12T16:00:00" },
+            { id: "j04", grupo: "D", t1: "Estados Unidos", sigla1: "us", t2: "Paraguai", sigla2: "py", data: "2026-06-12T22:00:00" },
             
             // --- 13 DE JUNHO ---
-            { id: "j05", grupo: "B", t1: "Catar", t2: "Suíça", data: "2026-06-13T16:00:00" },
-            { id: "j06", grupo: "C", t1: "Brasil", t2: "Marrocos", data: "2026-06-13T19:00:00" },
-            { id: "j07", grupo: "C", t1: "Haiti", t2: "Escócia", data: "2026-06-13T22:00:00" },
+            { id: "j05", grupo: "B", t1: "Catar", sigla1: "qa", t2: "Suíça", sigla2: "ch", data: "2026-06-13T16:00:00" },
+            { id: "j06", grupo: "C", t1: "Brasil", sigla1: "br", t2: "Marrocos", sigla2: "ma", data: "2026-06-13T19:00:00" },
+            { id: "j07", grupo: "C", t1: "Haiti", sigla1: "ht", t2: "Escócia", sigla2: "gb-sct", data: "2026-06-13T22:00:00" },
             
             // --- 14 DE JUNHO ---
-            { id: "j08", grupo: "D", t1: "Austrália", t2: "Turquia", data: "2026-06-14T01:00:00" },
-            { id: "j09", grupo: "E", t1: "Alemanha", t2: "Curaçao", data: "2026-06-14T14:00:00" },
-            { id: "j10", grupo: "F", t1: "Holanda", t2: "Japão", data: "2026-06-14T17:00:00" },
-            { id: "j11", grupo: "E", t1: "Costa do Marfim", t2: "Equador", data: "2026-06-14T20:00:00" },
-            { id: "j12", grupo: "F", t1: "Suécia", t2: "Tunísia", data: "2026-06-14T23:00:00" },
+            { id: "j08", grupo: "D", t1: "Austrália", sigla1: "au", t2: "Turquia", sigla2: "tr", data: "2026-06-14T01:00:00" },
+            { id: "j09", grupo: "E", t1: "Alemanha", sigla1: "de", t2: "Curaçao", sigla2: "cw", data: "2026-06-14T14:00:00" },
+            { id: "j10", group: "F", t1: "Holanda", sigla1: "nl", t2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
+            { id: "j11", grupo: "E", t1: "Costa do Marfim", sigla1: "ci", t2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
+            { id: "j12", grupo: "F", t1: "Suécia", sigla1: "se", t2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
             
             // --- 15 DE JUNHO ---
-            { id: "j13", grupo: "H", t1: "Espanha", t2: "Cabo Verde", data: "2026-06-15T13:00:00" },
-            { id: "j14", grupo: "G", t1: "Bélgica", t2: "Egito", data: "2026-06-15T16:00:00" },
-            { id: "j15", grupo: "H", t1: "Arábia Saudita", t2: "Uruguai", data: "2026-06-15T19:00:00" },
-            { id: "j16", grupo: "G", t1: "Irã", t2: "Nova Zelândia", data: "2026-06-15T22:00:00" },
+            { id: "j13", grupo: "H", t1: "Espanha", sigla1: "es", t2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
+            { id: "j14", grupo: "G", t1: "Bélgica", sigla1: "be", t2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
+            { id: "j15", grupo: "H", t1: "Arábia Saudita", sigla1: "sa", t2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
+            { id: "j16", grupo: "G", t1: "Irã", sigla1: "ir", t2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
             
             // --- 16 DE JUNHO ---
-            { id: "j17", grupo: "I", t1: "França", t2: "Senegal", data: "2026-06-16T16:00:00" },
-            { id: "j18", grupo: "I", t1: "Iraque", t2: "Noruega", data: "2026-06-16T19:00:00" },
-            { id: "j19", grupo: "J", t1: "Argentina", t2: "Argélia", data: "2026-06-16T22:00:00" },
+            { id: "j17", grupo: "I", t1: "França", sigla1: "fr", t2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
+            { id: "j18", grupo: "I", t1: "Iraque", sigla1: "iq", t2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
+            { id: "j19", grupo: "J", t1: "Argentina", sigla1: "ar", t2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
             
             // --- 17 DE JUNHO ---
-            { id: "j20", grupo: "J", t1: "Áustria", t2: "Jordânia", data: "2026-06-17T01:00:00" },
-            { id: "j21", grupo: "K", t1: "Portugal", t2: "Rep. Dom. Congo", data: "2026-06-17T14:00:00" },
-            { id: "j22", grupo: "L", t1: "Inglaterra", t2: "Croácia", data: "2026-06-17T17:00:00" },
-            { id: "j23", grupo: "L", t1: "Gana", t2: "Panamá", data: "2026-06-17T20:00:00" },
-            { id: "j24", grupo: "K", t1: "Uzbequistão", t2: "Colômbia", data: "2026-06-17T23:00:00" }
+            { id: "j20", grupo: "J", t1: "Áustria", sigla1: "at", t2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
+            { id: "j21", grupo: "K", t1: "Portugal", sigla1: "pt", t2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
+            { id: "j22", grupo: "L", t1: "Inglaterra", sigla1: "gb-eng", t2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
+            { id: "j23", grupo: "L", t1: "Gana", sigla1: "gh", t2: "Panamá", sigla2: "pa", data: "2026-06-17T20:00:00" },
+            { id: "j24", grupo: "K", t1: "Uzbequistão", sigla1: "uz", t2: "Colômbia", sigla2: "co", data: "2026-06-17T23:00:00" }
         ];
 
         const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
@@ -171,7 +179,6 @@
         let meuNomeUsuario = "";
         let nomeArmazenamentoBanco = "";
 
-        // Ordena estritamente por tempo real de jogo
         jogosBolao.sort((a, b) => new Date(a.data) - new Date(b.data));
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -207,7 +214,14 @@
 
             document.getElementById("btn-entrar").addEventListener("click", () => {
                 const nomeInput = document.getElementById("input-nome").value.trim();
+                
                 if (nomeInput) {
+                    if (nomeInput === SENHA_ADMIN_PRE_ESTABELECIDA) {
+                        alert("Este nome não pode ser utilizado. Escolha outro nome ou apelido!");
+                        document.getElementById("input-nome").value = "";
+                        return;
+                    }
+
                     nomeArmazenamentoBanco = nomeInput.toLowerCase().replace(/[.#$\[\]]/g, "");
                     meuNomeUsuario = nomeInput; 
                     
@@ -235,6 +249,7 @@
             setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
 
+        // INJEÇÃO AUTOMÁTICA DAS BANDEIRAS COM AS CLASSES DA BIBLIOTECA
         function renderizarJogosAgrupados() {
             const listaDiv = document.getElementById("lista-jogos");
             listaDiv.innerHTML = "";
@@ -257,16 +272,24 @@
                 const card = document.createElement("div");
                 card.className = "card-jogo";
                 card.id = `card-${jogo.id}`;
+                
+                // Note aqui a inclusão da tag <span class="fi fi-sigla bandeira"> para desenhar as bandeiras redondas
                 card.innerHTML = `
                     <div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div>
                     <div class="confronto">
-                        <span class="time">${jogo.t1}</span>
+                        <div class="time">
+                            <span class="fi fi-${jogo.sigla1} bandeira"></span>
+                            <span>${jogo.t1}</span>
+                        </div>
                         <div class="placar-inputs">
                             <input type="number" id="p1-${jogo.id}" min="0" placeholder="-">
                             <span>x</span>
                             <input type="number" id="p2-${jogo.id}" min="0" placeholder="-">
                         </div>
-                        <span class="time">${jogo.t2}</span>
+                        <div class="time">
+                            <span class="fi fi-${jogo.sigla2} bandeira"></span>
+                            <span>${jogo.t2}</span>
+                        </div>
                     </div>
                     <div class="status-jogo" id="status-${jogo.id}"></div>
                 `;
@@ -506,7 +529,7 @@
                     });
                 });
 
-                alert("Pontuações e ranking atualizados com sucesso!");
+                alert("Pontuações e ranking updated com sucesso!");
                 isAdmin = false;
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");
@@ -520,7 +543,6 @@
 
                 Object.keys(participantes).forEach(key => {
                     const u = participantes[key];
-                    // PROTEÇÃO CONTRA UNDEFINED: só adiciona se houver um nome válido cadastrado
                     if (u && u.nome) {
                         listaRanking.push({
                             chaveBanco: key,

@@ -173,6 +173,9 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
+        // TELEFONES DO ADMINISTRADOR EMBUTIDOS PARA LIBERAÇÃO AUTOMÁTICA
+        const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
+
         // JOGOS OFICIAIS DA COPA DO MUNDO 2026
         const rodadasBolao = {
             "1": [
@@ -274,12 +277,13 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
+            // INJETA OS TELEFONES DO ADMIN AUTOMATICAMENTE NO FIREBASE
+            garantirTelefonesAdminNoBanco();
+            
             renderizarJogosRodadaAtiva();
             ouvirRankingDoFirebase();
             configurarSeletorRodadas();
             configurarSeletorFiltrosRanking();
-
-            // VERIFICAÇÃO AUTOMÁTICA DE LOGIN AO CARREGAR A PÁGINA
             checarUsuarioExistente();
 
             document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
@@ -327,6 +331,13 @@
             
             setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
+
+        // GARANTE QUE SEUS TELEFONES SEMPRE EXISTAM NA LISTA AUTORIZADA
+        function garantirTelefonesAdminNoBanco() {
+            TELEFONES_ADMIN_PADRAO.forEach(fone => {
+                database.ref('telefones_autorizados/' + fone).set(true);
+            });
+        }
 
         function configurarSeletorRodadas() {
             const botoes = document.querySelectorAll("#seletor-rodadas .rodada-btn");
@@ -410,7 +421,6 @@
             });
         }
 
-        // FUNÇÃO DE LOGIN AUTOMÁTICO CORRIGIDA E ADICIONADA
         function checarUsuarioExistente() {
             const foneSalvo = localStorage.getItem("bolao_telefone");
             const nomeSalvo = localStorage.getItem("bolao_nome_exibicao");
@@ -462,7 +472,6 @@
                 if (snapshot.exists()) {
                     const dadosUsuario = snapshot.val();
                     
-                    // GRAVA NO NAVEGADOR PARA LOGAR DIRETO NAS PRÓXIMAS VEZES
                     localStorage.setItem("bolao_telefone", foneInput);
                     localStorage.setItem("bolao_nome_exibicao", dadosUsuario.nome);
                     
@@ -476,7 +485,6 @@
                                 return;
                             }
                             
-                            // GRAVA NO NAVEGADOR PARA LEMBRAR DELE NAS PRÓXIMAS VEZES
                             localStorage.setItem("bolao_telefone", foneInput);
                             localStorage.setItem("bolao_nome_exibicao", nomeInput);
                             
@@ -689,6 +697,11 @@
         }
 
         window.removerFoneAdmin = function(fone) {
+            // Previne a exclusão acidental dos telefones mestres pelo painel
+            if (TELEFONES_ADMIN_PADRAO.includes(fone)) {
+                alert("Este número é o administrador master do sistema e não pode ser removido pelo painel!");
+                return;
+            }
             if(confirm(`Deseja remover a permissão do telefone ${fone}?`)) {
                 database.ref('telefones_autorizados/' + fone).remove();
                 database.ref('participantes/' + fone).remove(); 

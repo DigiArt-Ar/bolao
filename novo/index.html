@@ -75,15 +75,15 @@
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
         .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
 
-        /* Estilos do Painel de Controle de Telefones (Whitelist) */
         .box-whitelist { background-color: #252a34; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed #3a4252; }
         .lista-whitelist { max-height: 150px; overflow-y: auto; margin-top: 10px; background: #151921; padding: 10px; border-radius: 6px; text-align: left; font-size: 13px; }
-        .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; }
+        .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
         .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
     </style>
 </head>
 <body>
 
+    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
         <p id="instrucoes-login">Para entrar, digite seu número de telefone cadastrado pelo administrador:</p>
@@ -99,6 +99,7 @@
         <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
+    <!-- TELA PRINCIPAL -->
     <div id="tela-principal" class="container hidden">
         <header>
             <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
@@ -110,6 +111,7 @@
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
+        <!-- ABA CONTEÚDO PALPITES -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <div id="banner-spy" class="visualizando-banner hidden">
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
@@ -128,6 +130,7 @@
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Palpites Desta Rodada</button>
             
+            <!-- ÁREA DO ADMINISTRADOR: REGISTRO MANUAL DE TELEFONES -->
             <div id="painel-admin-whitelist" class="box-whitelist hidden">
                 <h4>🔑 Registro de Telefones Autorizados</h4>
                 <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
@@ -141,6 +144,7 @@
             <button id="btn-cancelar-admin" class="btn-secundario hidden" style="margin-top: 15px;">Sair do Modo Admin</button>
         </div>
 
+        <!-- ABA CONTEÚDO RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação</h3>
             
@@ -226,7 +230,7 @@
                 { id: "r2_19", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-23T00:00:00" },
                 { id: "r2_20", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-23T14:00:00" },
                 { id: "r2_21", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-23T17:00:00" },
-                { id: "r2_22", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
+                { id: "r2_22", group: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
                 { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
                 { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
             ],
@@ -277,9 +281,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            // INJETA OS TELEFONES DO ADMIN AUTOMATICAMENTE NO FIREBASE
             garantirTelefonesAdminNoBanco();
-            
             renderizarJogosRodadaAtiva();
             ouvirRankingDoFirebase();
             configurarSeletorRodadas();
@@ -332,7 +334,6 @@
             setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
 
-        // GARANTE QUE SEUS TELEFONES SEMPRE EXISTAM NA LISTA AUTORIZADA
         function garantirTelefonesAdminNoBanco() {
             TELEFONES_ADMIN_PADRAO.forEach(fone => {
                 database.ref('telefones_autorizados/' + fone).set(true);
@@ -438,7 +439,7 @@
 
             if (fone.length >= 10) {
                 database.ref('participantes/' + fone).once('value').then(snapshot => {
-                    if (snapshot.exists()) {
+                    if (snapshot.exists() && snapshot.val().nome) {
                         blocoNome.classList.add("hidden");
                         instrucoes.innerText = `Bem-vindo de volta! Clique em entrar para acessar os palpites de: ${snapshot.val().nome}`;
                     } else {
@@ -469,7 +470,7 @@
             }
 
             database.ref('participantes/' + foneInput).once('value').then(snapshot => {
-                if (snapshot.exists()) {
+                if (snapshot.exists() && snapshot.val().nome) {
                     const dadosUsuario = snapshot.val();
                     
                     localStorage.setItem("bolao_telefone", foneInput);
@@ -490,9 +491,12 @@
                             
                             telefoneUsuarioLogado = foneInput;
 
-                            database.ref('participantes/' + foneInput).update({
+                            // AJUSTADO: Garante a gravação limpa e individual das propriedades nome e fone
+                            database.ref('participantes/' + foneInput).set({
                                 nome: nomeInput,
-                                telefone: foneInput
+                                telefone: foneInput,
+                                pontuacoes: 0,
+                                exatos: 0
                             }).then(() => {
                                 mostrarTelaPrincipal(nomeInput);
                             });
@@ -697,7 +701,6 @@
         }
 
         window.removerFoneAdmin = function(fone) {
-            // Previne a exclusão acidental dos telefones mestres pelo painel
             if (TELEFONES_ADMIN_PADRAO.includes(fone)) {
                 alert("Este número é o administrador master do sistema e não pode ser removido pelo painel!");
                 return;
@@ -816,12 +819,16 @@
             });
         }
 
+        // AJUSTADO: Blindagem completa da renderização do ranking para puxar estritamente a string "nome"
         function processarERenderizarRanking(participantes) {
             let listaRanking = [];
 
             Object.keys(participantes).forEach(key => {
                 const u = participantes[key];
-                if (u && u.nome) {
+                if (u) {
+                    // Se o nó existir mas a propriedade nome estiver vazia por algum motivo, usa um fallback limpo
+                    let nomeExibicao = u.nome ? u.nome : `Participante (${key})`;
+                    
                     let ptsExibicao = 0;
                     let exatosExibicao = 0;
 
@@ -841,7 +848,7 @@
 
                     listaRanking.push({
                         chaveBanco: key,
-                        nome: u.nome,
+                        nome: nomeExibicao,
                         pontos: ptsExibicao,
                         exatos: exatosExibicao
                     });

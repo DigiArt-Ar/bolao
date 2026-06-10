@@ -41,10 +41,15 @@
         .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
         .tab-btn.active { background-color: #007bff; color: #fff; }
 
-        /* Estilo das novas sub-abas de rodadas */
+        /* Estilo das sub-abas de rodadas */
         .rodadas-tabs { display: flex; gap: 5px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
-        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; }
+        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
         .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
+
+        /* Sub-abas específicas do ranking (incluindo o filtro Geral) */
+        .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
+        .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
+        .rank-tab-btn.active { background-color: #00c853; color: #ffffff; }
 
         .aviso-trava { font-size: 13px; color: #ffb300; margin-bottom: 20px; text-align: center; font-weight: 500; padding: 8px; border-radius: 6px; background-color: rgba(255, 179, 0, 0.1); }
         .status-jogo { font-size: 11px; font-weight: bold; text-align: center; margin-top: 5px; text-transform: uppercase; }
@@ -58,11 +63,9 @@
         .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
         .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
         
-        /* Ajuste do confronto para alinhar as bandeiras */
         .confronto { display: flex; justify-content: space-between; align-items: center; }
         .time { width: 38%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; text-align: center; gap: 6px; }
         
-        /* Estilização das Bandeiras Redondas */
         .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
 
         .placar-inputs { display: flex; gap: 6px; align-items: center; }
@@ -105,7 +108,6 @@
                 <button id="btn-fechar-spy" class="btn-secundario">Voltar aos Meus</button>
             </div>
             
-            <!-- ABAS SELETORAS DE RODADA -->
             <div class="rodadas-tabs" id="seletor-rodadas">
                 <button class="rodada-btn active" data-rodada="1">Rodada 1</button>
                 <button class="rodada-btn" data-rodada="2">Rodada 2</button>
@@ -121,7 +123,15 @@
         </div>
 
         <div id="conteudo-ranking" class="tab-conteudo hidden">
-            <h3>Classificação Geral</h3>
+            <h3>Classificação</h3>
+            
+            <div class="ranking-tabs" id="seletor-ranking-filtros">
+                <button class="rank-tab-btn active" data-filtro="geral">Geral</button>
+                <button class="rank-tab-btn" data-filtro="1">Rodada 1</button>
+                <button class="rank-tab-btn" data-filtro="2">Rodada 2</button>
+                <button class="rank-tab-btn" data-filtro="3">Rodada 3</button>
+            </div>
+
             <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
             <div id="lista-ranking"></div>
         </div>
@@ -144,7 +154,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // NOVO BANCO DE DADOS COMPLETO DA COPA 2026 - ORGANIZADO POR RODADAS INDEPENDENTES
+        // JOGOS OFICIAIS DA COPA DO MUNDO 2026 (72 PARTIDAS DA FASE DE GRUPOS)
         const rodadasBolao = {
             "1": [
                 { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
@@ -165,7 +175,7 @@
                 { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
                 { id: "r1_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
                 { id: "r1_18", grupo: "I", t1: "IRQ", nome1: "Iraque", sigla1: "iq", t2: "NOR", nome2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
-                { id: "r1_19", group: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
+                { id: "r1_19", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
                 { id: "r1_20", grupo: "J", t1: "AST", nome1: "Áustria", sigla1: "at", t2: "JRD", nome2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
                 { id: "r1_21", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
                 { id: "r1_22", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
@@ -231,14 +241,14 @@
         let modoEspiaoAtivo = false;
         let meuNomeUsuario = "";
         let nomeArmazenamentoBanco = "";
-        let rodadaAtiva = "1"; // Controla qual rodada está na tela
+        let rodadaAtiva = "1"; 
+        let filtroRankingAtivo = "geral"; // Controla o filtro ativo da aba Classificação
 
-        // Ordena internamente os jogos de cada rodada por data de início
+        // Ordenação das partidas
         Object.keys(rodadasBolao).forEach(r => {
             rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
         });
 
-        // Função utilitária para rodar loops em todos os 72 jogos de forma simples
         function executarEmTodosOsJogos(callback) {
             Object.keys(rodadasBolao).forEach(r => {
                 rodadasBolao[r].forEach(jogo => callback(jogo, r));
@@ -250,6 +260,7 @@
             checarUsuarioExistente();
             ouvirRankingDoFirebase();
             configurarSeletorRodadas();
+            configurarSeletorFiltrosRanking();
 
             document.getElementById("btn-admin").addEventListener("click", () => {
                 const senhaDigitada = prompt("Senha Master do Administrador:");
@@ -314,9 +325,8 @@
             setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
 
-        // Configura os cliques nas abas de Rodada 1, 2 e 3
         function configurarSeletorRodadas() {
-            const botoes = document.querySelectorAll(".rodada-btn");
+            const botoes = document.querySelectorAll("#seletor-rodadas .rodada-btn");
             botoes.forEach(btn => {
                 btn.addEventListener("click", (e) => {
                     botoes.forEach(b => b.classList.remove("active"));
@@ -326,9 +336,6 @@
                     if (isAdmin) {
                         liberarModoAdminVisual();
                     } else if (modoEspiaoAtivo) {
-                        // Mantém a visualização do espiado sincronizada ao trocar de rodada
-                        const nomeEspiado = document.getElementById("spy-nome").innerText;
-                        // Força a atualização dos inputs buscando os dados que já estão guardados ou ocultos
                         document.getElementById("btn-fechar-spy").click(); 
                     } else {
                         renderizarJogosRodadaAtiva();
@@ -338,7 +345,23 @@
             });
         }
 
-        // Renderiza somente os 24 jogos pertencentes à rodada selecionada
+        // Configuração dos filtros de ranking (Geral, R1, R2, R3)
+        function configurarSeletorFiltrosRanking() {
+            const botoes = document.querySelectorAll("#seletor-ranking-filtros .rank-tab-btn");
+            botoes.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    botoes.forEach(b => b.classList.remove("active"));
+                    e.target.classList.add("active");
+                    filtroRankingAtivo = e.target.getAttribute("data-filtro");
+                    
+                    // Força o Firebase a disparar o evento de redesenhar a lista ordenada com o novo filtro
+                    database.ref('participantes').once('value').then(snapshot => {
+                        processarERenderizarRanking(snapshot.val() || {});
+                    });
+                });
+            });
+        }
+
         function renderizarJogosRodadaAtiva() {
             const listaDiv = document.getElementById("lista-jogos");
             listaDiv.innerHTML = "";
@@ -406,7 +429,6 @@
         function puxarMeusPalpitesDoFirebase() {
             database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
-                // Preenche apenas a rodada visível na tela para evitar erros de DOM
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
                     document.getElementById(`p2-${jogo.id}`).value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
@@ -434,7 +456,6 @@
             document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
             document.getElementById("aviso-geral").style.color = "#ffb300";
 
-            // Verifica as travas apenas dos elementos da rodada que estão atualmente renderizados
             rodadasBolao[rodadaAtiva].forEach(jogo => {
                 const dataJogo = new Date(jogo.data);
                 const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
@@ -444,7 +465,7 @@
                 const statusDiv = document.getElementById(`status-${jogo.id}`);
                 const cardDiv = document.getElementById(`card-${jogo.id}`);
 
-                if (!input1 || !input2) return; // Proteção caso mude de aba rápido
+                if (!input1 || !input2) return;
 
                 if (agora >= limiteTrava) {
                     input1.disabled = true;
@@ -487,7 +508,7 @@
 
                 modoEspiaoAtivo = true;
                 alternarAbas("palpites");
-                renderizarJogosRodadaAtiva(); // Garante o escopo visual correto
+                renderizarJogosRodadaAtiva(); 
                 
                 document.getElementById("spy-nome").innerText = nomeExibicaoAlvo;
                 document.getElementById("banner-spy").classList.remove("hidden");
@@ -554,12 +575,10 @@
         }
 
         function salvarPalpitesUsuario() {
-            // Recupera todos os palpites que o usuário já possui salvos globalmente para não sobrescrever as outras rodadas
             database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
                 let dadosPalpites = snapshot.val() || {};
                 let preencheuAlgumNestaRodada = false;
                 
-                // Atualiza o objeto geral apenas com as entradas modificadas na rodada ativa
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const val1 = document.getElementById(`p1-${jogo.id}`).value;
                     const val2 = document.getElementById(`p2-${jogo.id}`).value;
@@ -587,7 +606,6 @@
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 let dadosOficiais = snapshot.val() || {};
                 
-                // Mescla os resultados novos da rodada ativa sem apagar os das outras
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const val1 = document.getElementById(`p1-${jogo.id}`).value;
                     const val2 = document.getElementById(`p2-${jogo.id}`).value;
@@ -603,6 +621,7 @@
             });
         }
 
+        // MOTOR REESCRITO COM CÁLCULO SEPARADO POR RODADA E ACUMULADO GLOBAL
         function recalcularPontuacoesGerais(resultadosOficiais) {
             database.ref('participantes').once('value').then((snapshot) => {
                 const participantes = snapshot.val() || {};
@@ -610,34 +629,52 @@
                 Object.keys(participantes).forEach(key => {
                     const usuario = participantes[key];
                     const palpites = usuario.palpites || {};
-                    let pontosTotal = 0;
-                    let exatosTotal = 0;
+                    
+                    let pontosGeral = 0;
+                    let exatosGeral = 0;
+                    
+                    // Estruturas internas para armazenar o ganho individual por rodada
+                    let pontosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
+                    let exatosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
 
-                    // O cálculo varre obrigatoriamente os 72 jogos de todas as rodadas
-                    executarEmTodosOsJogos((jogo) => {
+                    executarEmTodosOsJogos((jogo, r) => {
                         const res1 = resultadosOficiais[`p1-${jogo.id}`];
-                        const res2 = resultadosOficiais[`p2-${jogo.id}`];
+                        const res2 = </pre>resultadosOficiais[`p2-${jogo.id}`];
                         const pal1 = palpites[`p1-${jogo.id}`];
                         const pal2 = palpites[`p2-${jogo.id}`];
 
                         if (res1 !== undefined && res2 !== undefined && pal1 !== undefined && pal2 !== undefined) {
+                            let chaveRodada = "r" + r;
+                            
+                            // Acertou Placar Exato (5 pontos)
                             if (res1 === pal1 && res2 === pal2) {
-                                pontosTotal += 5;
-                                exatosTotal += 1;   
+                                pontosGeral += 5;
+                                exatosGeral += 1;
+                                pontosRodadas[chaveRodada] += 5;
+                                exatosRodadas[chaveRodada] += 1;
                             } 
+                            // Acertou Tendência / Ganhador ou Empate (3 pontos)
                             else if ((res1 > res2 && pal1 > pal2) || (res1 < res2 && pal1 < pal2) || (res1 === res2 && pal1 === pal2)) {
-                                pontosTotal += 3;
+                                pontosGeral += 3;
+                                pontosRodadas[chaveRodada] += 3;
                             }
                         }
                     });
 
+                    // Grava os dados completos estruturados no Firebase
                     database.ref('participantes/' + key).update({
-                        pontuacoes: pontosTotal,
-                        exatos: exatosTotal
+                        pontuacoes: pontosGeral,
+                        exatos: exatosGeral,
+                        pontos_r1: pontosRodadas["r1"],
+                        exatos_r1: exatosRodadas["r1"],
+                        pontos_r2: pontosRodadas["r2"],
+                        exatos_r2: exatosRodadas["r2"],
+                        pontos_r3: pontosRodadas["r3"],
+                        exatos_r3: exatosRodadas["r3"]
                     });
                 });
 
-                alert("Pontuações e ranking atualizados com sucesso para todas as rodadas!");
+                alert("Pontuações recalculadas com sucesso em todos os filtros!");
                 isAdmin = false;
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");
@@ -646,44 +683,69 @@
 
         function ouvirRankingDoFirebase() {
             database.ref('participantes').on('value', (snapshot) => {
-                const participantes = snapshot.val() || {};
-                let listaRanking = [];
+                processarERenderizarRanking(snapshot.val() || {});
+            });
+        }
 
-                Object.keys(participantes).forEach(key => {
-                    const u = participantes[key];
-                    if (u && u.nome) {
-                        listaRanking.push({
-                            chaveBanco: key,
-                            nome: u.nome,
-                            pontos: u.pontuacoes || 0,
-                            exatos: u.exatos || 0
-                        });
+        // PROCESSA E ORDENA A TABELA BASEADO NO FILTRO SELECIONADO (GERAL OU RODADA INDEPENDENTE ZERADA)
+        function processarERenderizarRanking(participantes) {
+            let listaRanking = [];
+
+            Object.keys(participantes).forEach(key => {
+                const u = participantes[key];
+                if (u && u.nome) {
+                    let ptsExibicao = 0;
+                    let exatosExibicao = 0;
+
+                    // Escolhe quais dados ler de acordo com o filtro ativo das abas
+                    if (filtroRankingAtivo === "geral") {
+                        ptsExibicao = u.pontuacoes || 0;
+                        exatosExibicao = u.exatos || 0;
+                    } else if (filtroRankingAtivo === "1") {
+                        ptsExibicao = u.pontos_r1 || 0;
+                        exatosExibicao = u.exatos_r1 || 0;
+                    } else if (filtroRankingAtivo === "2") {
+                        ptsExibicao = u.pontos_r2 || 0;
+                        exatosExibicao = u.exatos_r2 || 0;
+                    } else if (filtroRankingAtivo === "3") {
+                        ptsExibicao = u.pontos_r3 || 0;
+                        exatosExibicao = u.exatos_r3 || 0;
                     }
-                });
 
-                listaRanking.sort((a, b) => {
-                    if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-                    return b.exatos - a.exatos;
-                });
+                    listaRanking.push({
+                        chaveBanco: key,
+                        nome: u.nome,
+                        pontos: ptsExibicao,
+                        exatos: exatosExibicao
+                    });
+                }
+            });
 
-                const containerRanking = document.getElementById("lista-ranking");
-                containerRanking.innerHTML = `
-                    <div class="linha-ranking cabecalho-ranking">
-                        <span>Classificação</span>
-                        <span>Pontos (Exatos)</span>
-                    </div>
+            // Ordenação justa: Maior pontuação -> Se empatar, maior número de placares exatos
+            listaRanking.sort((a, b) => {
+                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+                return b.exatos - a.exatos;
+            });
+
+            const containerRanking = document.getElementById("lista-ranking");
+            
+            let sufixoCabecalho = filtroRankingAtivo === "geral" ? "Geral" : `Rodada ${filtroRankingAtivo}`;
+            containerRanking.innerHTML = `
+                <div class="linha-ranking cabecalho-ranking">
+                    <span>Classificação — ${sufixoCabecalho}</span>
+                    <span>Pontos (Exatos)</span>
+                </div>
+            `;
+
+            listaRanking.forEach((usuario, index) => {
+                const htmlLinha = document.createElement("div");
+                htmlLinha.className = "linha-ranking clicavel";
+                htmlLinha.innerHTML = `
+                    <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
+                    <span>${usuario.pontos} pts (${usuario.exatos})</span>
                 `;
-
-                listaRanking.forEach((usuario, index) => {
-                    const htmlLinha = document.createElement("div");
-                    htmlLinha.className = "linha-ranking clicavel";
-                    htmlLinha.innerHTML = `
-                        <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
-                        <span>${usuario.pontos} pts (${usuario.exatos})</span>
-                    `;
-                    htmlLinha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));
-                    containerRanking.appendChild(htmlLinha);
-                });
+                htmlLinha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));
+                containerRanking.appendChild(htmlLinha);
             });
         }
 
@@ -694,7 +756,6 @@
                 document.getElementById("conteudo-palpites").classList.remove("hidden");
                 document.getElementById("conteudo-ranking").classList.add("hidden");
             } else {
-                document.getElementById("tab-palpites").classList.remove("remove-active");
                 document.getElementById("tab-palpites").classList.remove("active");
                 document.getElementById("tab-ranking").classList.add("active");
                 document.getElementById("conteudo-palpites").classList.add("hidden");

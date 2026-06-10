@@ -41,6 +41,11 @@
         .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
         .tab-btn.active { background-color: #007bff; color: #fff; }
 
+        /* Estilo das novas sub-abas de rodadas */
+        .rodadas-tabs { display: flex; gap: 5px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
+        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; }
+        .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
+
         .aviso-trava { font-size: 13px; color: #ffb300; margin-bottom: 20px; text-align: center; font-weight: 500; padding: 8px; border-radius: 6px; background-color: rgba(255, 179, 0, 0.1); }
         .status-jogo { font-size: 11px; font-weight: bold; text-align: center; margin-top: 5px; text-transform: uppercase; }
         .status-aberto { color: #00c853; }
@@ -99,12 +104,19 @@
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
                 <button id="btn-fechar-spy" class="btn-secundario">Voltar aos Meus</button>
             </div>
+            
+            <!-- ABAS SELETORAS DE RODADA -->
+            <div class="rodadas-tabs" id="seletor-rodadas">
+                <button class="rodada-btn active" data-rodada="1">Rodada 1</button>
+                <button class="rodada-btn" data-rodada="2">Rodada 2</button>
+                <button class="rodada-btn" data-rodada="3">Rodada 3</button>
+            </div>
+
             <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
             
-            <div id="lista-jogos">
-                </div>
+            <div id="lista-jogos"></div>
             
-            <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Todos os Meus Palpites</button>
+            <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Palpites Desta Rodada</button>
             <button id="btn-cancelar-admin" class="btn-secundario hidden">Sair do Modo Admin</button>
         </div>
 
@@ -132,59 +144,112 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // LISTA DE CONFRONTOS COM AS SIGLAS OFICIAIS DE BANDEIRAS INSERIDAS AUTOMATICAMENTE
-        const jogosBolao = [
-            // --- 11 DE JUNHO ---
-            { id: "j01", grupo: "A", t1: "México", sigla1: "mx", t2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
-            { id: "j02", grupo: "A", t1: "Coreia do Sul", sigla1: "kr", t2: "Rep. Checa", sigla2: "cz", data: "2026-06-11T23:00:00" },
-            
-            // --- 12 DE JUNHO ---
-            { id: "j03", grupo: "B", t1: "Canadá", sigla1: "ca", t2: "Básnia", sigla2: "ba", data: "2026-06-12T16:00:00" },
-            { id: "j04", grupo: "D", t1: "Estados Unidos", sigla1: "us", t2: "Paraguai", sigla2: "py", data: "2026-06-12T22:00:00" },
-            
-            // --- 13 DE JUNHO ---
-            { id: "j05", grupo: "B", t1: "Catar", sigla1: "qa", t2: "Suíça", sigla2: "ch", data: "2026-06-13T16:00:00" },
-            { id: "j06", grupo: "C", t1: "Brasil", sigla1: "br", t2: "Marrocos", sigla2: "ma", data: "2026-06-13T19:00:00" },
-            { id: "j07", grupo: "C", t1: "Haiti", sigla1: "ht", t2: "Escócia", sigla2: "gb-sct", data: "2026-06-13T22:00:00" },
-            
-            // --- 14 DE JUNHO ---
-            { id: "j08", grupo: "D", t1: "Austrália", sigla1: "au", t2: "Turquia", sigla2: "tr", data: "2026-06-14T01:00:00" },
-            { id: "j09", grupo: "E", t1: "Alemanha", sigla1: "de", t2: "Curaçao", sigla2: "cw", data: "2026-06-14T14:00:00" },
-            { id: "j10", group: "F", t1: "Holanda", sigla1: "nl", t2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
-            { id: "j11", grupo: "E", t1: "Costa do Marfim", sigla1: "ci", t2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
-            { id: "j12", grupo: "F", t1: "Suécia", sigla1: "se", t2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
-            
-            // --- 15 DE JUNHO ---
-            { id: "j13", grupo: "H", t1: "Espanha", sigla1: "es", t2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
-            { id: "j14", grupo: "G", t1: "Bélgica", sigla1: "be", t2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
-            { id: "j15", grupo: "H", t1: "Arábia Saudita", sigla1: "sa", t2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
-            { id: "j16", grupo: "G", t1: "Irã", sigla1: "ir", t2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
-            
-            // --- 16 DE JUNHO ---
-            { id: "j17", grupo: "I", t1: "França", sigla1: "fr", t2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
-            { id: "j18", grupo: "I", t1: "Iraque", sigla1: "iq", t2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
-            { id: "j19", grupo: "J", t1: "Argentina", sigla1: "ar", t2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
-            
-            // --- 17 DE JUNHO ---
-            { id: "j20", grupo: "J", t1: "Áustria", sigla1: "at", t2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
-            { id: "j21", grupo: "K", t1: "Portugal", sigla1: "pt", t2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
-            { id: "j22", grupo: "L", t1: "Inglaterra", sigla1: "gb-eng", t2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
-            { id: "j23", grupo: "L", t1: "Gana", sigla1: "gh", t2: "Panamá", sigla2: "pa", data: "2026-06-17T20:00:00" },
-            { id: "j24", grupo: "K", t1: "Uzbequistão", sigla1: "uz", t2: "Colômbia", sigla2: "co", data: "2026-06-17T23:00:00" }
-        ];
+        // NOVO BANCO DE DADOS COMPLETO DA COPA 2026 - ORGANIZADO POR RODADAS INDEPENDENTES
+        const rodadasBolao = {
+            "1": [
+                { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
+                { id: "r1_02", grupo: "A", t1: "COR", nome1: "Coreia do Sul", sigla1: "kr", t2: "TCH", nome2: "Rep. Checa", sigla2: "cz", data: "2026-06-11T23:00:00" },
+                { id: "r1_03", grupo: "B", t1: "CAN", nome1: "Canadá", sigla1: "ca", t2: "BOS", nome2: "Bósnia", sigla2: "ba", data: "2026-06-12T16:00:00" },
+                { id: "r1_04", grupo: "D", t1: "USA", nome1: "Estados Unidos", sigla1: "us", t2: "PAR", nome2: "Paraguai", sigla2: "py", data: "2026-06-12T22:00:00" },
+                { id: "r1_05", grupo: "B", t1: "CAT", nome1: "Catar", sigla1: "qa", t2: "SUI", nome2: "Suíça", sigla2: "ch", data: "2026-06-13T16:00:00" },
+                { id: "r1_06", grupo: "C", t1: "BRA", nome1: "Brasil", sigla1: "br", t2: "MAR", nome2: "Marrocos", sigla2: "ma", data: "2026-06-13T19:00:00" },
+                { id: "r1_07", grupo: "C", t1: "HAI", nome1: "Haiti", sigla1: "ht", t2: "SCO", nome2: "Escócia", sigla2: "gb-sct", data: "2026-06-13T22:00:00" },
+                { id: "r1_08", grupo: "D", t1: "AUS", nome1: "Austrália", sigla1: "au", t2: "TUR", nome2: "Turquia", sigla2: "tr", data: "2026-06-14T01:00:00" },
+                { id: "r1_09", grupo: "E", t1: "ALE", nome1: "Alemanha", sigla1: "de", t2: "CUR", nome2: "Curaçao", sigla2: "cw", data: "2026-06-14T14:00:00" },
+                { id: "r1_10", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
+                { id: "r1_11", grupo: "E", t1: "CDI", nome1: "Costa do Marfim", sigla1: "ci", t2: "EQU", nome2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
+                { id: "r1_12", grupo: "F", t1: "SUE", nome1: "Suécia", sigla1: "se", t2: "TUN", nome2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
+                { id: "r1_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
+                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
+                { id: "r1_15", grupo: "H", t1: "SAU", nome1: "Arábia Saudita", sigla1: "sa", t2: "URU", nome2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
+                { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
+                { id: "r1_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
+                { id: "r1_18", grupo: "I", t1: "IRQ", nome1: "Iraque", sigla1: "iq", t2: "NOR", nome2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
+                { id: "r1_19", group: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
+                { id: "r1_20", grupo: "J", t1: "AST", nome1: "Áustria", sigla1: "at", t2: "JRD", nome2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
+                { id: "r1_21", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
+                { id: "r1_22", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
+                { id: "r1_23", grupo: "L", t1: "GHA", nome1: "Gana", sigla1: "gh", t2: "PAN", nome2: "Panamá", sigla2: "pa", data: "2026-06-17T20:00:00" },
+                { id: "r1_24", grupo: "K", t1: "UZB", nome1: "Uzbequistão", sigla1: "uz", t2: "COL", nome2: "Colômbia", sigla2: "co", data: "2026-06-17T23:00:00" }
+            ],
+            "2": [
+                { id: "r2_01", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-18T13:00:00" },
+                { id: "r2_02", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "BOS", nome2: "Bósnia", sigla2: "ba", data: "2026-06-18T16:00:00" },
+                { id: "r2_03", grupo: "B", t1: "CAN", nome1: "Canadá", sigla1: "ca", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-18T19:00:00" },
+                { id: "r2_04", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "COR", nome2: "Coreia do Sul", sigla2: "kr", data: "2026-06-18T22:00:00" },
+                { id: "r2_05", grupo: "D", t1: "USA", nome1: "Estados Unidos", sigla1: "us", t2: "AUS", nome2: "Austrália", sigla2: "au", data: "2026-06-19T16:00:00" },
+                { id: "r2_06", grupo: "C", t1: "SCO", nome1: "Escócia", sigla1: "gb-sct", t2: "MAR", nome2: "Marrocos", sigla2: "ma", data: "2026-06-19T19:00:00" },
+                { id: "r2_07", grupo: "C", t1: "BRA", nome1: "Brasil", sigla1: "br", t2: "HAI", nome2: "Haiti", sigla2: "ht", data: "2026-06-19T21:30:00" },
+                { id: "r2_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "PAR", nome2: "Paraguai", sigla2: "py", data: "2026-06-20T01:00:00" },
+                { id: "r2_09", grupo: "E", t1: "ALE", nome1: "Alemanha", sigla1: "de", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-20T17:00:00" },
+                { id: "r2_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "CUR", nome2: "Curaçao", sigla2: "cw", data: "2026-06-20T21:00:00" },
+                { id: "r2_11", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-21T01:00:00" },
+                { id: "r2_12", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-21T16:00:00" },
+                { id: "r2_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-21T13:00:00" },
+                { id: "r2_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-21T19:00:00" },
+                { id: "r2_15", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-21T22:00:00" },
+                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-20T14:00:00" },
+                { id: "r2_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-22T18:00:00" },
+                { id: "r2_18", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-22T21:00:00" },
+                { id: "r2_19", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-23T00:00:00" },
+                { id: "r2_20", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-23T14:00:00" },
+                { id: "r2_21", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-23T17:00:00" },
+                { id: "r2_22", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
+                { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
+                { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
+            ],
+            "3": [
+                { id: "r3_01", grupo: "A", t1: "AFS", nome1: "África do Sul", sigla1: "za", t2: "COR", nome2: "Coreia do Sul", sigla2: "kr", data: "2026-06-24T22:00:00" },
+                { id: "r3_02", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "MEX", nome2: "México", sigla2: "mx", data: "2026-06-24T22:00:00" },
+                { id: "r3_03", grupo: "B", t1: "BOS", nome1: "Bósnia", sigla1: "ba", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-24T16:00:00" },
+                { id: "r3_04", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "CAN", nome2: "Canadá", sigla2: "ca", data: "2026-06-24T16:00:00" },
+                { id: "r3_05", grupo: "C", t1: "SCO", nome1: "Escócia", sigla1: "gb-sct", t2: "BRA", nome2: "Brasil", sigla2: "br", data: "2026-06-24T19:00:00" },
+                { id: "r3_06", grupo: "C", t1: "MAR", nome1: "Marrocos", sigla1: "ma", t2: "HAI", nome2: "Haiti", sigla2: "ht", data: "2026-06-24T19:00:00" },
+                { id: "r3_07", grupo: "D", t1: "PAR", nome1: "Paraguai", sigla1: "py", t2: "AUS", nome2: "Austrália", sigla2: "au", data: "2026-06-25T23:00:00" },
+                { id: "r3_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "USA", nome2: "Estados Unidos", sigla2: "us", data: "2026-06-25T23:00:00" },
+                { id: "r3_09", grupo: "E", t1: "CUR", nome1: "Curaçao", sigla1: "cw", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-25T17:00:00" },
+                { id: "r3_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "ALE", nome2: "Alemanha", sigla2: "de", data: "2026-06-25T17:00:00" },
+                { id: "r3_11", grupo: "F", t1: "JAP", nome1: "Japão", sigla1: "jp", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-25T20:00:00" },
+                { id: "r3_12", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "HOL", nome2: "Holanda", sigla2: "nl", data: "2026-06-25T20:00:00" },
+                { id: "r3_13", grupo: "H", t1: "CAB", nome1: "Cabo Verde", sigla1: "cv", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-26T21:00:00" },
+                { id: "r3_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "ESP", nome2: "Espanha", sigla2: "es", data: "2026-06-26T21:00:00" },
+                { id: "r3_15", grupo: "I", t1: "SNG", nome1: "Senegal", sigla1: "sn", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-26T16:00:00" },
+                { id: "r3_16", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "FRA", nome2: "França", sigla2: "fr", data: "2026-06-26T16:00:00" },
+                { id: "r3_17", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "BEL", nome2: "Bélgica", sigla2: "be", data: "2026-06-27T00:00:00" },
+                { id: "r3_18", grupo: "G", t1: "EGT", nome1: "Egito", sigla1: "eg", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-27T00:00:00" },
+                { id: "r3_19", grupo: "J", t1: "AGL", nome1: "Argélia", sigla1: "dz", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-27T23:00:00" },
+                { id: "r3_20", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "ARG", nome2: "Argentina", sigla2: "ar", data: "2026-06-27T23:00:00" },
+                { id: "r3_21", grupo: "K", t1: "RDC", nome1: "Rep. Dom. Congo", sigla1: "cd", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-27T20:30:00" },
+                { id: "r3_22", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "POR", nome2: "Portugal", sigla2: "pt", data: "2026-06-27T20:30:00" },
+                { id: "r3_23", grupo: "L", t1: "CRO", nome1: "Croácia", sigla1: "hr", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-27T18:00:00" },
+                { id: "r3_24", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "ING", nome2: "Inglaterra", sigla2: "gb-eng", data: "2026-06-27T18:00:00" }
+            ]
+        };
 
         const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
         let isAdmin = false;
         let modoEspiaoAtivo = false;
         let meuNomeUsuario = "";
         let nomeArmazenamentoBanco = "";
+        let rodadaAtiva = "1"; // Controla qual rodada está na tela
 
-        jogosBolao.sort((a, b) => new Date(a.data) - new Date(b.data));
+        // Ordena internamente os jogos de cada rodada por data de início
+        Object.keys(rodadasBolao).forEach(r => {
+            rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
+        });
+
+        // Função utilitária para rodar loops em todos os 72 jogos de forma simples
+        function executarEmTodosOsJogos(callback) {
+            Object.keys(rodadasBolao).forEach(r => {
+                rodadasBolao[r].forEach(jogo => callback(jogo, r));
+            });
+        }
 
         document.addEventListener("DOMContentLoaded", () => {
-            renderizarJogosAgrupados();
+            renderizarJogosRodadaAtiva();
             checarUsuarioExistente();
             ouvirRankingDoFirebase();
+            configurarSeletorRodadas();
 
             document.getElementById("btn-admin").addEventListener("click", () => {
                 const senhaDigitada = prompt("Senha Master do Administrador:");
@@ -249,14 +314,39 @@
             setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
 
-        // INJEÇÃO AUTOMÁTICA DAS BANDEIRAS COM AS CLASSES DA BIBLIOTECA
-        function renderizarJogosAgrupados() {
+        // Configura os cliques nas abas de Rodada 1, 2 e 3
+        function configurarSeletorRodadas() {
+            const botoes = document.querySelectorAll(".rodada-btn");
+            botoes.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    botoes.forEach(b => b.classList.remove("active"));
+                    e.target.classList.add("active");
+                    rodadaAtiva = e.target.getAttribute("data-rodada");
+                    
+                    if (isAdmin) {
+                        liberarModoAdminVisual();
+                    } else if (modoEspiaoAtivo) {
+                        // Mantém a visualização do espiado sincronizada ao trocar de rodada
+                        const nomeEspiado = document.getElementById("spy-nome").innerText;
+                        // Força a atualização dos inputs buscando os dados que já estão guardados ou ocultos
+                        document.getElementById("btn-fechar-spy").click(); 
+                    } else {
+                        renderizarJogosRodadaAtiva();
+                        puxarMeusPalpitesDoFirebase();
+                    }
+                });
+            });
+        }
+
+        // Renderiza somente os 24 jogos pertencentes à rodada selecionada
+        function renderizarJogosRodadaAtiva() {
             const listaDiv = document.getElementById("lista-jogos");
             listaDiv.innerHTML = "";
             
             let ultimaDataGrupo = "";
+            const jogosDaRodada = rodadasBolao[rodadaAtiva];
 
-            jogosBolao.forEach(jogo => {
+            jogosDaRodada.forEach(jogo => {
                 const objData = new Date(jogo.data);
                 const dataTextoDia = objData.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
                 const horaFormatada = objData.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
@@ -273,7 +363,6 @@
                 card.className = "card-jogo";
                 card.id = `card-${jogo.id}`;
                 
-                // Note aqui a inclusão da tag <span class="fi fi-sigla bandeira"> para desenhar as bandeiras redondas
                 card.innerHTML = `
                     <div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div>
                     <div class="confronto">
@@ -317,7 +406,8 @@
         function puxarMeusPalpitesDoFirebase() {
             database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
-                jogosBolao.forEach(jogo => {
+                // Preenche apenas a rodada visível na tela para evitar erros de DOM
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
                     document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
                     document.getElementById(`p2-${jogo.id}`).value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
                 });
@@ -339,12 +429,13 @@
 
             btnSalvar.classList.remove("hidden");
             btnSalvar.className = "btn-sucesso";
-            btnSalvar.innerText = "Salvar Todos os Meus Palpites";
+            btnSalvar.innerText = "Salvar Palpites Desta Rodada";
             document.getElementById("btn-cancelar-admin").classList.add("hidden");
             document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
             document.getElementById("aviso-geral").style.color = "#ffb300";
 
-            jogosBolao.forEach(jogo => {
+            // Verifica as travas apenas dos elementos da rodada que estão atualmente renderizados
+            rodadasBolao[rodadaAtiva].forEach(jogo => {
                 const dataJogo = new Date(jogo.data);
                 const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
                 
@@ -352,6 +443,8 @@
                 const input2 = document.getElementById(`p2-${jogo.id}`);
                 const statusDiv = document.getElementById(`status-${jogo.id}`);
                 const cardDiv = document.getElementById(`card-${jogo.id}`);
+
+                if (!input1 || !input2) return; // Proteção caso mude de aba rápido
 
                 if (agora >= limiteTrava) {
                     input1.disabled = true;
@@ -394,12 +487,13 @@
 
                 modoEspiaoAtivo = true;
                 alternarAbas("palpites");
+                renderizarJogosRodadaAtiva(); // Garante o escopo visual correto
                 
                 document.getElementById("spy-nome").innerText = nomeExibicaoAlvo;
                 document.getElementById("banner-spy").classList.remove("hidden");
                 document.getElementById("btn-salvar-palpites").classList.add("hidden");
 
-                jogosBolao.forEach(jogo => {
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const dataJogo = new Date(jogo.data);
                     const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
                     
@@ -407,6 +501,8 @@
                     const input2 = document.getElementById(`p2-${jogo.id}`);
                     const statusDiv = document.getElementById(`status-${jogo.id}`);
                     const cardDiv = document.getElementById(`card-${jogo.id}`);
+
+                    if (!input1 || !input2) return;
 
                     input1.disabled = true;
                     input2.disabled = true;
@@ -429,11 +525,14 @@
         }
 
         function liberarModoAdminVisual() {
+            renderizarJogosRodadaAtiva();
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 const oficiais = snapshot.val() || {};
-                jogosBolao.forEach(jogo => {
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const input1 = document.getElementById(`p1-${jogo.id}`);
                     const input2 = document.getElementById(`p2-${jogo.id}`);
+                    if (!input1) return;
+
                     input1.disabled = false;
                     input2.disabled = false;
                     input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
@@ -455,44 +554,52 @@
         }
 
         function salvarPalpitesUsuario() {
-            let dadosPalpites = {};
-            let preencheuAlgum = false;
-            
-            jogosBolao.forEach(jogo => {
-                const val1 = document.getElementById(`p1-${jogo.id}`).value;
-                const val2 = document.getElementById(`p2-${jogo.id}`).value;
+            // Recupera todos os palpites que o usuário já possui salvos globalmente para não sobrescrever as outras rodadas
+            database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
+                let dadosPalpites = snapshot.val() || {};
+                let preencheuAlgumNestaRodada = false;
                 
-                if(val1 !== "" && val2 !== "") {
-                    dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
-                    dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
-                    preencheuAlgum = true;
+                // Atualiza o objeto geral apenas com as entradas modificadas na rodada ativa
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                    
+                    if(val1 !== "" && val2 !== "") {
+                        dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
+                        dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
+                        preencheuAlgumNestaRodada = true;
+                    }
+                });
+
+                if(!preencheuAlgumNestaRodada) {
+                    alert("Digite pelo menos um placar completo nesta rodada antes de salvar!");
+                    return;
                 }
-            });
 
-            if(!preencheuAlgum) {
-                alert("Digite pelo menos um placar completo antes de salvar!");
-                return;
-            }
-
-            database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').set(dadosPalpites).then(() => {
-                alert("Seus palpites foram salvos com sucesso!");
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').set(dadosPalpites).then(() => {
+                    alert(`Palpites da Rodada ${rodadaAtiva} salvos com sucesso!`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
             });
         }
 
         function salvarResultadosOficiaisAdmin() {
-            let dadosOficiais = {};
-            jogosBolao.forEach(jogo => {
-                const val1 = document.getElementById(`p1-${jogo.id}`).value;
-                const val2 = document.getElementById(`p2-${jogo.id}`).value;
-                if(val1 !== "" && val2 !== "") {
-                    dadosOficiais[`p1-${jogo.id}`] = parseInt(val1);
-                    dadosOficiais[`p2-${jogo.id}`] = parseInt(val2);
-                }
-            });
+            database.ref('resultados_oficiais').once('value').then((snapshot) => {
+                let dadosOficiais = snapshot.val() || {};
+                
+                // Mescla os resultados novos da rodada ativa sem apagar os das outras
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                    if(val1 !== "" && val2 !== "") {
+                        dadosOficiais[`p1-${jogo.id}`] = parseInt(val1);
+                        dadosOficiais[`p2-${jogo.id}`] = parseInt(val2);
+                    }
+                });
 
-            database.ref('resultados_oficiais').set(dadosOficiais).then(() => {
-                recalcularPontuacoesGerais(dadosOficiais);
+                database.ref('resultados_oficiais').set(dadosOficiais).then(() => {
+                    recalcularPontuacoesGerais(dadosOficiais);
+                });
             });
         }
 
@@ -506,7 +613,8 @@
                     let pontosTotal = 0;
                     let exatosTotal = 0;
 
-                    jogosBolao.forEach(jogo => {
+                    // O cálculo varre obrigatoriamente os 72 jogos de todas as rodadas
+                    executarEmTodosOsJogos((jogo) => {
                         const res1 = resultadosOficiais[`p1-${jogo.id}`];
                         const res2 = resultadosOficiais[`p2-${jogo.id}`];
                         const pal1 = palpites[`p1-${jogo.id}`];
@@ -529,7 +637,7 @@
                     });
                 });
 
-                alert("Pontuações e ranking updated com sucesso!");
+                alert("Pontuações e ranking atualizados com sucesso para todas as rodadas!");
                 isAdmin = false;
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");
@@ -586,6 +694,7 @@
                 document.getElementById("conteudo-palpites").classList.remove("hidden");
                 document.getElementById("conteudo-ranking").classList.add("hidden");
             } else {
+                document.getElementById("tab-palpites").classList.remove("remove-active");
                 document.getElementById("tab-palpites").classList.remove("active");
                 document.getElementById("tab-ranking").classList.add("active");
                 document.getElementById("conteudo-palpites").classList.add("hidden");

@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolão Oficial - Copa 2026</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-    
     <link class="pwa" rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1a1d24">
     
@@ -26,8 +24,7 @@
         #btn-admin { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; transition: color 0.2s; }
         #btn-admin:hover { color: #fff; }
 
-        input[type="text"], input[type="number"] { background-color: #252a34; border: 1px solid #3a4252; color: #fff; padding: 12px; border-radius: 6px; text-align: center; outline: none; }
-        input[type="text"] { width: 100%; margin-bottom: 20px; font-size: 16px; }
+        input[type="text"], input[type="number"], input[type="tel"] { background-color: #252a34; border: 1px solid #3a4252; color: #fff; padding: 12px; border-radius: 6px; text-align: center; outline: none; width: 100%; margin-bottom: 15px; font-size: 16px; }
 
         button { color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: background 0.2s; margin-bottom: 10px; }
         .btn-sucesso { background-color: #00c853; }
@@ -41,12 +38,10 @@
         .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
         .tab-btn.active { background-color: #007bff; color: #fff; }
 
-        /* Estilo das sub-abas de rodadas */
-        .rodadas-tabs { display: flex; gap: 5px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
+        .rodadas-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
         .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
         .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
 
-        /* Sub-abas específicas do ranking (incluindo o filtro Geral) */
         .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
         .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
         .rank-tab-btn.active { background-color: #00c853; color: #ffffff; }
@@ -56,7 +51,6 @@
         .status-aberto { color: #00c853; }
         .status-travado { color: #ff3d00; }
 
-        /* Divisores de Data */
         .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 6px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #38bdf8; }
         
         .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -69,7 +63,7 @@
         .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
 
         .placar-inputs { display: flex; gap: 6px; align-items: center; }
-        .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; }
+        .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; margin-bottom: 0; }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
@@ -80,14 +74,28 @@
         
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
         .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
+
+        /* Estilos do Painel de Controle de Telefones (Whitelist) */
+        .box-whitelist { background-color: #252a34; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed #3a4252; }
+        .lista-whitelist { max-height: 150px; overflow-y: auto; margin-top: 10px; background: #151921; padding: 10px; border-radius: 6px; text-align: left; font-size: 13px; }
+        .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; }
+        .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
     </style>
 </head>
 <body>
 
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
-        <p>Digite seu nome para entrar no bolão:</p>
-        <input type="text" id="input-nome" placeholder="Seu nome ou apelido">
+        <p id="instrucoes-login">Para entrar, digite seu número de telefone cadastrado pelo administrador:</p>
+        
+        <input type="tel" id="input-telefone" placeholder="Telefone (DDD + Número) ex: 24993148000">
+        
+        <div id="bloco-nome-primeiro-acesso" class="hidden">
+            <p style="color: #38bdf8; font-weight: bold; margin-top: 10px;">Identificamos que esse é seu primeiro acesso!</p>
+            <p>Escolha o nome ou apelido que aparecerá na classificação geral:</p>
+            <input type="text" id="input-nome" placeholder="Seu Nome Completo ou Apelido">
+        </div>
+        
         <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
@@ -102,7 +110,6 @@
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
-        <!-- ABA CONTEÚDO PALPITES -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <div id="banner-spy" class="visualizando-banner hidden">
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
@@ -120,14 +127,23 @@
             <div id="lista-jogos"></div>
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Palpites Desta Rodada</button>
-            <button id="btn-cancelar-admin" class="btn-secundario hidden">Sair do Modo Admin</button>
+            
+            <div id="painel-admin-whitelist" class="box-whitelist hidden">
+                <h4>🔑 Registro de Telefones Autorizados</h4>
+                <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <input type="tel" id="adm-novo-fone" placeholder="Ex: 24993148000" style="margin-bottom: 0; padding: 8px;">
+                    <button id="adm-btn-add-fone" class="btn-sucesso" style="width: auto; margin-bottom:0; padding: 8px 15px;">+ Add</button>
+                </div>
+                <div class="lista-whitelist" id="adm-lista-fones">Carregando lista...</div>
+            </div>
+
+            <button id="btn-cancelar-admin" class="btn-secundario hidden" style="margin-top: 15px;">Sair do Modo Admin</button>
         </div>
 
-        <!-- ABA CONTEÚDO RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação</h3>
             
-            <!-- ABAS SELETORAS DO FILTRO DO RANKING -->
             <div class="ranking-tabs" id="seletor-ranking-filtros">
                 <button class="rank-tab-btn active" data-filtro="geral">Geral</button>
                 <button class="rank-tab-btn" data-filtro="1">Rodada 1</button>
@@ -157,7 +173,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // JOGOS OFICIAIS DA COPA DO MUNDO 2026 (72 PARTIDAS DA FASE DE GRUPOS)
+        // JOGOS OFICIAIS DA COPA DO MUNDO 2026
         const rodadasBolao = {
             "1": [
                 { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
@@ -234,7 +250,7 @@
                 { id: "r3_20", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "ARG", nome2: "Argentina", sigla2: "ar", data: "2026-06-27T23:00:00" },
                 { id: "r3_21", grupo: "K", t1: "RDC", nome1: "Rep. Dom. Congo", sigla1: "cd", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-27T20:30:00" },
                 { id: "r3_22", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "POR", nome2: "Portugal", sigla2: "pt", data: "2026-06-27T20:30:00" },
-                { id: "r3_23", grupo: "L", t1: "CRO", nome1: "Croácia", sigla1: "hr", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-27T18:00:00" },
+                { id: "r3_23", grupo: "L", t1: "CRO", nome1: "Croácia", sigla1: "hr", t2: "GHA", nome2: "Gana", sigla1: "gh", data: "2026-06-27T18:00:00" },
                 { id: "r3_24", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "ING", nome2: "Inglaterra", sigla2: "gb-eng", data: "2026-06-27T18:00:00" }
             ]
         };
@@ -243,11 +259,10 @@
         let isAdmin = false;
         let modoEspiaoAtivo = false;
         let meuNomeUsuario = "";
-        let nomeArmazenamentoBanco = "";
+        let telefoneUsuarioLogado = ""; 
         let rodadaAtiva = "1"; 
-        let filtroRankingAtivo = "geral"; // Controla o filtro ativo da aba Classificação
+        let filtroRankingAtivo = "geral";
 
-        // Ordenação das partidas
         Object.keys(rodadasBolao).forEach(r => {
             rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
         });
@@ -260,10 +275,14 @@
 
         document.addEventListener("DOMContentLoaded", () => {
             renderizarJogosRodadaAtiva();
-            checarUsuarioExistente();
             ouvirRankingDoFirebase();
             configurarSeletorRodadas();
             configurarSeletorFiltrosRanking();
+
+            // VERIFICAÇÃO AUTOMÁTICA DE LOGIN AO CARREGAR A PÁGINA
+            checarUsuarioExistente();
+
+            document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
 
             document.getElementById("btn-admin").addEventListener("click", () => {
                 const senhaDigitada = prompt("Senha Master do Administrador:");
@@ -271,7 +290,9 @@
                     isAdmin = true;
                     modoEspiaoAtivo = false;
                     document.getElementById("banner-spy").classList.add("hidden");
+                    document.getElementById("painel-admin-whitelist").classList.remove("hidden");
                     liberarModoAdminVisual();
+                    ouvirFonesCadastradosAdmin();
                 } else {
                     alert("Senha incorreta!");
                 }
@@ -279,8 +300,11 @@
 
             document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
                 isAdmin = false;
+                document.getElementById("painel-admin-whitelist").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();
             });
+
+            document.getElementById("adm-btn-add-fone").addEventListener("click", adicionarTelefoneNaListaAdmin);
 
             document.getElementById("btn-fechar-spy").addEventListener("click", () => {
                 modoEspiaoAtivo = false;
@@ -291,31 +315,7 @@
             document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
             document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
 
-            document.getElementById("btn-entrar").addEventListener("click", () => {
-                const nomeInput = document.getElementById("input-nome").value.trim();
-                
-                if (nomeInput) {
-                    if (nomeInput === SENHA_ADMIN_PRE_ESTABELECIDA) {
-                        alert("Este nome não pode ser utilizado. Escolha outro nome ou apelido!");
-                        document.getElementById("input-nome").value = "";
-                        return;
-                    }
-
-                    nomeArmazenamentoBanco = nomeInput.toLowerCase().replace(/[.#$\[\]]/g, "");
-                    meuNomeUsuario = nomeInput; 
-                    
-                    localStorage.setItem("bolao_nome_exibicao", meuNomeUsuario);
-                    localStorage.setItem("bolao_nome_banco", nomeArmazenamentoBanco);
-                    
-                    database.ref('participantes/' + nomeArmazenamentoBanco).update({ 
-                        nome: meuNomeUsuario 
-                    }).then(() => {
-                        mostrarTelaPrincipal(meuNomeUsuario);
-                    });
-                } else {
-                    alert("Por favor, digite seu nome!");
-                }
-            });
+            document.getElementById("btn-entrar").addEventListener("click", processarTentativaLogin);
 
             document.getElementById("btn-salvar-palpites").addEventListener("click", () => {
                 if (isAdmin) {
@@ -348,7 +348,6 @@
             });
         }
 
-        // Configuração dos filtros de ranking (Geral, R1, R2, R3)
         function configurarSeletorFiltrosRanking() {
             const botoes = document.querySelectorAll("#seletor-ranking-filtros .rank-tab-btn");
             botoes.forEach(btn => {
@@ -357,7 +356,6 @@
                     e.target.classList.add("active");
                     filtroRankingAtivo = e.target.getAttribute("data-filtro");
                     
-                    // Força o Firebase a disparar o evento de redesenhar a lista ordenada com o novo filtro
                     database.ref('participantes').once('value').then(snapshot => {
                         processarERenderizarRanking(snapshot.val() || {});
                     });
@@ -412,13 +410,90 @@
             });
         }
 
+        // FUNÇÃO DE LOGIN AUTOMÁTICO CORRIGIDA E ADICIONADA
         function checarUsuarioExistente() {
-            const nomeExibicaoSalvo = localStorage.getItem("bolao_nome_exibicao");
-            const nomeBancoSalvo = localStorage.getItem("bolao_nome_banco");
-            if (nomeExibicaoSalvo && nomeBancoSalvo) {
-                nomeArmazenamentoBanco = nomeBancoSalvo;
-                mostrarTelaPrincipal(nomeExibicaoSalvo);
+            const foneSalvo = localStorage.getItem("bolao_telefone");
+            const nomeSalvo = localStorage.getItem("bolao_nome_exibicao");
+            
+            if (foneSalvo && nomeSalvo) {
+                telefoneUsuarioLogado = foneSalvo;
+                mostrarTelaPrincipal(nomeSalvo);
             }
+        }
+
+        function verificarStatusDoTelefoneInserido() {
+            const fone = document.getElementById("input-telefone").value.replace(/\D/g, "");
+            const blocoNome = document.getElementById("bloco-nome-primeiro-acesso");
+            const instrucoes = document.getElementById("instrucoes-login");
+
+            if (fone.length >= 10) {
+                database.ref('participantes/' + fone).once('value').then(snapshot => {
+                    if (snapshot.exists()) {
+                        blocoNome.classList.add("hidden");
+                        instrucoes.innerText = `Bem-vindo de volta! Clique em entrar para acessar os palpites de: ${snapshot.val().nome}`;
+                    } else {
+                        database.ref('telefones_autorizados/' + fone).once('value').then(snapAuth => {
+                            if (snapAuth.exists()) {
+                                blocoNome.classList.remove("hidden");
+                                instrucoes.innerText = "Número localizado com sucesso! Agora digite seu nome de exibição abaixo:";
+                            } else {
+                                blocoNome.classList.add("hidden");
+                                instrucoes.innerText = "⚠️ Este telefone não foi listado pelo administrador. Verifique o número!";
+                            }
+                        });
+                    }
+                });
+            } else {
+                blocoNome.classList.add("hidden");
+                instrucoes.innerText = "Para entrar, digite seu número de telefone cadastrado pelo administrador:";
+            }
+        }
+
+        function processarTentativaLogin() {
+            const foneInput = document.getElementById("input-telefone").value.replace(/\D/g, "");
+            const nomeInput = document.getElementById("input-nome").value.trim();
+
+            if (!foneInput) {
+                alert("Por favor, preencha o número de telefone celular!");
+                return;
+            }
+
+            database.ref('participantes/' + foneInput).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const dadosUsuario = snapshot.val();
+                    
+                    // GRAVA NO NAVEGADOR PARA LOGAR DIRETO NAS PRÓXIMAS VEZES
+                    localStorage.setItem("bolao_telefone", foneInput);
+                    localStorage.setItem("bolao_nome_exibicao", dadosUsuario.nome);
+                    
+                    telefoneUsuarioLogado = foneInput;
+                    mostrarTelaPrincipal(dadosUsuario.nome);
+                } else {
+                    database.ref('telefones_autorizados/' + foneInput).once('value').then(snapAuth => {
+                        if (snapAuth.exists()) {
+                            if (!nomeInput) {
+                                alert("Esse é seu primeiro acesso! Digite o nome ou apelido que quer usar no ranking.");
+                                return;
+                            }
+                            
+                            // GRAVA NO NAVEGADOR PARA LEMBRAR DELE NAS PRÓXIMAS VEZES
+                            localStorage.setItem("bolao_telefone", foneInput);
+                            localStorage.setItem("bolao_nome_exibicao", nomeInput);
+                            
+                            telefoneUsuarioLogado = foneInput;
+
+                            database.ref('participantes/' + foneInput).update({
+                                nome: nomeInput,
+                                telefone: foneInput
+                            }).then(() => {
+                                mostrarTelaPrincipal(nomeInput);
+                            });
+                        } else {
+                            alert("Acesso Negado! Seu número de celular não consta na lista de participantes autorizados.");
+                        }
+                    });
+                }
+            });
         }
 
         function mostrarTelaPrincipal(nome) {
@@ -430,7 +505,7 @@
         }
 
         function puxarMeusPalpitesDoFirebase() {
-            database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
+            database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
@@ -496,15 +571,15 @@
             });
         }
 
-        function espiarParticipante(chaveBancoAlvo, nomeExibicaoAlvo) {
-            if (chaveBancoAlvo === nomeArmazenamentoBanco) {
+        function espiarParticipante(chaveFoneAlvo, nomeExibicaoAlvo) {
+            if (chaveFoneAlvo === telefoneUsuarioLogado) {
                 modoEspiaoAtivo = false;
                 document.getElementById("banner-spy").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();
                 return;
             }
 
-            database.ref('participantes/' + chaveBancoAlvo + '/palpites').once('value').then((snapshot) => {
+            database.ref('participantes/' + chaveFoneAlvo + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
                 const agora = new Date();
                 const trintaMinutos = 30 * 60 * 1000;
@@ -562,7 +637,7 @@
                     input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
                     input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
                     
-                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo Admin — Resultados Oficial";
+                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo Admin — Resultados Oficiais";
                     document.getElementById(`status-${jogo.id}`).className = "status-jogo";
                 });
                 
@@ -577,8 +652,51 @@
             });
         }
 
+        function adicionarTelefoneNaListaAdmin() {
+            const foneInput = document.getElementById("adm-novo-fone").value.replace(/\D/g, "");
+            if (foneInput.length < 10) {
+                alert("Digite um número com DDD válido!");
+                return;
+            }
+            database.ref('telefones_autorizados/' + foneInput).set(true).then(() => {
+                document.getElementById("adm-novo-fone").value = "";
+                alert("Telefone autorizado com sucesso!");
+            });
+        }
+
+        function ouvirFonesCadastradosAdmin() {
+            database.ref('telefones_autorizados').on('value', snapshot => {
+                const fones = snapshot.val() || {};
+                const container = document.getElementById("adm-lista-fones");
+                container.innerHTML = "";
+                
+                const chaves = Object.keys(fones);
+                if(chaves.length === 0) {
+                    container.innerText = "Nenhum telefone pré-registrado.";
+                    return;
+                }
+
+                chaves.forEach(fone => {
+                    const item = document.createElement("div");
+                    item.className = "item-whitelist";
+                    item.innerHTML = `
+                        <span>📞 ${fone}</span>
+                        <button class="btn-alerta" onclick="removerFoneAdmin('${fone}')">Excluir</button>
+                    `;
+                    container.appendChild(item);
+                });
+            });
+        }
+
+        window.removerFoneAdmin = function(fone) {
+            if(confirm(`Deseja remover a permissão do telefone ${fone}?`)) {
+                database.ref('telefones_autorizados/' + fone).remove();
+                database.ref('participantes/' + fone).remove(); 
+            }
+        }
+
         function salvarPalpitesUsuario() {
-            database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').once('value').then((snapshot) => {
+            database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 let dadosPalpites = snapshot.val() || {};
                 let preencheuAlgumNestaRodada = false;
                 
@@ -598,7 +716,7 @@
                     return;
                 }
 
-                database.ref('participantes/' + nomeArmazenamentoBanco + '/palpites').set(dadosPalpites).then(() => {
+                database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').set(dadosPalpites).then(() => {
                     alert(`Palpites da Rodada ${rodadaAtiva} salvos com sucesso!`);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
@@ -624,7 +742,6 @@
             });
         }
 
-        // MOTOR CORRIGIDO COM CÁLCULO SEPARADO POR RODADA E ACUMULADO GLOBAL
         function recalcularPontuacoesGerais(resultadosOficiais) {
             database.ref('participantes').once('value').then((snapshot) => {
                 const participantes = snapshot.val() || {};
@@ -635,8 +752,6 @@
                     
                     let pontosGeral = 0;
                     let exatosGeral = 0;
-                    
-                    // Estruturas internas para armazenar o ganho individual por rodada
                     let pontosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
                     let exatosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
 
@@ -649,14 +764,12 @@
                         if (res1 !== undefined && res2 !== undefined && pal1 !== undefined && pal2 !== undefined) {
                             let chaveRodada = "r" + r;
                             
-                            // Acertou Placar Exato (5 pontos)
                             if (res1 === pal1 && res2 === pal2) {
                                 pontosGeral += 5;
                                 exatosGeral += 1;
                                 pontosRodadas[chaveRodada] += 5;
                                 exatosRodadas[chaveRodada] += 1;
                             } 
-                            // Acertou Tendência / Ganhador ou Empate (3 pontos)
                             else if ((res1 > res2 && pal1 > pal2) || (res1 < res2 && pal1 < pal2) || (res1 === res2 && pal1 === pal2)) {
                                 pontosGeral += 3;
                                 pontosRodadas[chaveRodada] += 3;
@@ -664,7 +777,6 @@
                         }
                     });
 
-                    // Grava os dados completos estruturados no Firebase
                     database.ref('participantes/' + key).update({
                         pontuacoes: pontosGeral,
                         exatos: exatosGeral,
@@ -677,8 +789,9 @@
                     });
                 });
 
-                alert("Pontuações recalculadas com sucesso em todos os filtros!");
+                alert("Pontuações recalculadas com sucesso!");
                 isAdmin = false;
+                document.getElementById("painel-admin-whitelist").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");
             });
@@ -690,7 +803,6 @@
             });
         }
 
-        // PROCESSA E ORDENA A TABELA BASEADO NO FILTRO SELECIONADO (GERAL OU RODADA INDEPENDENTE ZERADA)
         function processarERenderizarRanking(participantes) {
             let listaRanking = [];
 
@@ -700,7 +812,6 @@
                     let ptsExibicao = 0;
                     let exatosExibicao = 0;
 
-                    // Escolhe quais dados ler de acordo com o filtro ativo das abas
                     if (filtroRankingAtivo === "geral") {
                         ptsExibicao = u.pontuacoes || 0;
                         exatosExibicao = u.exatos || 0;
@@ -724,7 +835,6 @@
                 }
             });
 
-            // Ordenação justa: Maior pontuação -> Se empatar, maior número de placares exatos
             listaRanking.sort((a, b) => {
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                 return b.exatos - a.exatos;

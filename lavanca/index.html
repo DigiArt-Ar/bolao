@@ -624,6 +624,7 @@
         function salvarValorInicial() {
             const val = document.getElementById('valor-inicial').value;
             localStorage.setItem('valorInicial_banca', val);
+            calcularTudo();
         }
 
         function salvarBancaManual() {
@@ -633,6 +634,7 @@
             } else {
                 localStorage.setItem('bancaManual_banca', val);
             }
+            calcularTudo();
         }
 
         function salvarMudancasFluxo() {
@@ -647,11 +649,11 @@
             const bManual = document.getElementById('banca-manual');
             const inputManualVal = bManual ? bManual.value : '';
             
-            // A banca total disponível começa com o valor inicial (ou manual global)
+            // A nossa carteira começa com o valor inicial ou manual definido no cabeçalho
             let bancaCorrente = inputManualVal !== '' ? (parseFloat(inputManualVal) || 0) : valorInicialInput;
             let ativosContador = 0;
 
-            // Reset visual inicial
+            // Reset visual inicial para todos os cartões
             dadosCopa.forEach(s => {
                 s.jogos.forEach(j => {
                     const el = document.getElementById(`calc-jogo-${j.id}`);
@@ -659,7 +661,7 @@
                 });
             });
 
-            // Processamento na ordem cronológica de cliques exata
+            // Loop linear seguindo estritamente a ordem cronológica de cliques do utilizador
             for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
                 const id = ordemCronologicaDeCliques[i];
                 const aposta = escolhas[id];
@@ -669,7 +671,8 @@
                 let entradaEfetiva = bancaCorrente;
                 let cofreSeguranca = 0;
 
-                // Nova Lógica Corrigida do Vídeo: Se houver investimento manual, separa o resto no cofre
+                // NOVA LÓGICA DE CARTEIRA COMPLETA:
+                // Se definiu valor manual, aposta esse valor fixo (desde que haja saldo). O resto fica guardado.
                 if (aposta.investimentoManual !== undefined && !isNaN(aposta.investimentoManual)) {
                     entradaEfetiva = Math.min(aposta.investimentoManual, bancaCorrente);
                     cofreSeguranca = bancaCorrente - entradaEfetiva;
@@ -677,24 +680,26 @@
 
                 let retornoEsperado = entradaEfetiva * aposta.odd;
 
-                // Atualiza o texto simulado no rodapé do cartão correspondente
+                // Escreve visualmente o cálculo correto na simulação daquele cartão específico
                 const elText = document.getElementById(`calc-jogo-${id}`);
                 if (elText) {
                     elText.innerHTML = `Entrada: <strong>R$ ${entradaEfetiva.toFixed(2)}</strong> | Retorno: <strong style="color: var(--verde-sucesso)">R$ ${retornoEsperado.toFixed(2)}</strong>`;
                 }
 
-                // Fluxo de atualização da banca corrente para a próxima rodada
+                // Atualização da banca corrente para o próximo ciclo
                 if (aposta.resultado === 'ganhou') {
+                    // Soma a sobra protegida do cofre com os ganhos da operação ganha
                     bancaCorrente = cofreSeguranca + retornoEsperado;
                 } else if (aposta.resultado === 'perdeu') {
-                    bancaCorrente = cofreSeguranca; // Perde apenas o que investiu, mantém o cofre intacto
+                    // Perdeu a aposta: a banca para o próximo jogo será apenas a sobra que ficou no cofre
+                    bancaCorrente = cofreSeguranca;
                 } else {
-                    // Pendente: Assume lucro simulado acumulado para projeção das próximas entradas
+                    // Pendente (Simulado): Mantém a projeção somando a sobra com o retorno estimado
                     bancaCorrente = cofreSeguranca + retornoEsperado;
                 }
             }
 
-            // Atualização dos cards globais do topo do cabeçalho
+            // Atualiza o painel fixo global no topo do cabeçalho
             const totalAcumuladoEl = document.getElementById('total-acumulado');
             const qtdAtivosEl = document.getElementById('qtd-ativos');
             

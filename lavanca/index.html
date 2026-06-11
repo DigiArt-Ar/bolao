@@ -16,313 +16,96 @@
             --texto-escuro: #8d8d99;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-principal);
-            color: var(--texto-claro);
-            padding: 15px;
-        }
-
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body { background-color: var(--bg-principal); color: var(--texto-claro); padding: 15px; }
+        
         header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--cor-borda);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center; margin-bottom: 20px; padding-bottom: 10px; 
+            border-bottom: 1px solid var(--cor-borda); display: flex; 
+            justify-content: space-between; align-items: center;
         }
-
-        header h1 {
-            font-size: 1.2rem;
-            color: var(--laranja-bet);
-            text-transform: uppercase;
-        }
+        header h1 { font-size: 1.2rem; color: var(--laranja-bet); text-transform: uppercase; }
 
         .toggle-config {
-            background-color: #29292e;
-            color: var(--texto-claro);
-            border: 1px solid var(--laranja-bet);
-            padding: 8px 14px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
+            background-color: #29292e; color: var(--texto-claro); border: 1px solid var(--laranja-bet);
+            padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; cursor: pointer;
         }
+        .toggle-config.ativo { background-color: var(--laranja-bet); color: white; }
 
-        .toggle-config.ativo {
-            background-color: var(--laranja-bet);
-            color: white;
-        }
-
+        /* Painel do Topo - Sempre Visível */
         .config-banca {
-            background-color: var(--bg-card);
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid var(--cor-borda);
+            background-color: var(--bg-card); border-radius: 8px; padding: 15px;
+            margin-bottom: 20px; border: 1px solid var(--cor-borda);
         }
 
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 12px;
+        .painel-valores-topo {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        .input-group label {
-            font-size: 0.85rem;
-            color: var(--texto-escuro);
-            text-transform: uppercase;
+        .bloco-topo span { display: block; font-size: 0.75rem; color: var(--texto-escuro); text-transform: uppercase; font-weight: bold; margin-bottom: 4px; }
+        .bloco-topo strong { font-size: 1.3rem; display: block; }
+
+        /* Painel de Configurações Oculto/Visível */
+        .painel-config-gaveta {
+            background-color: #1a1a1e; border: 1px dashed var(--laranja-bet);
+            border-radius: 8px; padding: 15px; margin-bottom: 20px;
+            display: flex; flex-direction: column; gap: 12px;
         }
 
+        .input-group { display: flex; flex-direction: column; gap: 6px; }
+        .input-group label { font-size: 0.8rem; color: var(--texto-claro); font-weight: bold; }
         .input-group input {
-            background-color: var(--bg-principal);
-            border: 1px solid var(--cor-borda);
-            color: var(--texto-claro);
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            background-color: var(--bg-principal); border: 1px solid var(--cor-borda);
+            color: var(--texto-claro); padding: 10px; border-radius: 6px; font-size: 1rem; font-weight: bold;
         }
+        .input-group input:focus { border-color: var(--laranja-bet); outline: none; }
 
-        .input-group input:focus {
-            border-color: var(--laranja-bet);
-            outline: none;
-        }
-
-        .painel-edicao-banca {
-            background-color: rgba(242, 90, 34, 0.05);
-            border: 1px dashed var(--laranja-bet);
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .painel-valores {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--cor-borda);
-        }
-
-        .bloco-valor span {
-            display: block;
-            font-size: 0.8rem;
-            color: var(--texto-escuro);
-        }
-
-        .bloco-valor strong {
-            font-size: 1.2rem;
-        }
-
-        .dia-secao {
-            margin-bottom: 20px;
-        }
-
-        .dia-titulo {
-            font-size: 1rem;
-            color: var(--laranja-bet);
-            margin-bottom: 10px;
-            padding-left: 5px;
-            border-left: 3px solid var(--laranja-bet);
-        }
-
-        .lista-jogos {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        /* Estilos dos Cards dos Jogos */
+        .dia-secao { margin-bottom: 20px; }
+        .dia-titulo { font-size: 1rem; color: var(--laranja-bet); margin-bottom: 10px; padding-left: 5px; border-left: 3px solid var(--laranja-bet); }
+        .lista-jogos { display: flex; flex-direction: column; gap: 10px; }
+        
         .card-jogo {
-            background-color: var(--bg-card);
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid var(--cor-borda);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            background-color: var(--bg-card); border-radius: 8px; padding: 15px;
+            border: 1px solid var(--cor-borda); display: flex; flex-direction: column; gap: 12px;
         }
+        .card-jogo.status-ganhou { border-color: var(--verde-sucesso); background-color: rgba(0, 179, 126, 0.01); }
+        .card-jogo.status-perdeu { border-color: var(--vermelho-erro); background-color: rgba(247, 90, 104, 0.01); }
 
-        .card-jogo.status-ganhou { border-color: var(--verde-sucesso); }
-        .card-jogo.status-perdeu { border-color: var(--vermelho-erro); }
+        .confronto-probabilidades { display: flex; justify-content: center; align-items: center; gap: 25px; font-size: 0.95rem; font-weight: bold; }
+        .time-prob { display: flex; flex-direction: column; align-items: center; text-align: center; width: 110px; }
+        .time-prob span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .prob-badge { color: var(--laranja-bet); font-size: 0.85rem; margin-top: 4px; }
+        .vs-divider { color: var(--texto-escuro); font-size: 0.85rem; }
 
-        .confronto-probabilidades {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 25px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .time-prob {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            width: 110px;
-        }
-
-        .time-prob span:first-child {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            width: 100%;
-        }
-
-        .prob-badge {
-            color: var(--laranja-bet);
-            font-size: 0.9rem;
-            font-weight: bold;
-            margin-top: 4px;
-        }
-
-        .vs-divider {
-            color: var(--texto-escuro);
-            font-size: 0.85rem;
-            font-weight: normal;
-        }
-
-        .botoes-odds {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
+        .botoes-odds { display: flex; gap: 10px; justify-content: center; }
         .btn-odd {
-            flex: 1;
-            max-width: 140px;
-            background-color: var(--bg-principal);
-            border: 1px solid var(--cor-borda);
-            color: var(--texto-claro);
-            padding: 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            text-align: center;
-            transition: all 0.2s;
+            flex: 1; max-width: 140px; background-color: var(--bg-principal); border: 1px solid var(--cor-borda);
+            color: var(--texto-claro); padding: 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; text-align: center;
         }
-
-        .btn-odd span {
-            display: block;
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--laranja-bet);
-            margin-top: 2px;
-        }
-
-        .btn-odd.selecionado {
-            border-color: var(--laranja-bet);
-            background-color: rgba(242, 90, 34, 0.1);
-        }
-
-        .input-edit-odd {
-            width: 100%;
-            background-color: var(--bg-principal);
-            border: 1px solid var(--laranja-bet);
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-            text-align: center;
-            font-weight: bold;
-            font-size: 1rem;
-            margin-top: 4px;
-        }
-
-        .container-investimento-manual {
-            background-color: rgba(255, 255, 255, 0.03);
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px dashed var(--cor-borda);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .container-investimento-manual label {
-            font-size: 0.75rem;
-            color: var(--texto-escuro);
-            text-transform: uppercase;
-        }
-
-        .container-investimento-manual input {
-            width: 120px;
-            background-color: var(--bg-principal);
-            border: 1px solid var(--cor-borda);
-            color: var(--verde-sucesso);
-            padding: 6px;
-            border-radius: 4px;
-            font-weight: bold;
-            text-align: right;
-        }
-
-        .container-investimento-manual input:focus {
-            border-color: var(--laranja-bet);
-            outline: none;
-        }
-
+        .btn-odd span { display: block; font-size: 1.1rem; font-weight: bold; color: var(--laranja-bet); margin-top: 2px; }
+        .btn-odd.selecionado { border-color: var(--laranja-bet); background-color: rgba(242, 90, 34, 0.1); }
+        
         .rodape-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 5px;
-            padding-top: 10px;
-            border-top: 1px dashed var(--cor-borda);
-            font-size: 0.8rem;
-            color: var(--texto-escuro);
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 5px; padding-top: 10px; border-top: 1px dashed var(--cor-borda); font-size: 0.8rem; color: var(--texto-escuro);
         }
-
         .rodape-card strong { color: var(--texto-claro); }
 
-        .botoes-resultado {
-            display: flex;
-            gap: 5px;
-        }
-
+        .botoes-resultado { display: flex; gap: 5px; }
         .btn-res {
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1rem;
-            color: white;
-            opacity: 0.25;
-            transition: opacity 0.2s;
+            border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem; color: white; opacity: 0.2;
         }
-
         .btn-res.verde { background-color: var(--verde-sucesso); }
         .btn-res.vermelho { background-color: var(--vermelho-erro); }
-        
         .btn-res.ativo { opacity: 1; }
 
         .btn-reset-total {
-            display: block;
-            width: 100%;
-            background: none;
-            border: 1px dashed #3a3a40;
-            color: var(--texto-escuro);
-            padding: 10px;
-            margin-top: 20px;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            font-weight: bold;
+            display: block; width: 100%; background: none; border: 1px dashed #3a3a40;
+            color: var(--texto-escuro); padding: 10px; margin-top: 20px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;
         }
     </style>
 </head>
@@ -330,37 +113,42 @@
 
     <header>
         <h1>Alavancagem Copa</h1>
-        <button id="btn-config" class="toggle-config" onclick="alternarModoConfig()">⚙️ Editar ODDs</button>
+        <button id="btn-config" class="toggle-config" onclick="alternarModoConfig()">⚙️ Configurações</button>
     </header>
 
     <div class="config-banca">
-        <div class="input-group">
-            <label for="valor-inicial">Valor Inicial da Operação (R$)</label>
-            <input type="number" id="valor-inicial" value="50" min="1" oninput="salvarValorInicial(); calcularTudo();">
-        </div>
-
-        <div id="painel-ajuste-manual" class="painel-edicao-banca" style="display: none;">
-            <div class="input-group" style="margin-bottom: 0;">
-                <label for="banca-manual" style="color: var(--laranja-bet);">Ajustar Valor Manual Global (R$)</label>
-                <input type="number" id="banca-manual" placeholder="Deixe vazio para auto-cálculo" min="0" oninput="salvarBancaManual(); calcularTudo();">
+        <div class="painel-valores-topo">
+            <div class="bloco-topo">
+                <span>Valor Inicial</span>
+                <strong id="visor-inicial" style="color: var(--texto-claro)">R$ 50,00</strong>
             </div>
-        </div>
-
-        <div class="painel-valores">
-            <div class="bloco-valor">
-                <span>Total Acumulado</span>
-                <strong id="total-acumulado" style="color: var(--verde-sucesso)">R$ 50,00</strong>
-            </div>
-            <div class="bloco-valor" style="text-align: right;">
-                <span>Jogos na Linha</span>
-                <strong id="qtd-ativos">0</strong>
+            <div class="bloco-topo" style="text-align: right;">
+                <span>Acumulados Totais</span>
+                <strong id="visor-total" style="color: var(--verde-sucesso)">R$ 50,00</strong>
             </div>
         </div>
     </div>
 
+    <div id="gaveta-configuracao" class="painel-config-gaveta" style="display: none;">
+        <h3 style="font-size: 0.9rem; color: var(--laranja-bet); text-transform: uppercase;">Ajustes de Banca</h3>
+        
+        <div class="input-group">
+            <label for="cfg-valor-inicial">1. Mudar Valor Inicial da Operação (R$)</label>
+            <input type="number" id="cfg-valor-inicial" value="50" min="1" oninput="ajustouValorInicialPai()">
+        </div>
+
+        <div class="input-group">
+            <label for="cfg-proxima-entrada" style="color: #ffb84d;">2. Valor da Próxima Entrada (R$)</label>
+            <input type="number" id="cfg-proxima-entrada" placeholder="Deixe vazio para usar Tudo" min="0" oninput="ajustouProximaEntradaManual()">
+        </div>
+        <p style="font-size: 0.75rem; color: var(--texto-escuro); line-height: 1.3;">
+            * Ao estipular um valor aqui (Ex: R$ 200), o sistema vai reservar esse dinheiro para o próximo jogo pendente e subtrair imediatamente do visor de Acumulados Totais.
+        </p>
+    </div>
+
     <div id="conteudo-jogos"></div>
 
-    <button class="btn-reset-total" onclick="limparMemoriasLocais()">⚠️ Limpar Dados e Resetar App</button>
+    <button class="btn-reset-total" onclick="limparMemoriasLocais()">⚠️ Limpar Tudo e Reiniciar App</button>
 
     <script>
         const dadosCopaOriginais = [
@@ -370,56 +158,40 @@
             { dia: "14/06", jogos: [{id:9, t1:"Alemanha", t2:"Curaçao", o1:1.04, o2:30.00}, {id:10, t1:"Países Baixos", t2:"Japão", o1:1.98, o2:3.65}, {id:11, t1:"Costa do Marfim", t2:"Equador", o1:3.75, o2:2.32}, {id:12, t1:"Suécia", t2:"Tunísia", o1:1.95, o2:4.15}] },
             { dia: "15/06", jogos: [{id:13, t1:"Espanha", t2:"Cabo Verde", o1:1.11, o2:26.00}, {id:14, t1:"Bélgica", t2:"Egito", o1:1.67, o2:5.20}, {id:15, t1:"Arábia Saudita", t2:"Uruguai", o1:6.90, o2:1.50}, {id:16, t1:"Irã", t2:"Nova Zelândia", o1:1.87, o2:4.40}] },
             { dia: "16/06", jogos: [{id:17, t1:"França", t2:"Senegal", o1:1.45, o2:7.20}, {id:18, t1:"Iraque", t2:"Noruega", o1:14.00, o2:1.22}, {id:19, t1:"Argentina", t2:"Argélia", o1:1.42, o2:8.50}] },
-            { dia: "17/06", jogos: [{id:20, t1:"Áustria", t2:"Jordânia", o1:1.34, o2:8.75}, {id:21, t1:"Portugal", t2:"RD Congo", o1:1.28, o2:10.75}, {id:22, t1:"Inglaterra", t2:"Croácia", o1:1.75, o2:4.70}, {id:23, t1:"Gana", t2:"Panamá", o1:1.98, o2:3.80}, {id:24, t1:"Uzbequistão", t2:"Colômbia", o1:8.25, o2:1.42}] },
-            { dia: "18/06", jogos: [{id:25, t1:"República Tcheca", t2:"África do Sul", o1:2.05, o2:3.95}, {id:26, t1:"Suíça", t2:"Bósnia-Herzegovina", o1:1.60, o2:5.70}, {id:27, t1:"Canadá", t2:"Catar", o1:1.35, o2:9.75}, {id:28, t1:"México", t2:"Coreia do Sul", o1:1.85, o2:4.50}] },
-            { dia: "19/06", jogos: [{id:29, t1:"EUA", t2:"Austrália", o1:1.80, o2:4.55}, {id:30, t1:"Escócia", t2:"Marrocos", o1:3.95, o2:2.05}, {id:31, t1:"Brasil", t2:"Haiti", o1:1.05, o2:50.00}] },
-            { dia: "20/06", jogos: [{id:32, t1:"Turquia", t2:"Paraguai", o1:2.25, o2:3.40}, {id:33, t1:"Alemanha", t2:"Costa do Marfim", o1:1.57, o2:5.70}, {id:34, t1:"Equador", t2:"Curaçao", o1:1.28, o2:11.50}] },
-            { dia: "21/06", jogos: [{id:35, t1:"Tunísia", t2:"Japão", o1:4.75, o2:1.82}, {id:36, t1:"Espanha", t2:"Arábia Saudita", o1:1.13, o2:23.00}, {id:37, t1:"Bélgica", t2:"Irã", o1:1.42, o2:7.90}, {id:38, t1:"Uruguai", t2:"Cabo Verde", o1:1.47, o2:7.10}, {id:39, t1:"Nova Zelândia", t2:"Egito", o1:5.20, o2:1.72}] },
-            { dia: "22/06", jogos: [{id:40, t1:"Países Baixos", t2:"Suécia", o1:1.65, o2:5.10}, {id:41, t1:"Argentina", t2:"Áustria", o1:1.67, o2:5.40}, {id:42, t1:"França", t2:"Iraque", o1:1.12, o2:26.00}, {id:43, t1:"Noruega", t2:"Senegal", o1:2.12, o2:3.45}] },
-            { dia: "23/06", jogos: [{id:44, t1:"Jordânia", t2:"Argélia", o1:5.30, o2:1.67}, {id:45, t1:"Portugal", t2:"Uzbequistão", o1:1.27, o2:11.50}, {id:46, t1:"Inglaterra", t2:"Gana", o1:1.31, o2:10.25}, {id:47, t1:"Panamá", t2:"Croácia", o1:6.70, o2:1.53}, {id:48, t1:"Colômbia", t2:"RD Congo", o1:1.52, o2:7.10}] },
-            { dia: "24/06", jogos: [{id:49, t1:"Bósnia", t2:"Catar", o1:1.60, o2:5.90}, {id:50, t1:"Suíça", t2:"Canadá", o1:2.10, o2:3.70}, {id:51, t1:"Escócia", t2:"Brasil", o1:8.00, o2:1.39}, {id:52, t1:"Marrocos", t2:"Haiti", o1:1.26, o2:11.75}, {id:53, t1:"África do Sul", t2:"Coreia do Sul", o1:3.95, o2:2.00}, {id:54, t1:"República Tcheca", t2:"México", o1:4.35, o2:1.85}] },
-            { dia: "25/06", jogos: [{id:55, t1:"Equador", t2:"Alemanha", o1:5.10, o2:1.67}, {id:56, t1:"Curaçao", t2:"Costa do Marfim", o1:9.50, o2:1.34}, {id:57, t1:"Tunísia", t2:"Países Baixos", o1:6.10, o2:1.55}, {id:58, t1:"Japão", t2:"Suécia", o1:2.12, o2:3.55}, {id:59, t1:"Paraguai", t2:"Austrália", o1:2.22, o2:3.45}, {id:60, t1:"Turquia", t2:"EUA", o1:2.72, o2:2.57}] },
-            { dia: "26/06", jogos: [{id:61, t1:"Egito", t2:"Irã", o1:2.32, o2:3.55}, {id:62, t1:"Noruega", t2:"França", o1:4.55, o2:1.82}, {id:63, t1:"Senegal", t2:"Iraque", o1:1.47, o2:7.10}, {id:64, t1:"Cabo Verde", t2:"Arábia Saudita", o1:2.55, o2:2.77}, {id:65, t1:"Uruguai", t2:"Espanha", o1:5.30, o2:1.65}] },
-            { dia: "27/06", jogos: [{id:66, t1:"Nova Zelândia", t2:"Bélgica", o1:9.75, o2:1.31}, {id:67, t1:"Croácia", t2:"Gana", o1:1.75, o2:4.90}, {id:68, t1:"Panamá", t2:"Inglaterra", o1:15.50, o2:1.20}, {id:69, t1:"Colômbia", t2:"Portugal", o1:3.60, o2:2.12}, {id:70, t1:"RD Congo", t2:"Uzbequistão", o1:2.55, o2:2.90}, {id:71, t1:"Argélia", t2:"Áustria", o1:3.40, o2:2.25}, {id:72, t1:"Jordânia", t2:"Argentina", o1:15.00, o2:1.20}] }
+            { dia: "17/06", jogos: [{id:20, t1:"Áustria", t2:"Jordânia", o1:1.34, o2:8.75}, {id:21, t1:"Portugal", t2:"RD Congo", o1:1.28, o2:10.75}, {id:22, t1:"Inglaterra", t2:"Croácia", o1:1.75, o2:4.70}, {id:23, t1:"Gana", t2:"Panamá", o1:1.98, o2:3.80}, {id:24, t1:"Uzbequistão", t2:"Colômbia", o1:8.25, o2:1.42}] }
         ];
 
         let dadosCopa = [];
         let escolhas = {}; 
         let ordemCronologicaDeCliques = [];
-        let modoEdicaoAtivo = false;
+        let modoConfigAberto = false;
+        
+        let valorInicialBase = 50;
+        let proximaEntradaEstipulada = null; // Guarda o valor do campo que você pediu!
 
         function calcularProbabilidadesReais(o1, o2) {
-            const raw1 = 1 / o1;
-            const raw2 = 1 / o2;
+            const raw1 = 1 / o1; const raw2 = 1 / o2;
             const totalRaw = raw1 + raw2;
-            const margemRestante = 1.0 - (totalRaw * 0.85); 
-            const p1 = Math.round((raw1 / totalRaw) * (1.0 - Math.max(0, margemRestante)) * 100);
-            const p2 = Math.round((raw2 / totalRaw) * (1.0 - Math.max(0, margemRestante)) * 100);
-            return { p1: p1, p2: p2 };
+            const margem = 1.0 - (totalRaw * 0.85); 
+            const p1 = Math.round((raw1 / totalRaw) * (1.0 - Math.max(0, margem)) * 100);
+            const p2 = Math.round((raw2 / totalRaw) * (1.0 - Math.max(0, margem)) * 100);
+            return { p1, p2 };
         }
 
-        function carregarDadosComSeguranca() {
+        function carregarDadosDoCache() {
             try {
-                const dadosSalvos = localStorage.getItem('dadosCopa_banca');
-                const escolhasSalvas = localStorage.getItem('escolhas_banca');
-                const ordemSalva = localStorage.getItem('ordem_banca');
-
-                if (dadosSalvos && dadosSalvos !== "undefined" && dadosSalvos !== "null") {
-                    dadosCopa = JSON.parse(dadosSalvos);
-                } else {
-                    dadosCopa = JSON.parse(JSON.stringify(dadosCopaOriginais));
-                }
+                dadosCopa = JSON.parse(localStorage.getItem('copa_d_v4')) || JSON.parse(JSON.stringify(dadosCopaOriginais));
+                escolhas = JSON.parse(localStorage.getItem('copa_e_v4')) || {};
+                ordemCronologicaDeCliques = JSON.parse(localStorage.getItem('copa_o_v4')) || [];
                 
-                if (escolhasSalvas && escolhasSalvas !== "undefined" && escolhasSalvas !== "null") {
-                    escolhas = JSON.parse(escolhasSalvas);
-                } else {
-                    escolhas = {};
+                if(localStorage.getItem('copa_vi_v4')) {
+                    valorInicialBase = parseFloat(localStorage.getItem('copa_vi_v4'));
+                    document.getElementById('cfg-valor-inicial').value = valorInicialBase;
                 }
-                
-                if (ordemSalva && ordemSalva !== "undefined" && ordemSalva !== "null") {
-                    ordemCronologicaDeCliques = JSON.parse(ordemSalva);
-                } else {
-                    ordemCronologicaDeCliques = [];
+                if(localStorage.getItem('copa_pe_v4')) {
+                    const pe = localStorage.getItem('copa_pe_v4');
+                    proximaEntradaEstipulada = pe !== "null" ? parseFloat(pe) : null;
+                    document.getElementById('cfg-proxima-entrada').value = proximaEntradaEstipulada !== null ? proximaEntradaEstipulada : "";
                 }
             } catch(e) {
                 dadosCopa = JSON.parse(JSON.stringify(dadosCopaOriginais));
@@ -429,13 +201,7 @@
         }
 
         function inicializarApp() {
-            carregarDadosComSeguranca();
-            if(localStorage.getItem('valorInicial_banca')) {
-                document.getElementById('valor-inicial').value = localStorage.getItem('valorInicial_banca');
-            }
-            if(localStorage.getItem('bancaManual_banca')) {
-                document.getElementById('banca-manual').value = localStorage.getItem('bancaManual_banca');
-            }
+            carregarDadosDoCache();
             renderizarInterface();
         }
 
@@ -458,70 +224,31 @@
 
                 secao.jogos.forEach(jogo => {
                     const escolha = escolhas[jogo.id] || null;
-                    const statusClass = escolha && escolha.resultado ? `status-${escolha.resultado}` : '';
-                    const probs = calcularProbabilidadesReais(jogo.o1, jogo.o2);
+                    let statusClass = escolha && escolha.resultado ? `status-${escolha.resultado}` : '';
 
+                    const probs = calcularProbabilidadesReais(jogo.o1, jogo.o2);
                     const card = document.createElement('div');
                     card.className = `card-jogo ${statusClass}`;
 
-                    let blocoSelecaoOdds = '';
-                    let blocoInvestimentoManual = '';
-
-                    if (modoEdicaoAtivo) {
-                        blocoSelecaoOdds = `
-                            <div style="flex: 1; text-align: center; max-width: 140px;">
-                                <label style="font-size:0.75rem; color:var(--texto-escuro)">ODD ${jogo.t1}</label>
-                                <input type="number" step="0.01" class="input-edit-odd" value="${jogo.o1}" onchange="salvarNovaOdd(${jogo.id}, 1, this.value)">
-                            </div>
-                            <div style="flex: 1; text-align: center; max-width: 140px;">
-                                <label style="font-size:0.75rem; color:var(--texto-escuro)">ODD ${jogo.t2}</label>
-                                <input type="number" step="0.01" class="input-edit-odd" value="${jogo.o2}" onchange="salvarNovaOdd(${jogo.id}, 2, this.value)">
-                            </div>
-                        `;
-                    } else {
-                        blocoSelecaoOdds = `
-                            <button class="btn-odd ${escolha && escolha.time === 1 ? 'selecionado' : ''}" onclick="selecionarOdd(${jogo.id}, 1, ${jogo.o1})">
-                                ODD <span>${jogo.o1.toFixed(2)}</span>
-                            </button>
-                            <button class="btn-odd ${escolha && escolha.time === 2 ? 'selecionado' : ''}" onclick="selecionarOdd(${jogo.id}, 2, ${jogo.o2})">
-                                ODD <span>${jogo.o2.toFixed(2)}</span>
-                            </button>
-                        `;
-
-                        if (escolha) {
-                            const valorInvestidoSalvo = escolha.investimentoManual !== undefined ? escolha.investimentoManual : '';
-                            blocoInvestimentoManual = `
-                                <div class="container-investimento-manual">
-                                    <label for="investimento-manual-${jogo.id}">Investir nesta entrada (R$):</label>
-                                    <input type="number" id="investimento-manual-${jogo.id}" placeholder="Usar tudo" min="0" value="${valorInvestidoSalvo}" oninput="salvarInvestimentoManual(${jogo.id}, this.value)">
-                                </div>
-                            `;
-                        }
-                    }
-
                     card.innerHTML = `
                         <div class="confronto-probabilidades">
-                            <div class="time-prob">
-                                <span>${jogo.t1}</span>
-                                <span class="prob-badge">${probs.p1}%</span>
-                            </div>
+                            <div class="time-prob"><span>${jogo.t1}</span><span class="prob-badge">${probs.p1}%</span></div>
                             <span class="vs-divider">VS</span>
-                            <div class="time-prob">
-                                <span>${jogo.t2}</span>
-                                <span class="prob-badge">${probs.p2}%</span>
-                            </div>
+                            <div class="time-prob"><span>${jogo.t2}</span><span class="prob-badge">${probs.p2}%</span></div>
                         </div>
                         <div class="botoes-odds">
-                            ${blocoSelecaoOdds}
+                            <button class="btn-odd ${escolha && escolha.time === 1 ? 'selecionado' : ''}" onclick="selecionouOddCard(${jogo.id}, 1, ${jogo.o1})">
+                                ODD <span>${jogo.o1.toFixed(2)}</span>
+                            </button>
+                            <button class="btn-odd ${escolha && escolha.time === 2 ? 'selecionado' : ''}" onclick="selecionouOddCard(${jogo.id}, 2, ${jogo.o2})">
+                                ODD <span>${jogo.o2.toFixed(2)}</span>
+                            </button>
                         </div>
-                        ${blocoInvestimentoManual}
                         <div class="rodape-card">
-                            <div>
-                                Simulação: <span id="calc-jogo-${jogo.id}">Entrada: R$ 0.00 | Retorno: R$ 0.00</span>
-                            </div>
+                            <div id="visor-card-calc-${jogo.id}">Entrada: R$ 0.00 | Retorno: R$ 0.00</div>
                             <div class="botoes-resultado">
-                                <button class="btn-res verde ${escolha && escolha.resultado === 'ganhou' ? 'ativo' : ''}" onclick="definirResultado(${jogo.id}, 'ganhou')">✓</button>
-                                <button class="btn-res vermelho ${escolha && escolha.resultado === 'perdeu' ? 'ativo' : ''}" onclick="definirResultado(${jogo.id}, 'perdeu')">✗</button>
+                                <button class="btn-res verde ${escolha && escolha.resultado === 'ganhou' ? 'ativo' : ''}" onclick="definirResultadoCard(${jogo.id}, 'ganhou')">✓</button>
+                                <button class="btn-res vermelho ${escolha && escolha.resultado === 'perdeu' ? 'ativo' : ''}" onclick="definirResultadoCard(${jogo.id}, 'perdeu')">✗</button>
                             </div>
                         </div>
                     `;
@@ -532,183 +259,172 @@
                 container.appendChild(divDia);
             });
 
-            calcularTudo();
+            rodarCalculoOficialBanca();
         }
 
         function alternarModoConfig() {
-            modoEdicaoAtivo = !modoEdicaoAtivo;
+            modoConfigAberto = !modoConfigAberto;
+            const gaveta = document.getElementById('gaveta-configuracao');
             const btn = document.getElementById('btn-config');
-            const painelAjuste = document.getElementById('painel-ajuste-manual');
-
-            if (modoEdicaoAtivo) {
-                btn.innerText = "💾 Salvar Configurações";
+            if(modoConfigAberto) {
+                gaveta.style.display = 'flex';
                 btn.classList.add('ativo');
-                if(painelAjuste) painelAjuste.style.display = 'block';
             } else {
-                btn.innerText = "⚙️ Editar ODDs";
+                gaveta.style.display = 'none';
                 btn.classList.remove('ativo');
-                if(painelAjuste) painelAjuste.style.display = 'none';
-                
-                ordemCronologicaDeCliques.forEach(id => {
-                    if (escolhas[id]) {
-                        const jogoOriginal = encontrarJogoPorId(id);
-                        if(jogoOriginal) {
-                            escolhas[id].odd = escolhas[id].time === 1 ? jogoOriginal.o1 : jogoOriginal.o2;
-                        }
-                    }
-                });
-                localStorage.setItem('dadosCopa_banca', JSON.stringify(dadosCopa));
-                localStorage.setItem('escolhas_banca', JSON.stringify(escolhas));
-            }
-            renderizarInterface();
-        }
-
-        function salvarNovaOdd(jogoId, col, valor) {
-            const novoValor = parseFloat(valor) || 1.00;
-            const jogo = encontrarJogoPorId(jogoId);
-            if (jogo) {
-                if (col === 1) jogo.o1 = novoValor;
-                if (col === 2) jogo.o2 = novoValor;
             }
         }
 
-        function encontrarJogoPorId(id) {
-            for (let s of dadosCopa) {
-                for (let j of s.jogos) {
-                    if (j.id === id) return j;
-                }
-            }
-            return null;
+        function ajustouValorInicialPai() {
+            valorInicialBase = parseFloat(document.getElementById('cfg-valor-inicial').value) || 0;
+            localStorage.setItem('copa_vi_v4', valorInicialBase);
+            rodarCalculoOficialBanca();
         }
 
-        function selecionarOdd(jogoId, time, oddValor) {
-            if (modoEdicaoAtivo) return;
+        function ajustouProximaEntradaManual() {
+            const vStr = document.getElementById('cfg-proxima-entrada').value;
+            if(vStr === '') {
+                proximaEntradaEstipulada = null;
+                localStorage.setItem('copa_pe_v4', "null");
+            } else {
+                proximaEntradaEstipulada = parseFloat(vStr) || 0;
+                localStorage.setItem('copa_pe_v4', proximaEntradaEstipulada);
+            }
+            rodarCalculoOficialBanca();
+        }
 
+        function selecionouOddCard(jogoId, time, oddValor) {
             if (escolhas[jogoId] && escolhas[jogoId].time === time) {
                 delete escolhas[jogoId];
                 ordemCronologicaDeCliques = ordemCronologicaDeCliques.filter(id => id !== jogoId);
             } else {
-                escolhas[jogoId] = { time: time, odd: oddValor, resultado: null, investimentoManual: undefined };
+                // Ao criar ou mudar, salvamos no estado se ele já foi resolvido para travar o passado
+                if (!escolhas[jogoId]) {
+                    escolhas[jogoId] = { time: time, odd: oddValor, resultado: null, entradaFixada: null, retornoFixado: null };
+                } else {
+                    escolhas[jogoId].time = time;
+                    escolhas[jogoId].odd = oddValor;
+                }
                 if (!ordemCronologicaDeCliques.includes(jogoId)) {
                     ordemCronologicaDeCliques.push(jogoId);
                 }
             }
-            salvarMudancasFluxo();
+            salvarCacheGlobal();
             renderizarInterface();
         }
 
-        function salvarInvestimentoManual(jogoId, valor) {
-            if (escolhas[jogoId]) {
-                if (valor === '' || parseFloat(valor) < 0) {
-                    escolhas[jogoId].investimentoManual = undefined;
-                } else {
-                    escolhas[jogoId].investimentoManual = parseFloat(valor);
-                }
-                localStorage.setItem('escolhas_banca', JSON.stringify(escolhas));
-                calcularTudo();
-            }
-        }
-
-        function definirResultado(jogoId, status) {
-            if (modoEdicaoAtivo || !escolhas[jogoId]) return;
+        function definirResultadoCard(jogoId, status) {
+            if (!escolhas[jogoId]) return;
 
             if (escolhas[jogoId].resultado === status) {
                 escolhas[jogoId].resultado = null;
+                escolhas[jogoId].entradaFixada = null;
+                escolhas[jogoId].retornoFixado = null;
             } else {
                 escolhas[jogoId].resultado = status;
             }
-            salvarMudancasFluxo();
+            salvarCacheGlobal();
             renderizarInterface();
         }
 
-        function salvarValorInicial() {
-            const val = document.getElementById('valor-inicial').value;
-            localStorage.setItem('valorInicial_banca', val);
-            calcularTudo();
+        function salvarCacheGlobal() {
+            localStorage.setItem('escolhas_v4', JSON.stringify(escolhas));
+            localStorage.setItem('copa_o_v4', JSON.stringify(ordemCronologicaDeCliques));
         }
 
-        function salvarBancaManual() {
-            const val = document.getElementById('banca-manual').value;
-            if(val === '') {
-                localStorage.removeItem('bancaManual_banca');
-            } else {
-                localStorage.setItem('bancaManual_banca', val);
-            }
-            calcularTudo();
-        }
+        // A LÓGICA QUE VOCÊ EXPLICOU PASSO A PASSO:
+        function rodarCalculoOficialBanca() {
+            // Atualiza o visor estático de valor inicial
+            document.getElementById('visor-inicial').innerText = `R$ ${valorInicialBase.toFixed(2)}`;
 
-        function salvarMudancasFluxo() {
-            localStorage.setItem('escolhas_banca', JSON.stringify(escolhas));
-            localStorage.setItem('ordem_banca', JSON.stringify(ordemCronologicaDeCliques));
-        }
+            let bancaFluida = valorInicialBase;
 
-        function calcularTudo() {
-            const valInput = document.getElementById('valor-inicial');
-            const valorInicialInput = valInput ? (parseFloat(valInput.value) || 0) : 50;
-            
-            const bManual = document.getElementById('banca-manual');
-            const inputManualVal = bManual ? bManual.value : '';
-            
-            // A nossa carteira começa com o valor inicial ou manual definido no cabeçalho
-            let bancaCorrente = inputManualVal !== '' ? (parseFloat(inputManualVal) || 0) : valorInicialInput;
-            let ativosContador = 0;
-
-            // Reset visual inicial para todos os cartões
+            // 1. Primeiro passamos limpando as simulações visuais dos cards
             dadosCopa.forEach(s => {
                 s.jogos.forEach(j => {
-                    const el = document.getElementById(`calc-jogo-${j.id}`);
-                    if (el) el.innerText = "Entrada: R$ 0.00 | Retorno: R$ 0.00";
+                    const el = document.getElementById(`visor-card-calc-${j.id}`);
+                    if(el) el.innerHTML = "Entrada: R$ 0.00 | Retorno: R$ 0.00";
                 });
             });
 
-            // Loop linear seguindo estritamente a ordem cronológica de cliques do utilizador
+            // 2. Calculamos o histórico linear dos jogos que já possuem GREEN ou RED fixados
             for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
                 const id = ordemCronologicaDeCliques[i];
                 const aposta = escolhas[id];
                 if (!aposta) continue;
 
-                ativosContador++;
-                let entradaEfetiva = bancaCorrente;
-                let cofreSeguranca = 0;
+                // Se o jogo está PENDENTE, nós não processamos ele neste primeiro momento do histórico real
+                if (aposta.resultado === null) continue;
 
-                // NOVA LÓGICA DE CARTEIRA COMPLETA:
-                // Se definiu valor manual, aposta esse valor fixo (desde que haja saldo). O resto fica guardado.
-                if (aposta.investimentoManual !== undefined && !isNaN(aposta.investimentoManual)) {
-                    entradaEfetiva = Math.min(aposta.investimentoManual, bancaCorrente);
-                    cofreSeguranca = bancaCorrente - entradaEfetiva;
-                }
-
-                let retornoEsperado = entradaEfetiva * aposta.odd;
-
-                // Escreve visualmente o cálculo correto na simulação daquele cartão específico
-                const elText = document.getElementById(`calc-jogo-${id}`);
-                if (elText) {
-                    elText.innerHTML = `Entrada: <strong>R$ ${entradaEfetiva.toFixed(2)}</strong> | Retorno: <strong style="color: var(--verde-sucesso)">R$ ${retornoEsperado.toFixed(2)}</strong>`;
-                }
-
-                // Atualização da banca corrente para o próximo ciclo
-                if (aposta.resultado === 'ganhou') {
-                    // Soma a sobra protegida do cofre com os ganhos da operação ganha
-                    bancaCorrente = cofreSeguranca + retornoEsperado;
-                } else if (aposta.resultado === 'perdeu') {
-                    // Perdeu a aposta: a banca para o próximo jogo será apenas a sobra que ficou no cofre
-                    bancaCorrente = cofreSeguranca;
+                let entradaEfetiva = 0;
+                
+                // Se esse jogo antigo foi gravado com entrada fixa, respeita ela, senão pega a banca da época
+                if (aposta.entradaFixada !== null) {
+                    entradaEfetiva = aposta.entradaFixada;
                 } else {
-                    // Pendente (Simulado): Mantém a projeção somando a sobra com o retorno estimado
-                    bancaCorrente = cofreSeguranca + retornoEsperado;
+                    entradaEfetiva = bancaFluida; 
+                    aposta.entradaFixada = entradaEfetiva;
+                }
+
+                let retornoEfetivo = entradaEfetiva * aposta.odd;
+                aposta.retornoFixado = retornoEfetivo;
+
+                // Atualiza o texto do card resolvido no passado
+                const el = document.getElementById(`visor-card-calc-${id}`);
+                if(el) {
+                    el.innerHTML = `Entrada: <strong>R$ ${entradaEfetiva.toFixed(2)}</strong> | Retorno: <strong style="color:var(--verde-sucesso)">R$ ${retornoEfetivo.toFixed(2)}</strong>`;
+                }
+
+                // Desconta ou soma na banca real de histórico
+                if (aposta.resultado === 'ganhou') {
+                    bancaFluida = (bancaFluida - entradaEfetiva) + retornoEfetivo;
+                } else if (aposta.resultado === 'perdeu') {
+                    bancaFluida = (bancaFluida - entradaEfetiva);
                 }
             }
 
-            // Atualiza o painel fixo global no topo do cabeçalho
-            const totalAcumuladoEl = document.getElementById('total-acumulado');
-            const qtdAtivosEl = document.getElementById('qtd-ativos');
+            // --- AQUI ESTÁ A SUTILEZA DO QUE VOCÊ PEDIU ---
+            // Agora a nossa 'bancaFluida' tem exatamente o somatório real de todos os seus Greens históricos.
+            // Se você foi nas configurações e estipulou uma próxima entrada manual (ex: R$ 200,00):
+            let valorInvestidoNoProximo = 0;
             
-            if(totalAcumuladoEl) totalAcumuladoEl.innerText = `R$ ${bancaCorrente.toFixed(2)}`;
-            if(qtdAtivosEl) qtdAtivosEl.innerText = ativosContador;
+            if (proximaEntradaEstipulada !== null) {
+                // Pega os 200 reais que você escolheu investir
+                valorInvestidoNoProximo = Math.min(proximaEntradaEstipulada, bancaFluida);
+                // Subtrai imediatamente do total acumulado! Se tinha 1000, o visor vai mostrar 800!
+                bancaFluida = bancaFluida - valorInvestidoNoProximo;
+            }
+
+            // Atualiza o Painel Principal no topo da tela com o valor subtraído das entradas ativas
+            document.getElementById('visor-total').innerText = `R$ ${bancaFluida.toFixed(2)}`;
+
+            // 3. Agora aplicamos essa simulação/investimento no primeiro jogo da fila que estiver PENDENTE
+            for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
+                const id = ordemCronologicaDeCliques[i];
+                const aposta = escolhas[id];
+                if (!aposta || aposta.resultado !== null) continue;
+
+                // Achou o jogo pendente! Se houver valor estipulado na configuração, aplica ele. 
+                // Se não houver, ele usa a alavancagem total (tudo o que sobrou na banca).
+                let entradaSimulada = (proximaEntradaEstipulada !== null) ? valorInvestidoNoProximo : bancaFluida;
+                let retornoSimulado = entradaSimulada * aposta.odd;
+
+                // Grava temporariamente no objeto para o momento que você clicar no botão de '✓ Check'
+                aposta.entradaFixada = entradaSimulada;
+                aposta.retornoFixado = retornoSimulado;
+
+                const el = document.getElementById(`visor-card-calc-${id}`);
+                if(el) {
+                    el.innerHTML = `Entrada: <span style="color:#ffb84d; font-weight:bold;">R$ ${entradaSimulada.toFixed(2)}</span> | Retorno Projetado: <strong style="color:var(--verde-sucesso)">R$ ${retornoSimulado.toFixed(2)}</strong>`;
+                }
+                
+                // Paramos no primeiro jogo pendente da fila, pois o investimento configurado foi direcionado para ele
+                break;
+            }
         }
 
         function limparMemoriasLocais() {
-            if(confirm("Deseja realmente resetar o app? Isso limpará todas as modificações e apostas atuais.")) {
+            if(confirm("Deseja realmente resetar e limpar o histórico de greens?")) {
                 localStorage.clear();
                 location.reload();
             }

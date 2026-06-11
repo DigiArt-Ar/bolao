@@ -239,6 +239,39 @@
             margin-top: 4px;
         }
 
+        .container-investimento-manual {
+            background-color: rgba(255, 255, 255, 0.03);
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px dashed var(--cor-borda);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .container-investimento-manual label {
+            font-size: 0.75rem;
+            color: var(--texto-escuro);
+            text-transform: uppercase;
+        }
+
+        .container-investimento-manual input {
+            width: 120px;
+            background-color: var(--bg-principal);
+            border: 1px solid var(--cor-borda);
+            color: var(--verde-sucesso);
+            padding: 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .container-investimento-manual input:focus {
+            border-color: var(--laranja-bet);
+            outline: none;
+        }
+
         .rodape-card {
             display: flex;
             justify-content: space-between;
@@ -315,7 +348,7 @@
 
         <div class="painel-valores">
             <div class="bloco-valor">
-                <span>Total Acumulado</span>
+                <span>Total Acumulado (Em Banca)</span>
                 <strong id="total-acumulado" style="color: var(--verde-sucesso)">R$ 50,00</strong>
             </div>
             <div class="bloco-valor" style="text-align: right;">
@@ -420,6 +453,8 @@
                     card.className = `card-jogo ${statusClass}`;
 
                     let blocoSelecaoOdds = '';
+                    let blocoInvestimentoManual = '';
+
                     if (modoEdicaoAtivo) {
                         blocoSelecaoOdds = `
                             <div style="flex: 1; text-align: center; max-width: 140px;">
@@ -440,6 +475,16 @@
                                 ODD <span>${jogo.o2.toFixed(2)}</span>
                             </button>
                         `;
+
+                        if (escolha) {
+                            const valorInvestidoSalvo = escolha.investimentoManual !== undefined ? escolha.investimentoManual : '';
+                            blocoInvestimentoManual = `
+                                <div class="container-investimento-manual">
+                                    <label for="investimento-manual-${jogo.id}">Investir (R$):</label>
+                                    <input type="number" id="investimento-manual-${jogo.id}" placeholder="Total" min="0" value="${valorInvestidoSalvo}" oninput="salvarInvestimentoManual(${jogo.id}, this.value)">
+                                </div>
+                            `;
+                        }
                     }
 
                     card.innerHTML = `
@@ -457,6 +502,7 @@
                         <div class="botoes-odds">
                             ${blocoSelecaoOdds}
                         </div>
+                        ${blocoInvestimentoManual}
                         <div class="rodape-card">
                             <div>
                                 Simulação: <span id="calc-jogo-${jogo.id}">Entrada: R$ 0.00 | Retorno: R$ 0.00</span>
@@ -530,13 +576,25 @@
                 delete escolhas[jogoId];
                 ordemCronologicaDeCliques = ordemCronologicaDeCliques.filter(id => id !== jogoId);
             } else {
-                escolhas[jogoId] = { time: time, odd: oddValor, resultado: null };
+                escolhas[jogoId] = { time: time, odd: oddValor, resultado: null, investimentoManual: undefined };
                 if (!ordemCronologicaDeCliques.includes(jogoId)) {
                     ordemCronologicaDeCliques.push(jogoId);
                 }
             }
             salvarMudancasFluxo();
             renderizarInterface();
+        }
+
+        function salvarInvestimentoManual(jogoId, valor) {
+            if (escolhas[jogoId]) {
+                if (valor === '') {
+                    escolhas[jogoId].investimentoManual = undefined;
+                } else {
+                    escolhas[jogoId].investimentoManual = parseFloat(valor) || 0;
+                }
+                salvarMudancasFluxo();
+                calcularTudo();
+            }
         }
 
         function definirResultado(jogoId, status) {
@@ -547,7 +605,7 @@
             } else {
                 escolhas[jogoId].resultado = status;
                 if (status === 'perdeu') {
-                    alert("Aposta com RED! O montante atualizado da alavancagem foi zerado.");
+                    alert("Aposta com RED! O valor colocado em risco nesta rodada foi perdido.");
                 }
             }
             salvarMudancasFluxo();
@@ -599,7 +657,17 @@
                 if (!aposta) continue;
 
                 ativosContador++;
-                let entradaDoDegrau = bancaViva;
+                
+                // Define o valor exato a ser colocado no risco da rodada
+                let entradaDoDegrau = bancaViva; 
+                let sobrouNaBanca = 0;
+
+                if (aposta.investimentoManual !== undefined && aposta.investimentoManual >= 0) {
+                    // Se foi digitado um valor, ele investe apenas o valor digitado (respeitando o limite da banca viva)
+                    entradaDoDegrau = Math.min(aposta.investimentoManual, bancaViva);
+                    sobrouNaBanca = bancaViva - entradaDoDegrau;
+                }
+
                 let retornoDoDegrau = entradaDoDegrau * aposta.odd;
 
                 const elText = document.getElementById(`calc-jogo-${id}`);
@@ -608,20 +676,51 @@
                 }
 
                 if (aposta.resultado === 'ganhou') {
-                    bancaViva = retornoDoDegrau;
+                    // Green: O valor protegido + o retorno total da aposta viram a nova banca
+                    bancaViva = sobrouNaBanca + retornoDoDegrau;
                 } else if (aposta.resultado === 'perdeu') {
-                    bancaViva = 0;
+                    // Red: Perde a entrada, mas mantém o que sobrou seguro no "cofre"
+                    bancaViva = sobrouNaBanca;
+                } else {
+                    // Sem resultado definido ainda: para fins de exibição corrente, 
+                    // a banca temporária considera que o dinheiro da entrada está "em campo"
+                    bancaViva = sobrouNaBanca;
                 }
             }
 
+            // Exibição no cabeçalho: Mostra o saldo total real atualizado que está na banca física/cofre
             let exibicaoBancaFinal = bancaViva;
             
+            // Se o último jogo da lista ainda não correu (resultado nulo), mostra o saldo líquido seguro + a projeção de retorno dele
             if (ordemCronologicaDeCliques.length > 0) {
                 const ultimoId = ordemCronologicaDeCliques[ordemCronologicaDeCliques.length - 1];
                 const ultimaAposta = escolhas[ultimoId];
                 
                 if (ultimaAposta && ultimaAposta.resultado === null) {
-                    exibicaoBancaFinal = bancaViva * ultimaAposta.odd;
+                    let entradaUltimo = bancaViva;
+                    if (ultimaAposta.investimentoManual !== undefined) {
+                        // Se houver investimento manual no último item em aberto
+                        entradaUltimo = Math.min(ultimaAposta.investimentoManual, localStorage.getItem('bancaManual_banca') !== null ? parseFloat(localStorage.getItem('bancaManual_banca')) : valorInicialInput);
+                        
+                        // Recalcula projeção exata baseada no histórico acumulado real
+                        let bancaSimulada = inputManualVal !== '' ? (parseFloat(inputManualVal) || 0) : valorInicialInput;
+                        for(let k=0; k < ordemCronologicaDeCliques.length; k++){
+                            let idK = ordemCronologicaDeCliques[k];
+                            let apK = escolhas[idK];
+                            let entK = bancaSimulada;
+                            let sobK = 0;
+                            if(apK.investimentoManual !== undefined) {
+                                entK = Math.min(apK.investimentoManual, bancaSimulada);
+                                sobK = bancaSimulada - entK;
+                            }
+                            if(apK.resultado === 'ganhou') bancaSimulada = sobK + (entK * apK.odd);
+                            else if(apK.resultado === 'perdeu') bancaSimulada = sobK;
+                            else bancaSimulada = sobK + (entK * apK.odd); // Projeta o green no último aberto
+                        }
+                        exibicaoBancaFinal = bancaSimulada;
+                    } else {
+                        exibicaoBancaFinal = bancaViva * ultimaAposta.odd;
+                    }
                 }
             }
 

@@ -341,8 +341,8 @@
 
         <div id="painel-ajuste-manual" class="painel-edicao-banca" style="display: none;">
             <div class="input-group" style="margin-bottom: 0;">
-                <label for="banca-manual" style="color: var(--laranja-bet);">Editar Valor Acumulado Corrente (R$)</label>
-                <input type="number" id="banca-manual" placeholder="Deixe em branco para cálculo automático" min="0" oninput="salvarBancaManual(); calcularTudo();">
+                <label for="banca-manual" style="color: var(--laranja-bet);">Ajustar Valor Manual Global (R$)</label>
+                <input type="number" id="banca-manual" placeholder="Deixe vazio para auto-cálculo" min="0" oninput="salvarBancaManual(); calcularTudo();">
             </div>
         </div>
 
@@ -425,10 +425,6 @@
                 dadosCopa = JSON.parse(JSON.stringify(dadosCopaOriginais));
                 escolhas = {};
                 ordemCronologicaDeCliques = [];
-            }
-
-            if (!dadosCopa || dadosCopa.length === 0) {
-                dadosCopa = JSON.parse(JSON.stringify(dadosCopaOriginais));
             }
         }
 
@@ -628,9 +624,6 @@
         function salvarValorInicial() {
             const val = document.getElementById('valor-inicial').value;
             localStorage.setItem('valorInicial_banca', val);
-            const inputBanca = document.getElementById('banca-manual');
-            if(inputBanca) inputBanca.value = '';
-            localStorage.removeItem('bancaManual_banca');
         }
 
         function salvarBancaManual() {
@@ -654,9 +647,11 @@
             const bManual = document.getElementById('banca-manual');
             const inputManualVal = bManual ? bManual.value : '';
             
+            // A banca total disponível começa com o valor inicial (ou manual global)
             let bancaCorrente = inputManualVal !== '' ? (parseFloat(inputManualVal) || 0) : valorInicialInput;
             let ativosContador = 0;
 
+            // Reset visual inicial
             dadosCopa.forEach(s => {
                 s.jogos.forEach(j => {
                     const el = document.getElementById(`calc-jogo-${j.id}`);
@@ -664,36 +659,42 @@
                 });
             });
 
+            // Processamento na ordem cronológica de cliques exata
             for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
                 const id = ordemCronologicaDeCliques[i];
                 const aposta = escolhas[id];
                 if (!aposta) continue;
 
                 ativosContador++;
-                let valorInvestido = bancaCorrente; 
-                let guardadoNoCofre = 0;
+                let entradaEfetiva = bancaCorrente;
+                let cofreSeguranca = 0;
 
+                // Nova Lógica Corrigida do Vídeo: Se houver investimento manual, separa o resto no cofre
                 if (aposta.investimentoManual !== undefined && !isNaN(aposta.investimentoManual)) {
-                    valorInvestido = Math.min(aposta.investimentoManual, bancaCorrente);
-                    guardadoNoCofre = bancaCorrente - valorInvestido;
+                    entradaEfetiva = Math.min(aposta.investimentoManual, bancaCorrente);
+                    cofreSeguranca = bancaCorrente - entradaEfetiva;
                 }
 
-                let retornoEsperado = valorInvestido * aposta.odd;
+                let retornoEsperado = entradaEfetiva * aposta.odd;
 
+                // Atualiza o texto simulado no rodapé do cartão correspondente
                 const elText = document.getElementById(`calc-jogo-${id}`);
                 if (elText) {
-                    elText.innerHTML = `Entrada: <strong>R$ ${valorInvestido.toFixed(2)}</strong> | Retorno: <strong style="color: var(--verde-sucesso)">R$ ${retornoEsperado.toFixed(2)}</strong>`;
+                    elText.innerHTML = `Entrada: <strong>R$ ${entradaEfetiva.toFixed(2)}</strong> | Retorno: <strong style="color: var(--verde-sucesso)">R$ ${retornoEsperado.toFixed(2)}</strong>`;
                 }
 
+                // Fluxo de atualização da banca corrente para a próxima rodada
                 if (aposta.resultado === 'ganhou') {
-                    bancaCorrente = guardadoNoCofre + retornoEsperado;
+                    bancaCorrente = cofreSeguranca + retornoEsperado;
                 } else if (aposta.resultado === 'perdeu') {
-                    bancaCorrente = guardadoNoCofre;
+                    bancaCorrente = cofreSeguranca; // Perde apenas o que investiu, mantém o cofre intacto
                 } else {
-                    bancaCorrente = guardadoNoCofre + retornoEsperado;
+                    // Pendente: Assume lucro simulado acumulado para projeção das próximas entradas
+                    bancaCorrente = cofreSeguranca + retornoEsperado;
                 }
             }
 
+            // Atualização dos cards globais do topo do cabeçalho
             const totalAcumuladoEl = document.getElementById('total-acumulado');
             const qtdAtivosEl = document.getElementById('qtd-ativos');
             

@@ -62,6 +62,12 @@
         }
         .input-group input:focus { border-color: var(--laranja-bet); outline: none; }
 
+        /* Inputs de Edição de ODD (Modo Configuração) */
+        .input-edit-odd {
+            width: 100%; background-color: var(--bg-principal); border: 1px solid var(--laranja-bet);
+            color: white; padding: 8px; border-radius: 4px; text-align: center; font-weight: bold; font-size: 1rem;
+        }
+
         /* Estilos dos Cards dos Jogos */
         .dia-secao { margin-bottom: 20px; }
         .dia-titulo { font-size: 1rem; color: var(--laranja-bet); margin-bottom: 10px; padding-left: 5px; border-left: 3px solid var(--laranja-bet); }
@@ -130,7 +136,7 @@
     </div>
 
     <div id="gaveta-configuracao" class="painel-config-gaveta" style="display: none;">
-        <h3 style="font-size: 0.9rem; color: var(--laranja-bet); text-transform: uppercase;">Ajustes de Banca</h3>
+        <h3 style="font-size: 0.9rem; color: var(--laranja-bet); text-transform: uppercase; margin-bottom: 5px;">Ajustes de Banca e ODDs</h3>
         
         <div class="input-group">
             <label for="cfg-valor-inicial">1. Mudar Valor Inicial da Operação (R$)</label>
@@ -141,8 +147,11 @@
             <label for="cfg-proxima-entrada" style="color: #ffb84d;">2. Valor da Próxima Entrada (R$)</label>
             <input type="number" id="cfg-proxima-entrada" placeholder="Deixe vazio para usar Tudo" min="0" oninput="ajustouProximaEntradaManual()">
         </div>
-        <p style="font-size: 0.75rem; color: var(--texto-escuro); line-height: 1.3;">
+        <p style="font-size: 0.75rem; color: var(--texto-escuro; line-height: 1.3; margin-bottom: 5px;">
             * Ao estipular um valor aqui (Ex: R$ 200), o sistema vai reservar esse dinheiro para o próximo jogo pendente e subtrair imediatamente do visor de Acumulados Totais.
+        </p>
+        <p style="font-size: 0.8rem; color: var(--laranja-bet); font-weight: bold; border-top: 1px dashed var(--cor-borda); padding-top: 10px;">
+            ℹ️ Edição de ODDs liberada nos cartões abaixo enquanto esta tela estiver aberta!
         </p>
     </div>
 
@@ -167,7 +176,7 @@
         let modoConfigAberto = false;
         
         let valorInicialBase = 50;
-        let proximaEntradaEstipulada = null; // Guarda o valor do campo que você pediu!
+        let proximaEntradaEstipulada = null;
 
         function calcularProbabilidadesReais(o1, o2) {
             const raw1 = 1 / o1; const raw2 = 1 / o2;
@@ -230,20 +239,37 @@
                     const card = document.createElement('div');
                     card.className = `card-jogo ${statusClass}`;
 
-                    card.innerHTML = `
-                        <div class="confronto-probabilidades">
-                            <div class="time-prob"><span>${jogo.t1}</span><span class="prob-badge">${probs.p1}%</span></div>
-                            <span class="vs-divider">VS</span>
-                            <div class="time-prob"><span>${jogo.t2}</span><span class="prob-badge">${probs.p2}%</span></div>
-                        </div>
-                        <div class="botoes-odds">
+                    // ALTERAÇÃO COMPLETA: Se a engrenagem estiver aberta, mostra campos de texto para mudar as ODDs
+                    let blocoOdds = '';
+                    if (modoConfigAberto) {
+                        blocoOdds = `
+                            <div style="flex: 1; text-align: center;">
+                                <span style="font-size:0.7rem; color:var(--texto-escuro);">ODD ${jogo.t1}</span>
+                                <input type="number" step="0.01" class="input-edit-odd" value="${jogo.o1}" onchange="atualizarOddManualNoBanco(${jogo.id}, 1, this.value)">
+                            </div>
+                            <div style="flex: 1; text-align: center;">
+                                <span style="font-size:0.7rem; color:var(--texto-escuro);>ODD ${jogo.t2}</span>
+                                <input type="number" step="0.01" class="input-edit-odd" value="${jogo.o2}" onchange="atualizarOddManualNoBanco(${jogo.id}, 2, this.value)">
+                            </div>
+                        `;
+                    } else {
+                        blocoOdds = `
                             <button class="btn-odd ${escolha && escolha.time === 1 ? 'selecionado' : ''}" onclick="selecionouOddCard(${jogo.id}, 1, ${jogo.o1})">
                                 ODD <span>${jogo.o1.toFixed(2)}</span>
                             </button>
                             <button class="btn-odd ${escolha && escolha.time === 2 ? 'selecionado' : ''}" onclick="selecionouOddCard(${jogo.id}, 2, ${jogo.o2})">
                                 ODD <span>${jogo.o2.toFixed(2)}</span>
                             </button>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="confronto-probabilidades">
+                            <div class="time-prob"><span>${jogo.t1}</span><span class="prob-badge">${probs.p1}%</span></div>
+                            <span class="vs-divider">VS</span>
+                            <div class="time-prob"><span>${jogo.t2}</span><span class="prob-badge">${probs.p2}%</span></div>
                         </div>
+                        <div class="botoes-odds">${blocoOdds}</div>
                         <div class="rodape-card">
                             <div id="visor-card-calc-${jogo.id}">Entrada: R$ 0.00 | Retorno: R$ 0.00</div>
                             <div class="botoes-resultado">
@@ -268,10 +294,32 @@
             const btn = document.getElementById('btn-config');
             if(modoConfigAberto) {
                 gaveta.style.display = 'flex';
+                btn.innerText = "💾 Salvar Ajustes";
                 btn.classList.add('ativo');
             } else {
                 gaveta.style.display = 'none';
+                btn.innerText = "⚙️ Configurações";
                 btn.classList.remove('ativo');
+                localStorage.setItem('copa_d_v4', JSON.stringify(dadosCopa));
+            }
+            renderizarInterface(); // Força a re-renderização para mostrar/esconder campos de ODD
+        }
+
+        function atualizarOddManualNoBanco(jogoId, coluna, valor) {
+            const v = parseFloat(valor) || 1.00;
+            for (let s of dadosCopa) {
+                for (let j of s.jogos) {
+                    if (j.id === jogoId) {
+                        if (coluna === 1) j.o1 = v;
+                        if (coluna === 2) j.o2 = v;
+                        
+                        // Se esse jogo já estiver selecionado, atualiza o valor interno da odd dele
+                        if(escolhas[jogoId] && escolhas[jogoId].time === coluna) {
+                            escolhas[jogoId].odd = v;
+                        }
+                        return;
+                    }
+                }
             }
         }
 
@@ -298,7 +346,6 @@
                 delete escolhas[jogoId];
                 ordemCronologicaDeCliques = ordemCronologicaDeCliques.filter(id => id !== jogoId);
             } else {
-                // Ao criar ou mudar, salvamos no estado se ele já foi resolvido para travar o passado
                 if (!escolhas[jogoId]) {
                     escolhas[jogoId] = { time: time, odd: oddValor, resultado: null, entradaFixada: null, retornoFixado: null };
                 } else {
@@ -332,14 +379,10 @@
             localStorage.setItem('copa_o_v4', JSON.stringify(ordemCronologicaDeCliques));
         }
 
-        // A LÓGICA QUE VOCÊ EXPLICOU PASSO A PASSO:
         function rodarCalculoOficialBanca() {
-            // Atualiza o visor estático de valor inicial
             document.getElementById('visor-inicial').innerText = `R$ ${valorInicialBase.toFixed(2)}`;
-
             let bancaFluida = valorInicialBase;
 
-            // 1. Primeiro passamos limpando as simulações visuais dos cards
             dadosCopa.forEach(s => {
                 s.jogos.forEach(j => {
                     const el = document.getElementById(`visor-card-calc-${j.id}`);
@@ -347,18 +390,13 @@
                 });
             });
 
-            // 2. Calculamos o histórico linear dos jogos que já possuem GREEN ou RED fixados
             for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
                 const id = ordemCronologicaDeCliques[i];
                 const aposta = escolhas[id];
                 if (!aposta) continue;
-
-                // Se o jogo está PENDENTE, nós não processamos ele neste primeiro momento do histórico real
                 if (aposta.resultado === null) continue;
 
                 let entradaEfetiva = 0;
-                
-                // Se esse jogo antigo foi gravado com entrada fixa, respeita ela, senão pega a banca da época
                 if (aposta.entradaFixada !== null) {
                     entradaEfetiva = aposta.entradaFixada;
                 } else {
@@ -369,13 +407,11 @@
                 let retornoEfetivo = entradaEfetiva * aposta.odd;
                 aposta.retornoFixado = retornoEfetivo;
 
-                // Atualiza o texto do card resolvido no passado
                 const el = document.getElementById(`visor-card-calc-${id}`);
                 if(el) {
                     el.innerHTML = `Entrada: <strong>R$ ${entradaEfetiva.toFixed(2)}</strong> | Retorno: <strong style="color:var(--verde-sucesso)">R$ ${retornoEfetivo.toFixed(2)}</strong>`;
                 }
 
-                // Desconta ou soma na banca real de histórico
                 if (aposta.resultado === 'ganhou') {
                     bancaFluida = (bancaFluida - entradaEfetiva) + retornoEfetivo;
                 } else if (aposta.resultado === 'perdeu') {
@@ -383,33 +419,22 @@
                 }
             }
 
-            // --- AQUI ESTÁ A SUTILEZA DO QUE VOCÊ PEDIU ---
-            // Agora a nossa 'bancaFluida' tem exatamente o somatório real de todos os seus Greens históricos.
-            // Se você foi nas configurações e estipulou uma próxima entrada manual (ex: R$ 200,00):
             let valorInvestidoNoProximo = 0;
-            
             if (proximaEntradaEstipulada !== null) {
-                // Pega os 200 reais que você escolheu investir
                 valorInvestidoNoProximo = Math.min(proximaEntradaEstipulada, bancaFluida);
-                // Subtrai imediatamente do total acumulado! Se tinha 1000, o visor vai mostrar 800!
                 bancaFluida = bancaFluida - valorInvestidoNoProximo;
             }
 
-            // Atualiza o Painel Principal no topo da tela com o valor subtraído das entradas ativas
             document.getElementById('visor-total').innerText = `R$ ${bancaFluida.toFixed(2)}`;
 
-            // 3. Agora aplicamos essa simulação/investimento no primeiro jogo da fila que estiver PENDENTE
             for (let i = 0; i < ordemCronologicaDeCliques.length; i++) {
                 const id = ordemCronologicaDeCliques[i];
                 const aposta = escolhas[id];
                 if (!aposta || aposta.resultado !== null) continue;
 
-                // Achou o jogo pendente! Se houver valor estipulado na configuração, aplica ele. 
-                // Se não houver, ele usa a alavancagem total (tudo o que sobrou na banca).
                 let entradaSimulada = (proximaEntradaEstipulada !== null) ? valorInvestidoNoProximo : bancaFluida;
                 let retornoSimulado = entradaSimulada * aposta.odd;
 
-                // Grava temporariamente no objeto para o momento que você clicar no botão de '✓ Check'
                 aposta.entradaFixada = entradaSimulada;
                 aposta.retornoFixado = retornoSimulado;
 
@@ -417,8 +442,6 @@
                 if(el) {
                     el.innerHTML = `Entrada: <span style="color:#ffb84d; font-weight:bold;">R$ ${entradaSimulada.toFixed(2)}</span> | Retorno Projetado: <strong style="color:var(--verde-sucesso)">R$ ${retornoSimulado.toFixed(2)}</strong>`;
                 }
-                
-                // Paramos no primeiro jogo pendente da fila, pois o investimento configurado foi direcionado para ele
                 break;
             }
         }

@@ -83,7 +83,6 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="tela-login" class="container">
         <h2>Bolão Copa 2026</h2>
         <p id="instrucoes-login">Para entrar, digite seu número de telefone cadastrado pelo administrador:</p>
@@ -99,7 +98,6 @@
         <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
-    <!-- TELA PRINCIPAL -->
     <div id="tela-principal" class="container hidden">
         <header>
             <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
@@ -111,7 +109,6 @@
             <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
         </div>
 
-        <!-- ABA CONTEÚDO PALPITES -->
         <div id="conteudo-palpites" class="tab-conteudo">
             <div id="banner-spy" class="visualizando-banner hidden">
                 <span>Visualizando palpites de: <span id="spy-nome"></span></span>
@@ -130,7 +127,6 @@
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Palpites Desta Rodada</button>
             
-            <!-- ÁREA DO ADMINISTRADOR: REGISTRO MANUAL DE TELEFONES -->
             <div id="painel-admin-whitelist" class="box-whitelist hidden">
                 <h4>🔑 Registro de Telefones Autorizados</h4>
                 <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
@@ -144,7 +140,6 @@
             <button id="btn-cancelar-admin" class="btn-secundario hidden" style="margin-top: 15px;">Sair do Modo Admin</button>
         </div>
 
-        <!-- ABA CONTEÚDO RANKING -->
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação</h3>
             
@@ -491,7 +486,6 @@
                             
                             telefoneUsuarioLogado = foneInput;
 
-                            // AJUSTADO: Garante a gravação limpa e individual das propriedades nome e fone
                             database.ref('participantes/' + foneInput).set({
                                 nome: nomeInput,
                                 telefone: foneInput,
@@ -527,59 +521,63 @@
             });
         }
 
+        /* FUNÇÃO ATUALIZADA: Sincronização com o tempo do servidor Firebase */
         function atualizarEstadoDasTravasEInputs() {
             if (isAdmin) return;
 
-            const agora = new Date();
-            const trintaMinutos = 30 * 60 * 1000;
-            const btnSalvar = document.getElementById("btn-salvar-palpites");
+            database.ref('.info/serverTimeOffset').once('value', (snapshot) => {
+                const offset = snapshot.val() || 0;
+                const agoraReal = new Date(Date.now() + offset);
+                const trintaMinutos = 30 * 60 * 1000;
+                const btnSalvar = document.getElementById("btn-salvar-palpites");
 
-            if (modoEspiaoAtivo) {
-                btnSalvar.classList.add("hidden");
-                return;
-            }
-
-            btnSalvar.classList.remove("hidden");
-            btnSalvar.className = "btn-sucesso";
-            btnSalvar.innerText = "Salvar Palpites Desta Rodada";
-            document.getElementById("btn-cancelar-admin").classList.add("hidden");
-            document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
-            document.getElementById("aviso-geral").style.color = "#ffb300";
-
-            rodadasBolao[rodadaAtiva].forEach(jogo => {
-                const dataJogo = new Date(jogo.data);
-                const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
-                
-                const input1 = document.getElementById(`p1-${jogo.id}`);
-                const input2 = document.getElementById(`p2-${jogo.id}`);
-                const statusDiv = document.getElementById(`status-${jogo.id}`);
-                const cardDiv = document.getElementById(`card-${jogo.id}`);
-
-                if (!input1 || !input2) return;
-
-                if (agora >= limiteTrava) {
-                    input1.disabled = true;
-                    input2.disabled = true;
-                    cardDiv.classList.add("travado");
-                    statusDiv.innerText = "🔒 Palpites Bloqueados";
-                    statusDiv.className = "status-jogo status-travado";
-                } else {
-                    input1.disabled = false;
-                    input2.disabled = false;
-                    cardDiv.classList.remove("travado");
-                    
-                    const diferencaMs = limiteTrava - agora;
-                    const totalMinutos = Math.ceil(diferencaMs / (1000 * 60));
-                    
-                    if(totalMinutos > 60) {
-                        const horas = Math.floor(totalMinutos / 60);
-                        const mins = totalMinutos % 60;
-                        statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
-                    } else {
-                        statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
-                    }
-                    statusDiv.className = "status-jogo status-aberto";
+                if (modoEspiaoAtivo) {
+                    btnSalvar.classList.add("hidden");
+                    return;
                 }
+
+                btnSalvar.classList.remove("hidden");
+                btnSalvar.className = "btn-sucesso";
+                btnSalvar.innerText = "Salvar Palpites Desta Rodada";
+                document.getElementById("btn-cancelar-admin").classList.add("hidden");
+                document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
+                document.getElementById("aviso-geral").style.color = "#ffb300";
+
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const dataJogo = new Date(jogo.data);
+                    const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
+                    
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    const cardDiv = document.getElementById(`card-${jogo.id}`);
+
+                    if (!input1 || !input2) return;
+
+                    if (agoraReal >= limiteTrava) {
+                        input1.disabled = true;
+                        input2.disabled = true;
+                        cardDiv.classList.add("travado");
+                        statusDiv.innerText = "🔒 Palpites Bloqueados";
+                        statusDiv.className = "status-jogo status-travado";
+                    } else {
+                        input1.disabled = false;
+                        input2.disabled = false;
+                        cardDiv.classList.remove("travado");
+                        
+                        const diferencaMs = limiteTrava - agoraReal;
+                        const totalMinutos = Math.ceil(diferencaMs / (1000 * 60));
+                        
+                        if(totalMinutos > 60) {
+                            const horas = Math.floor(totalMinutos / 60);
+                            const mins = totalMinutos % 60;
+                            statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
+                        } else {
+                            statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
+                        }
+                        statusDiv.className = "status-jogo status-aberto";
+                    }
+                });
             });
         }
 
@@ -819,14 +817,12 @@
             });
         }
 
-        // AJUSTADO: Blindagem completa da renderização do ranking para puxar estritamente a string "nome"
         function processarERenderizarRanking(participantes) {
             let listaRanking = [];
 
             Object.keys(participantes).forEach(key => {
                 const u = participantes[key];
                 if (u) {
-                    // Se o nó existir mas a propriedade nome estiver vazia por algum motivo, usa um fallback limpo
                     let nomeExibicao = u.nome ? u.nome : `Participante (${key})`;
                     
                     let ptsExibicao = 0;
@@ -897,4 +893,4 @@
         }
     </script>
 </body>
-              </html>
+    </html>

@@ -10,9 +10,6 @@
     <meta name="theme-color" content="#1a1d24">
     
     <style>
-        /* ==========================================
-           ESTILIZAÇÃO VISUAL (CSS)
-           ========================================== */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #0f1115; color: #ffffff; display: flex; justify-content: center; padding: 15px; }
         .container { width: 100%; max-width: 500px; background-color: #1a1d24; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
@@ -172,10 +169,8 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // TELEFONES DO ADMINISTRADOR EMBUTIDOS PARA LIBERAÇÃO AUTOMÁTICA
         const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
 
-        // JOGOS OFICIAIS DA COPA DO MUNDO 2026
         const rodadasBolao = {
             "1": [
                 { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
@@ -521,7 +516,6 @@
             });
         }
 
-        /* FUNÇÃO ATUALIZADA: Sincronização com o tempo do servidor Firebase */
         function atualizarEstadoDasTravasEInputs() {
             if (isAdmin) return;
 
@@ -846,14 +840,26 @@
                         chaveBanco: key,
                         nome: nomeExibicao,
                         pontos: ptsExibicao,
-                        exatos: exatosExibicao
+                        exatos: exatosExibicao,
+                        acertos_vencedor: u.acertos_vencedor || 0
                     });
                 }
             });
 
             listaRanking.sort((a, b) => {
+                // 1. Pontos Totais
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-                return b.exatos - a.exatos;
+                
+                // 2. Placares Exatos
+                if (b.exatos !== a.exatos) return b.exatos - a.exatos;
+                
+                // 3. Acertos de Vencedor
+                const acertosVencedorA = a.acertos_vencedor || 0;
+                const acertosVencedorB = b.acertos_vencedor || 0;
+                if (acertosVencedorB !== acertosVencedorA) return acertosVencedorB - acertosVencedorA;
+                
+                // 4. Ordem Alfabética
+                return a.nome.localeCompare(b.nome);
             });
 
             const containerRanking = document.getElementById("lista-ranking");
@@ -893,4 +899,4 @@
         }
     </script>
 </body>
-    </html>
+</html>

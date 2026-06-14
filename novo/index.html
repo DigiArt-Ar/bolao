@@ -170,18 +170,19 @@
 
         let nomesEditados = {};
         let nomesRodadas = { "1": "Rodada 1", "2": "Rodada 2", "3": "Rodada 3" };
+        let customLabels = {};
 
         database.ref('configuracoes_jogos').on('value', snap => {
             const cfg = snap.val() || {};
             nomesEditados = cfg.nomes_customizados || {};
             nomesRodadas = cfg.nomes_rodadas || nomesRodadas;
+            customLabels = cfg.labels_jogos || {};
             renderizarSeletorRodadas();
             renderizarJogosRodadaAtiva();
         });
 
         const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
         
-        // Mantendo o objeto rodadasBolao original intacto
         const rodadasBolao = {
             "1": [
                 { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
@@ -389,18 +390,18 @@
                 }
                 const nomeDisplay1 = nomesEditados[jogo.id + "_1"] || jogo.nome1;
                 const nomeDisplay2 = nomesEditados[jogo.id + "_2"] || jogo.nome2;
+                const labelJogo = customLabels[jogo.id] || "Jogo " + jogo.grupo;
                 
-                // --- INÍCIO DA MODIFICAÇÃO PARA EDIÇÃO DE METADADOS E LIXEIRA ---
                 const card = document.createElement("div");
                 card.className = "card-jogo";
                 card.id = `card-${jogo.id}`;
                 
                 let htmlAdminExtras = isAdmin ? `
                     <div style="font-size: 10px; color: #888; text-align: center; margin-bottom: 5px;">
-                        Grupo: <input class="input-edit-nome" style="width: 30px; display: inline;" value="${jogo.grupo}" onchange="atualizarCampo('${jogo.id}', 'grupo', this.value)">
+                        <input class="input-edit-nome" style="width: 100px; display: inline;" value="${labelJogo}" onchange="atualizarCampo('${jogo.id}', 'label', this.value)">
                         Hora: <input class="input-edit-nome" style="width: 80px; display: inline;" value="${horaFormatada}" onchange="atualizarCampo('${jogo.id}', 'data', this.value)">
                     </div>
-                ` : `<div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div>`;
+                ` : `<div class="info-jogo">${labelJogo} — Às ${horaFormatada}</div>`;
 
                 let htmlNomes = isAdmin ? `
                     <div class="time"><span class="fi fi-${jogo.sigla1} bandeira"></span><input class="input-edit-nome" id="edit-nome1-${jogo.id}" value="${nomeDisplay1}"></div>
@@ -414,11 +415,9 @@
                 
                 card.innerHTML = `${isAdmin ? `<i class="fas fa-trash btn-lixeira" onclick="excluirJogo('${jogo.id}')"></i>` : ''}${htmlAdminExtras}<div class="confronto">${htmlNomes}</div><div class="status-jogo" id="status-${jogo.id}"></div>`;
                 listaDiv.appendChild(card);
-                // --- FIM DA MODIFICAÇÃO ---
             });
         }
 
-        // Funções adicionadas para o Admin
         function excluirJogo(id) {
             if(confirm("Excluir este jogo da exibição?")) {
                 document.getElementById('card-' + id).style.display = 'none';
@@ -427,7 +426,8 @@
         }
 
         function atualizarCampo(id, campo, valor) {
-            database.ref('configuracoes_jogos/edicoes/' + id + '/' + campo).set(valor);
+            if(campo === 'label') database.ref('configuracoes_jogos/labels_jogos/' + id).set(valor);
+            else database.ref('configuracoes_jogos/edicoes/' + id + '/' + campo).set(valor);
         }
 
         function salvarNomesEditados() {

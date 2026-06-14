@@ -36,11 +36,9 @@
         .tab-btn.active { background-color: #007bff; color: #fff; }
 
         .rodadas-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
-        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; position: relative; }
+        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
         .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
         
-        .input-edit-rodada { background: #1a1d24; border: 1px solid #00c853; color: #fff; font-size: 10px; text-align: center; width: 25px; border-radius: 4px; padding: 2px; }
-
         .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
         .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
         .rank-tab-btn.active { background-color: #00c853; color: #ffffff; }
@@ -234,7 +232,7 @@
                 { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
             ],
             "3": [
-                { id: "r3_01", grupo: "A", t1: "AFS", nome1: "África do Sul", sigla1: "za", t2: "COR", nome2: "Coreia do Sul", sigla2: "kr", data: "2026-06-24T22:00:00" },
+                { id: "r3_01", grupo: "A", t1: "AFS", nome1: "África do Sul", sigla1: "za", t2: "COR", nome2: "Coreia do Sul", sigla1: "kr", data: "2026-06-24T22:00:00" },
                 { id: "r3_02", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "MEX", nome2: "México", sigla2: "mx", data: "2026-06-24T22:00:00" },
                 { id: "r3_03", grupo: "B", t1: "BOS", nome1: "Bósnia", sigla1: "ba", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-24T16:00:00" },
                 { id: "r3_04", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "CAN", nome2: "Canadá", sigla2: "ca", data: "2026-06-24T16:00:00" },
@@ -277,13 +275,9 @@
             const container = document.getElementById("seletor-rodadas");
             container.innerHTML = "";
             ["1", "2", "3"].forEach(r => {
-                if (isAdmin) {
-                    container.innerHTML += `<input class="input-edit-rodada" id="edit-r${r}" value="${nomesRodadas[r]}">`;
-                } else {
-                    container.innerHTML += `<button class="rodada-btn ${rodadaAtiva === r ? 'active' : ''}" data-rodada="${r}">${nomesRodadas[r]}</button>`;
-                }
+                container.innerHTML += `<button class="rodada-btn ${rodadaAtiva === r ? 'active' : ''}" data-rodada="${r}">${nomesRodadas[r]}</button>`;
             });
-            if (!isAdmin) configurarSeletorRodadasEventos();
+            configurarSeletorRodadasEventos();
         }
 
         function configurarSeletorRodadasEventos() {
@@ -578,7 +572,7 @@
                 });
                 document.getElementById("btn-cancelar-admin").classList.remove("hidden");
                 document.getElementById("btn-salvar-palpites").classList.remove("hidden");
-                document.getElementById("btn-salvar-palpites").innerText = "Salvar Alterações (Rodadas + Nomes + Resultados)";
+                document.getElementById("btn-salvar-palpites").innerText = "Salvar Alterações (Nomes + Resultados)";
             });
         }
 
@@ -621,12 +615,6 @@
 
         function salvarResultadosOficiaisAdmin() {
             salvarNomesEditados();
-            let novasRodadas = {};
-            ["1", "2", "3"].forEach(r => {
-                const el = document.getElementById(`edit-r${r}`);
-                if(el) novasRodadas[r] = el.value;
-            });
-            database.ref('configuracoes_jogos/nomes_rodadas').set(novasRodadas);
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 let dadosOficiais = snapshot.val() || {};
                 rodadasBolao[rodadaAtiva].forEach(jogo => {

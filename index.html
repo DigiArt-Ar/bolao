@@ -69,6 +69,9 @@
         .linha-ranking.clicavel:hover { background-color: #252a34; }
         .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
         
+        /* Nova regra para destacar o último da lista */
+        .ultimo-colocado { color: #ff3d00; font-weight: bold; }
+        
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
         .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
 
@@ -847,18 +850,11 @@
             });
 
             listaRanking.sort((a, b) => {
-                // 1. Pontos Totais
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
-                
-                // 2. Placares Exatos
                 if (b.exatos !== a.exatos) return b.exatos - a.exatos;
-                
-                // 3. Acertos de Vencedor
                 const acertosVencedorA = a.acertos_vencedor || 0;
                 const acertosVencedorB = b.acertos_vencedor || 0;
                 if (acertosVencedorB !== acertosVencedorA) return acertosVencedorB - acertosVencedorA;
-                
-                // 4. Ordem Alfabética
                 return a.nome.localeCompare(b.nome);
             });
 
@@ -875,6 +871,12 @@
             listaRanking.forEach((usuario, index) => {
                 const htmlLinha = document.createElement("div");
                 htmlLinha.className = "linha-ranking clicavel";
+                
+                // Aplica a classe especial se for o último elemento
+                if (index === listaRanking.length - 1) {
+                    htmlLinha.classList.add("ultimo-colocado");
+                }
+
                 htmlLinha.innerHTML = `
                     <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
                     <span>${usuario.pontos} pts (${usuario.exatos})</span>

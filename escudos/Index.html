@@ -2,96 +2,674 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolão Oficial - Copa 2026</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
+    <link class="pwa" rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1a1d24">
+    
     <style>
-        body { background: #0f1115; color: white; font-family: sans-serif; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: #1a1d24; padding: 20px; border-radius: 12px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #0f1115; color: #ffffff; display: flex; justify-content: center; padding: 15px; }
+        .container { width: 100%; max-width: 500px; background-color: #1a1d24; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .hidden { display: none !important; }
-        input, select { background: #252a34; border: 1px solid #3a4252; color: white; padding: 10px; width: 100%; margin-bottom: 10px; border-radius: 6px; }
-        button { background: #007bff; color: white; padding: 12px; border: none; width: 100%; border-radius: 6px; cursor: pointer; margin-bottom: 5px; }
-        .btn-alerta { background: #ff3d00; }
-        .card-jogo { background: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #007bff; }
+        h2, h3 { margin-bottom: 15px; text-align: center; }
+        p { margin-bottom: 15px; color: #ccc; text-align: center; font-size: 14px; }
+        
+        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2f3a; padding-bottom: 15px; margin-bottom: 15px; }
+        #btn-admin { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; transition: color 0.2s; }
+        #btn-admin:hover { color: #fff; }
+
+        input[type="text"], input[type="number"], input[type="tel"] { background-color: #252a34; border: 1px solid #3a4252; color: #fff; padding: 12px; border-radius: 6px; text-align: center; outline: none; width: 100%; margin-bottom: 15px; font-size: 16px; }
+
+        button { color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: background 0.2s; margin-bottom: 10px; }
+        .btn-sucesso { background-color: #00c853; }
+        .btn-sucesso:hover { background-color: #00a844; }
+        .btn-alerta { background-color: #ff3d00; }
+        .btn-alerta:hover { background-color: #dd3300; }
+        .btn-secundario { background-color: #4b5563; }
+        .btn-secundario:hover { background-color: #374151; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
+        .tab-btn.active { background-color: #007bff; color: #fff; }
+
+        .rodadas-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
+        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
+        .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
+        
+        .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
+        .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
+        .rank-tab-btn.active { background-color: #00c853; color: #ffffff; }
+
+        .aviso-trava { font-size: 13px; color: #ffb300; margin-bottom: 20px; text-align: center; font-weight: 500; padding: 8px; border-radius: 6px; background-color: rgba(255, 179, 0, 0.1); }
+        .status-jogo { font-size: 11px; font-weight: bold; text-align: center; margin-top: 5px; text-transform: uppercase; }
+        .status-aberto { color: #00c853; }
+        .status-travado { color: #ff3d00; }
+
+        .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 6px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #38bdf8; }
+        
+        .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; z-index: 1; }
+        .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
+        .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .confronto { display: flex; justify-content: space-between; align-items: center; }
+        .time { width: 38%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; text-align: center; gap: 6px; }
+        
+        .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
+
+        .placar-inputs { display: flex; gap: 6px; align-items: center; z-index: 2; position: relative; }
+        .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; margin-bottom: 0; }
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .linha-ranking { display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #2a2f3a; align-items: center; }
+        .linha-ranking.clicavel { cursor: pointer; transition: background 0.2s; }
+        .linha-ranking.clicavel:hover { background-color: #252a34; }
+        .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
+        
+        .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
+        .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
+
+        .box-whitelist { background-color: #252a34; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed #3a4252; }
+        .lista-whitelist { max-height: 150px; overflow-y: auto; margin-top: 10px; background: #151921; padding: 10px; border-radius: 6px; text-align: left; font-size: 13px; }
+        .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
+        .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
+        
+        .input-edit-nome { background: #1a1d24; border: 1px solid #00c853; color: #fff; font-size: 12px; text-align: center; padding: 2px; width: 100%; border-radius: 4px; position: relative; z-index: 2; }
+        .btn-lixeira { position: absolute; top: 5px; right: 5px; color: #555; cursor: pointer; font-size: 16px; padding: 5px; z-index: 999; background: none; border: none; }
+        .btn-lixeira:hover { color: #ff3d00; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <button id="btn-admin">Área Admin</button>
-    
-    <div id="painel-admin" class="hidden">
-        <h3>Gerenciamento de Jogos</h3>
-        <select id="adm-rodada"><option value="1">Rodada 1</option><option value="2">Rodada 2</option><option value="3">Rodada 3</option></select>
-        <input type="text" id="adm-grupo" placeholder="Grupo (ex: A)">
-        <input type="text" id="adm-t1" placeholder="Time 1 (ex: BRA)">
-        <input type="text" id="adm-t2" placeholder="Time 2 (ex: ARG)">
-        <input type="datetime-local" id="adm-data">
-        <button id="adm-salvar">Salvar Jogo</button>
-        <button id="adm-reset" class="btn-alerta">Resetar Rodada</button>
+    <div id="tela-login" class="container">
+        <h2>Bolão Copa 2026</h2>
+        <p id="instrucoes-login">Para entrar, digite seu número de telefone cadastrado pelo administrador:</p>
+        <input type="tel" id="input-telefone" placeholder="Telefone (DDD + Número) ex: 24993148000">
+        <div id="bloco-nome-primeiro-acesso" class="hidden">
+            <p style="color: #38bdf8; font-weight: bold; margin-top: 10px;">Identificamos que esse é seu primeiro acesso!</p>
+            <p>Escolha o nome ou apelido que aparecerá na classificação geral:</p>
+            <input type="text" id="input-nome" placeholder="Seu Nome Completo ou Apelido">
+        </div>
+        <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
     </div>
 
-    <div id="lista-jogos"></div>
-</div>
+    <div id="tela-principal" class="container hidden">
+        <header>
+            <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
+            <button id="btn-admin" title="Área do Administrador"><i class="fas fa-cog"></i></button>
+        </header>
 
-<script>
-    // Configuração com o seu novo projeto
-    const firebaseConfig = {
-        apiKey: "AIzaSyDXVtA9Wr02cW9vBtmynMB3O2Zah7AQu34",
-        authDomain: "bolao-rodadas-do-brasileirao.firebaseapp.com",
-        projectId: "bolao-rodadas-do-brasileirao",
-        storageBucket: "bolao-rodadas-do-brasileirao.firebasestorage.app",
-        messagingSenderId: "240815445810",
-        appId: "1:240815445810:web:2e552bf7bf0685fda7692b"
-    };
+        <div class="tabs">
+            <button id="tab-palpites" class="tab-btn active">Palpites</button>
+            <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
+        </div>
 
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-
-    // Função para carregar os jogos direto do novo banco
-    function carregarJogos(rodada = "1") {
-        database.ref('rodadas/' + rodada).on('value', (snap) => {
-            const jogos = snap.val() || {};
-            const lista = document.getElementById("lista-jogos");
-            lista.innerHTML = "<h4>Jogos Rodada " + rodada + "</h4>";
+        <div id="conteudo-palpites" class="tab-conteudo">
+            <div id="banner-spy" class="visualizando-banner hidden">
+                <span>Visualizando palpites de: <span id="spy-nome"></span></span>
+                <button id="btn-fechar-spy" class="btn-secundario">Voltar aos Meus</button>
+            </div>
             
-            Object.keys(jogos).forEach(id => {
-                const j = jogos[id];
-                lista.innerHTML += `
-                    <div class="card-jogo">
-                        ${j.t1} x ${j.t2} (Grupo ${j.grupo})
-                    </div>`;
-            });
-        });
-    }
+            <div class="rodadas-tabs" id="seletor-rodadas"></div>
 
-    // Salvar novo jogo
-    document.getElementById("adm-salvar").onclick = () => {
-        const rodada = document.getElementById("adm-rodada").value;
-        const jogo = {
-            grupo: document.getElementById("adm-grupo").value,
-            t1: document.getElementById("adm-t1").value,
-            t2: document.getElementById("adm-t2").value,
-            data: document.getElementById("adm-data").value
+            <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
+            
+            <div id="lista-jogos"></div>
+            
+            <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Palpites Desta Rodada</button>
+            
+            <div id="painel-admin-whitelist" class="box-whitelist hidden">
+                <h4>🔑 Registro de Telefones Autorizados</h4>
+                <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <input type="tel" id="adm-novo-fone" placeholder="Ex: 24993148000" style="margin-bottom: 0; padding: 8px;">
+                    <button id="adm-btn-add-fone" class="btn-sucesso" style="width: auto; margin-bottom:0; padding: 8px 15px;">+ Add</button>
+                </div>
+                <div class="lista-whitelist" id="adm-lista-fones">Carregando lista...</div>
+            </div>
+
+            <button id="btn-cancelar-admin" class="btn-secundario hidden" style="margin-top: 15px;">Sair do Modo Admin</button>
+        </div>
+
+        <div id="conteudo-ranking" class="tab-conteudo hidden">
+            <h3>Classificação</h3>
+            <div class="ranking-tabs" id="seletor-ranking-filtros">
+                <button class="rank-tab-btn active" data-filtro="geral">Geral</button>
+                <button class="rank-tab-btn" data-filtro="1">Rodada 1</button>
+                <button class="rank-tab-btn" data-filtro="2">Rodada 2</button>
+                <button class="rank-tab-btn" data-filtro="3">Rodada 3</button>
+            </div>
+            <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
+            <div id="lista-ranking"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDXVtA9Wr02cW9vBtmynMB3O2Zah7AQu34",
+            authDomain: "bolao-rodadas-do-brasileirao.firebaseapp.com",
+            projectId: "bolao-rodadas-do-brasileirao",
+            storageBucket: "bolao-rodadas-do-brasileirao.firebasestorage.app",
+            messagingSenderId: "240815445810",
+            appId: "1:240815445810:web:e491a239d461ec2da7692b"
         };
-        database.ref('rodadas/' + rodada).push(jogo).then(() => alert("Jogo salvo!"));
-    };
 
-    // Resetar rodada
-    document.getElementById("adm-reset").onclick = () => {
-        const rodada = document.getElementById("adm-rodada").value;
-        if(confirm("Apagar todos os jogos da rodada " + rodada + "?")) {
-            database.ref('rodadas/' + rodada).remove();
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let nomesEditados = {};
+        let nomesRodadas = { "1": "Rodada 1", "2": "Rodada 2", "3": "Rodada 3" };
+        let customLabels = {};
+
+        database.ref('configuracoes_jogos').on('value', snap => {
+            const cfg = snap.val() || {};
+            nomesEditados = cfg.nomes_customizados || {};
+            nomesRodadas = cfg.nomes_rodadas || nomesRodadas;
+            customLabels = cfg.labels_jogos || {};
+            renderizarSeletorRodadas();
+            renderizarJogosRodadaAtiva();
+        });
+
+        const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
+        
+        const rodadasBolao = {
+            "1": [
+                { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
+                { id: "r1_02", grupo: "A", t1: "COR", nome1: "Coreia do Sul", sigla1: "kr", t2: "TCH", nome2: "Rep. Checa", sigla2: "cz", data: "2026-06-11T23:00:00" },
+                { id: "r1_03", grupo: "B", t1: "CAN", nome1: "Canadá", sigla1: "ca", t2: "BOS", nome2: "Bósnia", sigla2: "ba", data: "2026-06-12T16:00:00" },
+                { id: "r1_04", grupo: "D", t1: "USA", nome1: "Estados Unidos", sigla1: "us", t2: "PAR", nome2: "Paraguai", sigla2: "py", data: "2026-06-12T22:00:00" },
+                { id: "r1_05", grupo: "B", t1: "CAT", nome1: "Catar", sigla1: "qa", t2: "SUI", nome2: "Suíça", sigla2: "ch", data: "2026-06-13T16:00:00" },
+                { id: "r1_06", grupo: "C", t1: "BRA", nome1: "Brasil", sigla1: "br", t2: "MAR", nome2: "Marrocos", sigla2: "ma", data: "2026-06-13T19:00:00" },
+                { id: "r1_07", grupo: "C", t1: "HAI", nome1: "Haiti", sigla1: "ht", t2: "SCO", nome2: "Escócia", sigla2: "gb-sct", data: "2026-06-13T22:00:00" },
+                { id: "r1_08", grupo: "D", t1: "AUS", nome1: "Austrália", sigla1: "au", t2: "TUR", nome2: "Turquia", sigla2: "tr", data: "2026-06-14T01:00:00" },
+                { id: "r1_09", grupo: "E", t1: "ALE", nome1: "Alemanha", sigla1: "de", t2: "CUR", nome2: "Curaçao", sigla2: "cw", data: "2026-06-14T14:00:00" },
+                { id: "r1_10", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
+                { id: "r1_11", grupo: "E", t1: "CDI", nome1: "Costa do Marfim", sigla1: "ci", t2: "EQU", nome2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
+                { id: "r1_12", grupo: "F", t1: "SUE", nome1: "Suécia", sigla1: "se", t2: "TUN", nome2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
+                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
+                { id: "r1_15", grupo: "H", t1: "SAU", nome1: "Arábia Saudita", sigla1: "sa", t2: "URU", nome2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
+                { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
+                { id: "r1_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
+                { id: "r1_18", grupo: "I", t1: "IRQ", nome1: "Iraque", sigla1: "iq", t2: "NOR", nome2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
+                { id: "r1_19", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
+                { id: "r1_20", grupo: "J", t1: "AST", nome1: "Áustria", sigla1: "at", t2: "JRD", nome2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
+                { id: "r1_21", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
+                { id: "r1_22", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
+                { id: "r1_23", grupo: "L", t1: "GHA", nome1: "Gana", sigla1: "gh", t2: "PAN", nome2: "Panamá", sigla2: "pa", data: "2026-06-17T20:00:00" },
+                { id: "r1_24", grupo: "K", t1: "UZB", nome1: "Uzbequistão", sigla1: "uz", t2: "COL", nome2: "Colômbia", sigla2: "co", data: "2026-06-17T23:00:00" }
+            ],
+            "2": [
+                { id: "r2_01", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-18T13:00:00" },
+                { id: "r2_02", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "BOS", nome2: "Bósnia", sigla2: "ba", data: "2026-06-18T16:00:00" },
+                { id: "r2_03", grupo: "B", t1: "CAN", nome1: "Canadá", sigla1: "ca", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-18T19:00:00" },
+                { id: "r2_04", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "COR", nome2: "Coreia do Sul", sigla2: "kr", data: "2026-06-18T22:00:00" },
+                { id: "r2_05", grupo: "D", t1: "USA", nome1: "Estados Unidos", sigla1: "us", t2: "AUS", nome2: "Austrália", sigla2: "au", data: "2026-06-19T16:00:00" },
+                { id: "r2_06", grupo: "C", t1: "SCO", nome1: "Escócia", sigla1: "gb-sct", t2: "MAR", nome2: "Marrocos", sigla2: "ma", data: "2026-06-19T19:00:00" },
+                { id: "r2_07", grupo: "C", t1: "BRA", nome1: "Brasil", sigla1: "br", t2: "HAI", nome2: "Haiti", sigla2: "ht", data: "2026-06-19T21:30:00" },
+                { id: "r2_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "PAR", nome2: "Paraguai", sigla2: "py", data: "2026-06-20T01:00:00" },
+                { id: "r2_09", grupo: "E", t1: "ALE", nome1: "Alemanha", sigla1: "de", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-20T17:00:00" },
+                { id: "r2_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "CUR", nome2: "Curaçao", sigla2: "cw", data: "2026-06-20T21:00:00" },
+                { id: "r2_11", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-21T01:00:00" },
+                { id: "r2_12", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-21T16:00:00" },
+                { id: "r2_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-21T13:00:00" },
+                { id: "r2_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-21T19:00:00" },
+                { id: "r2_15", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-21T22:00:00" },
+                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suíça", sigla2: "se", data: "2026-06-20T14:00:00" },
+                { id: "r2_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-22T18:00:00" },
+                { id: "r2_18", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-22T21:00:00" },
+                { id: "r2_19", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-23T00:00:00" },
+                { id: "r2_20", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-23T14:00:00" },
+                { id: "r2_21", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-23T17:00:00" },
+                { id: "r2_22", group: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
+                { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
+                { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
+            ],
+            "3": [
+                { id: "r3_01", grupo: "A", t1: "AFS", nome1: "África do Sul", sigla1: "za", t2: "COR", nome2: "Coreia do Sul", sigla1: "kr", data: "2026-06-24T22:00:00" },
+                { id: "r3_02", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "MEX", nome2: "México", sigla2: "mx", data: "2026-06-24T22:00:00" },
+                { id: "r3_03", grupo: "B", t1: "BOS", nome1: "Bósnia", sigla1: "ba", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-24T16:00:00" },
+                { id: "r3_04", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "CAN", nome2: "Canadá", sigla2: "ca", data: "2026-06-24T16:00:00" },
+                { id: "r3_05", grupo: "C", t1: "SCO", nome1: "Escócia", sigla1: "gb-sct", t2: "BRA", nome2: "Brasil", sigla2: "br", data: "2026-06-24T19:00:00" },
+                { id: "r3_06", grupo: "C", t1: "MAR", nome1: "Marrocos", sigla1: "ma", t2: "HAI", nome2: "Haiti", sigla2: "ht", data: "2026-06-24T19:00:00" },
+                { id: "r3_07", grupo: "D", t1: "PAR", nome1: "Paraguai", sigla1: "py", t2: "AUS", nome2: "Austrália", sigla2: "au", data: "2026-06-25T23:00:00" },
+                { id: "r3_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "USA", nome2: "Estados Unidos", sigla2: "us", data: "2026-06-25T23:00:00" },
+                { id: "r3_09", grupo: "E", t1: "CUR", nome1: "Curaçao", sigla1: "cw", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-25T17:00:00" },
+                { id: "r3_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "ALE", nome2: "Alemanha", sigla2: "de", data: "2026-06-25T17:00:00" },
+                { id: "r3_11", grupo: "F", t1: "JAP", nome1: "Japão", sigla1: "jp", t2: "SUE", nome2: "Suíça", sigla2: "se", data: "2026-06-25T20:00:00" },
+                { id: "r3_12", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "HOL", nome2: "Holanda", sigla2: "nl", data: "2026-06-25T20:00:00" },
+                { id: "r3_13", grupo: "H", t1: "CAB", nome1: "Cabo Verde", sigla1: "cv", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-26T21:00:00" },
+                { id: "r3_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "ESP", nome2: "Espanha", sigla2: "es", data: "2026-06-26T21:00:00" },
+                { id: "r3_15", grupo: "I", t1: "SNG", nome1: "Senegal", sigla1: "sn", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-26T16:00:00" },
+                { id: "r3_16", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "FRA", nome2: "França", sigla2: "fr", data: "2026-06-26T16:00:00" },
+                { id: "r3_17", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "BEL", nome2: "Bélgica", sigla2: "be", data: "2026-06-27T00:00:00" },
+                { id: "r3_18", grupo: "G", t1: "EGT", nome1: "Egito", sigla1: "eg", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-27T00:00:00" },
+                { id: "r3_19", grupo: "J", t1: "AGL", nome1: "Argélia", sigla1: "dz", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-27T23:00:00" },
+                { id: "r3_20", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "ARG", nome2: "Argentina", sigla2: "ar", data: "2026-06-27T23:00:00" },
+                { id: "r3_21", grupo: "K", t1: "RDC", nome1: "Rep. Dom. Congo", sigla1: "cd", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-27T20:30:00" },
+                { id: "r3_22", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "POR", nome2: "Portugal", sigla2: "pt", data: "2026-06-27T20:30:00" },
+                { id: "r3_23", grupo: "L", t1: "CRO", nome1: "Croácia", sigla1: "hr", t2: "GHA", nome2: "Gana", sigla1: "gh", data: "2026-06-27T18:00:00" },
+                { id: "r3_24", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "ING", nome2: "Inglaterra", sigla2: "gb-eng", data: "2026-06-27T18:00:00" }
+            ]
+        };
+
+        const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
+        let isAdmin = false;
+        let modoEspiaoAtivo = false;
+        let meuNomeUsuario = "";
+        let telefoneUsuarioLogado = ""; 
+        let rodadaAtiva = "1"; 
+        let filtroRankingAtivo = "geral";
+
+        Object.keys(rodadasBolao).forEach(r => {
+            rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
+        });
+
+        function renderizarSeletorRodadas() {
+            const container = document.getElementById("seletor-rodadas");
+            container.innerHTML = "";
+            ["1", "2", "3"].forEach(r => {
+                container.innerHTML += `<button class="rodada-btn ${rodadaAtiva === r ? 'active' : ''}" data-rodada="${r}">${nomesRodadas[r]}</button>`;
+            });
+            configurarSeletorRodadasEventos();
         }
-    };
 
-    // Toggle Admin
-    document.getElementById("btn-admin").onclick = () => 
-        document.getElementById("painel-admin").classList.toggle("hidden");
+        function configurarSeletorRodadasEventos() {
+            const botoes = document.querySelectorAll("#seletor-rodadas .rodada-btn");
+            botoes.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    rodadaAtiva = e.target.getAttribute("data-rodada");
+                    renderizarSeletorRodadas();
+                    renderizarJogosRodadaAtiva();
+                    if (!modoEspiaoAtivo) puxarMeusPalpitesDoFirebase();
+                });
+            });
+        }
 
-    // Inicialização
-    carregarJogos("1");
-    document.getElementById("adm-rodada").onchange = (e) => carregarJogos(e.target.value);
-</script>
+        function executarEmTodosOsJogos(callback) {
+            Object.keys(rodadasBolao).forEach(r => {
+                rodadasBolao[r].forEach(jogo => callback(jogo, r));
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            garantirTelefonesAdminNoBanco();
+            ouvirRankingDoFirebase();
+            configurarSeletorFiltrosRanking();
+            checarUsuarioExistente();
+
+            document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
+
+            document.getElementById("btn-admin").addEventListener("click", () => {
+                const senhaDigitada = prompt("Senha Master do Administrador:");
+                if (senhaDigitada === SENHA_ADMIN_PRE_ESTABELECIDA) {
+                    isAdmin = true;
+                    modoEspiaoAtivo = false;
+                    document.getElementById("banner-spy").classList.add("hidden");
+                    document.getElementById("painel-admin-whitelist").classList.remove("hidden");
+                    liberarModoAdminVisual();
+                    ouvirFonesCadastradosAdmin();
+                } else {
+                    alert("Senha incorreta!");
+                }
+            });
+
+            document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
+                isAdmin = false;
+                document.getElementById("painel-admin-whitelist").classList.add("hidden");
+                renderizarSeletorRodadas();
+                renderizarJogosRodadaAtiva();
+                puxarMeusPalpitesDoFirebase();
+            });
+
+            document.getElementById("adm-btn-add-fone").addEventListener("click", adicionarTelefoneNaListaAdmin);
+            document.getElementById("btn-fechar-spy").addEventListener("click", () => {
+                modoEspiaoAtivo = false;
+                document.getElementById("banner-spy").classList.add("hidden");
+                puxarMeusPalpitesDoFirebase();
+            });
+
+            document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
+            document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
+            document.getElementById("btn-entrar").addEventListener("click", processarTentativaLogin);
+            document.getElementById("btn-salvar-palpites").addEventListener("click", () => {
+                if (isAdmin) salvarResultadosOficiaisAdmin();
+                else salvarPalpitesUsuario();
+            });
+            setInterval(atualizarEstadoDasTravasEInputs, 4000);
+        });
+
+        function garantirTelefonesAdminNoBanco() {
+            TELEFONES_ADMIN_PADRAO.forEach(fone => {
+                database.ref('telefones_autorizados/' + fone).set(true);
+            });
+        }
+
+        function configurarSeletorFiltrosRanking() {
+            const botoes = document.querySelectorAll("#seletor-ranking-filtros .rank-tab-btn");
+            botoes.forEach(btn => {
+                btn.addEventListener("click", (e) => {
+                    botoes.forEach(b => b.classList.remove("active"));
+                    e.target.classList.add("active");
+                    filtroRankingAtivo = e.target.getAttribute("data-filtro");
+                    database.ref('participantes').once('value').then(snapshot => {
+                        processarERenderizarRanking(snapshot.val() || {});
+                    });
+                });
+            });
+        }
+
+        function renderizarJogosRodadaAtiva() {
+            const listaDiv = document.getElementById("lista-jogos");
+            listaDiv.innerHTML = "";
+            let ultimaDataGrupo = "";
+            rodadasBolao[rodadaAtiva].forEach(jogo => {
+                const objData = new Date(jogo.data);
+                const dataTextoDia = objData.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+                const horaFormatada = objData.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                if (dataTextoDia !== ultimaDataGrupo) {
+                    ultimaDataGrupo = dataTextoDia;
+                    const divisor = document.createElement("div");
+                    divisor.className = "separador-data";
+                    divisor.innerText = dataTextoDia;
+                    listaDiv.appendChild(divisor);
+                }
+                const nomeDisplay1 = nomesEditados[jogo.id + "_1"] || jogo.nome1;
+                const nomeDisplay2 = nomesEditados[jogo.id + "_2"] || jogo.nome2;
+                const labelJogo = customLabels[jogo.id] || "Jogo " + jogo.grupo;
+                
+                const card = document.createElement("div");
+                card.className = "card-jogo";
+                card.id = `card-${jogo.id}`;
+                
+                let htmlAdminExtras = isAdmin ? `
+                    <div style="font-size: 10px; color: #888; text-align: center; margin-bottom: 5px;">
+                        <input class="input-edit-nome" style="width: 100px; display: inline;" value="${labelJogo}" onchange="atualizarCampo('${jogo.id}', 'label', this.value)">
+                        Hora: <input class="input-edit-nome" style="width: 80px; display: inline;" value="${horaFormatada}" onchange="atualizarCampo('${jogo.id}', 'data', this.value)">
+                    </div>
+                ` : `<div class="info-jogo">${labelJogo} — Às ${horaFormatada}</div>`;
+
+                let htmlNomes = isAdmin ? `
+                    <div class="time"><span class="fi fi-${jogo.sigla1} bandeira"></span><input class="input-edit-nome" id="edit-nome1-${jogo.id}" value="${nomeDisplay1}"></div>
+                    <div class="placar-inputs"><input type="number" tabindex="0" id="p1-${jogo.id}" min="0" placeholder="-"><span>x</span><input type="number" tabindex="0" id="p2-${jogo.id}" min="0" placeholder="-"></div>
+                    <div class="time"><span class="fi fi-${jogo.sigla2} bandeira"></span><input class="input-edit-nome" id="edit-nome2-${jogo.id}" value="${nomeDisplay2}"></div>
+                ` : `
+                    <div class="time"><span class="fi fi-${jogo.sigla1} bandeira"></span><span>${nomeDisplay1}</span></div>
+                    <div class="placar-inputs"><input type="number" tabindex="0" id="p1-${jogo.id}" min="0" placeholder="-"><span>x</span><input type="number" id="p2-${jogo.id}" min="0" placeholder="-"></div>
+                    <div class="time"><span class="fi fi-${jogo.sigla2} bandeira"></span><span>${nomeDisplay2}</span></div>
+                `;
+                
+                card.innerHTML = `${isAdmin ? `<i class="fas fa-trash btn-lixeira" onclick="excluirJogo('${jogo.id}')"></i>` : ''}${htmlAdminExtras}<div class="confronto">${htmlNomes}</div><div class="status-jogo" id="status-${jogo.id}"></div>`;
+                listaDiv.appendChild(card);
+            });
+        }
+
+        function excluirJogo(id) {
+            if(confirm("Excluir este jogo da exibição?")) {
+                document.getElementById('card-' + id).style.display = 'none';
+                database.ref('configuracoes_jogos/removidos/' + id).set(true);
+            }
+        }
+
+        function atualizarCampo(id, campo, valor) {
+            if(campo === 'label') database.ref('configuracoes_jogos/labels_jogos/' + id).set(valor);
+            else database.ref('configuracoes_jogos/edicoes/' + id + '/' + campo).set(valor);
+        }
+
+        function salvarNomesEditados() {
+            rodadasBolao[rodadaAtiva].forEach(jogo => {
+                const n1 = document.getElementById(`edit-nome1-${jogo.id}`)?.value;
+                const n2 = document.getElementById(`edit-nome2-${jogo.id}`)?.value;
+                if (n1) database.ref('configuracoes_jogos/nomes_customizados/' + jogo.id + "_1").set(n1);
+                if (n2) database.ref('configuracoes_jogos/nomes_customizados/' + jogo.id + "_2").set(n2);
+            });
+        }
+
+        function checarUsuarioExistente() {
+            const foneSalvo = localStorage.getItem("bolao_telefone");
+            const nomeSalvo = localStorage.getItem("bolao_nome_exibicao");
+            if (foneSalvo && nomeSalvo) {
+                telefoneUsuarioLogado = foneSalvo;
+                mostrarTelaPrincipal(nomeSalvo);
+            }
+        }
+
+        function verificarStatusDoTelefoneInserido() {
+            const fone = document.getElementById("input-telefone").value.replace(/\D/g, "");
+            const blocoNome = document.getElementById("bloco-nome-primeiro-acesso");
+            const instrucoes = document.getElementById("instrucoes-login");
+            if (fone.length >= 10) {
+                database.ref('participantes/' + fone).once('value').then(snapshot => {
+                    if (snapshot.exists() && snapshot.val().nome) {
+                        blocoNome.classList.add("hidden");
+                        instrucoes.innerText = `Bem-vindo de volta! Clique em entrar para acessar os palpites de: ${snapshot.val().nome}`;
+                    } else {
+                        database.ref('telefones_autorizados/' + fone).once('value').then(snapAuth => {
+                            if (snapAuth.exists()) {
+                                blocoNome.classList.remove("hidden");
+                                instrucoes.innerText = "Número localizado com sucesso! Agora digite seu nome de exibição abaixo:";
+                            } else {
+                                blocoNome.classList.add("hidden");
+                                instrucoes.innerText = "⚠️ Este telefone não foi listado pelo administrador. Verifique o número!";
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        function processarTentativaLogin() {
+            const foneInput = document.getElementById("input-telefone").value.replace(/\D/g, "");
+            const nomeInput = document.getElementById("input-nome").value.trim();
+            if (!foneInput) return alert("Preencha o telefone!");
+            database.ref('participantes/' + foneInput).once('value').then(snapshot => {
+                if (snapshot.exists() && snapshot.val().nome) {
+                    localStorage.setItem("bolao_telefone", foneInput);
+                    localStorage.setItem("bolao_nome_exibicao", snapshot.val().nome);
+                    telefoneUsuarioLogado = foneInput;
+                    mostrarTelaPrincipal(snapshot.val().nome);
+                } else {
+                    database.ref('telefones_autorizados/' + foneInput).once('value').then(snapAuth => {
+                        if (snapAuth.exists()) {
+                            if (!nomeInput) return alert("Digite seu nome!");
+                            localStorage.setItem("bolao_telefone", foneInput);
+                            localStorage.setItem("bolao_nome_exibicao", nomeInput);
+                            telefoneUsuarioLogado = foneInput;
+                            database.ref('participantes/' + foneInput).set({nome: nomeInput, telefone: foneInput, pontuacoes: 0, exatos: 0}).then(() => mostrarTelaPrincipal(nomeInput));
+                        } else {
+                            alert("Acesso Negado!");
+                        }
+                    });
+                }
+            });
+        }
+
+        function mostrarTelaPrincipal(nome) {
+            meuNomeUsuario = nome;
+            document.getElementById("tela-login").classList.add("hidden");
+            document.getElementById("tela-principal").classList.remove("hidden");
+            document.getElementById("nome-usuario").innerText = nome;
+            puxarMeusPalpitesDoFirebase();
+        }
+
+        function puxarMeusPalpitesDoFirebase() {
+            database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
+                const palpites = snapshot.val() || {};
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    if(input1) input1.value = palpites[`p1-${jogo.id}`] ?? "";
+                    if(input2) input2.value = palpites[`p2-${jogo.id}`] ?? "";
+                });
+                atualizarEstadoDasTravasEInputs();
+            });
+        }
+
+        function atualizarEstadoDasTravasEInputs() {
+            if (isAdmin) return;
+            database.ref('.info/serverTimeOffset').once('value', (snapshot) => {
+                const offset = snapshot.val() || 0;
+                const agoraReal = new Date(Date.now() + offset);
+                const trintaMinutos = 30 * 60 * 1000;
+                const btnSalvar = document.getElementById("btn-salvar-palpites");
+                if (modoEspiaoAtivo) { btnSalvar.classList.add("hidden"); return; }
+                btnSalvar.classList.remove("hidden");
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const limiteTrava = new Date(new Date(jogo.data).getTime() - trintaMinutos);
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    const cardDiv = document.getElementById(`card-${jogo.id}`);
+                    if (!input1) return;
+                    if (agoraReal >= limiteTrava) {
+                        input1.disabled = true; input2.disabled = true;
+                        cardDiv.classList.add("travado");
+                        statusDiv.innerText = "🔒 Palpites Bloqueados";
+                        statusDiv.className = "status-jogo status-travado";
+                    } else {
+                        input1.disabled = false; input2.disabled = false;
+                        cardDiv.classList.remove("travado");
+                        statusDiv.innerText = "🔓 Aberto";
+                        statusDiv.className = "status-jogo status-aberto";
+                    }
+                });
+            });
+        }
+
+        function espiarParticipante(chaveFoneAlvo, nomeExibicaoAlvo) {
+            database.ref('participantes/' + chaveFoneAlvo + '/palpites').once('value').then((snapshot) => {
+                const palpites = snapshot.val() || {};
+                modoEspiaoAtivo = true;
+                alternarAbas("palpites");
+                renderizarJogosRodadaAtiva();
+                document.getElementById("spy-nome").innerText = nomeExibicaoAlvo;
+                document.getElementById("banner-spy").classList.remove("hidden");
+                document.getElementById("btn-salvar-palpites").classList.add("hidden");
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    if(input1) { input1.disabled = true; input1.value = palpites[`p1-${jogo.id}`] ?? ""; }
+                    if(input2) { input2.disabled = true; input2.value = palpites[`p2-${jogo.id}`] ?? ""; }
+                });
+            });
+        }
+
+        function liberarModoAdminVisual() {
+            renderizarSeletorRodadas();
+            renderizarJogosRodadaAtiva();
+            database.ref('resultados_oficiais').once('value').then((snapshot) => {
+                const oficiais = snapshot.val() || {};
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const i1 = document.getElementById(`p1-${jogo.id}`);
+                    const i2 = document.getElementById(`p2-${jogo.id}`);
+                    if (i1) { i1.value = oficiais[`p1-${jogo.id}`] ?? ""; i2.value = oficiais[`p2-${jogo.id}`] ?? ""; }
+                });
+                document.getElementById("btn-cancelar-admin").classList.remove("hidden");
+                document.getElementById("btn-salvar-palpites").classList.remove("hidden");
+                document.getElementById("btn-salvar-palpites").innerText = "Salvar Alterações (Nomes + Resultados)";
+            });
+        }
+
+        function adicionarTelefoneNaListaAdmin() {
+            const foneInput = document.getElementById("adm-novo-fone").value.replace(/\D/g, "");
+            if (foneInput.length < 10) return alert("DDD inválido!");
+            database.ref('telefones_autorizados/' + foneInput).set(true).then(() => alert("Autorizado!"));
+        }
+
+        function ouvirFonesCadastradosAdmin() {
+            database.ref('telefones_autorizados').on('value', snapshot => {
+                const fones = snapshot.val() || {};
+                const container = document.getElementById("adm-lista-fones");
+                container.innerHTML = "";
+                Object.keys(fones).forEach(fone => {
+                    container.innerHTML += `<div class="item-whitelist"><span>📞 ${fone}</span><button class="btn-alerta" onclick="removerFoneAdmin('${fone}')">Excluir</button></div>`;
+                });
+            });
+        }
+
+        window.removerFoneAdmin = function(fone) {
+            if (TELEFONES_ADMIN_PADRAO.includes(fone)) return alert("Não pode remover este número!");
+            database.ref('telefones_autorizados/' + fone).remove();
+        }
+
+        function salvarPalpitesUsuario() {
+            database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
+                let dadosPalpites = snapshot.val() || {};
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    if(input1 && input2 && input1.value !== "" && input2.value !== "") {
+                        dadosPalpites[`p1-${jogo.id}`] = parseInt(input1.value);
+                        dadosPalpites[`p2-${jogo.id}`] = parseInt(input2.value);
+                    }
+                });
+                database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').set(dadosPalpites).then(() => alert("Salvo!"));
+            });
+        }
+
+        function salvarResultadosOficiaisAdmin() {
+            salvarNomesEditados();
+            database.ref('resultados_oficiais').once('value').then((snapshot) => {
+                let dadosOficiais = snapshot.val() || {};
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const v1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const v2 = document.getElementById(`p2-${jogo.id}`).value;
+                    if(v1 !== "" && v2 !== "") { dadosOficiais[`p1-${jogo.id}`] = parseInt(v1); dadosOficiais[`p2-${jogo.id}`] = parseInt(v2); }
+                });
+                database.ref('resultados_oficiais').set(dadosOficiais).then(() => recalcularPontuacoesGerais(dadosOficiais));
+            });
+        }
+
+        function recalcularPontuacoesGerais(resultadosOficiais) {
+            database.ref('participantes').once('value').then((snapshot) => {
+                const participantes = snapshot.val() || {};
+                Object.keys(participantes).forEach(key => {
+                    const usuario = participantes[key];
+                    const palpites = usuario.palpites || {};
+                    let ptsG = 0, exG = 0;
+                    executarEmTodosOsJogos((jogo) => {
+                        const r1 = resultadosOficiais[`p1-${jogo.id}`], r2 = resultadosOficiais[`p2-${jogo.id}`];
+                        const p1 = palpites[`p1-${jogo.id}`], p2 = palpites[`p2-${jogo.id}`];
+                        if (r1 !== undefined && p1 !== undefined) {
+                            if (r1 === p1 && r2 === p2) { ptsG += 5; exG += 1; }
+                            else if ((r1 > r2 && p1 > p2) || (r1 < r2 && p1 < p2) || (r1 === r2 && p1 === p2)) ptsG += 3;
+                        }
+                    });
+                    database.ref('participantes/' + key).update({pontuacoes: ptsG, exatos: exG});
+                });
+                alert("Recalculado!");
+            });
+        }
+
+        function ouvirRankingDoFirebase() {
+            database.ref('participantes').on('value', (snapshot) => processarERenderizarRanking(snapshot.val() || {}));
+        }
+
+        function processarERenderizarRanking(participantes) {
+            let lista = Object.keys(participantes).map(k => ({...participantes[k], chave: k}));
+            lista.sort((a, b) => b.pontuacoes - a.pontuacoes || b.exatos - a.exatos);
+            const container = document.getElementById("lista-ranking");
+            container.innerHTML = `<div class="linha-ranking cabecalho-ranking"><span>Classificação</span><span>Pontos (Exatos)</span></div>`;
+            lista.forEach((u, i) => {
+                const div = document.createElement("div");
+                div.className = "linha-ranking clicavel";
+                div.innerHTML = `<span><strong>${i+1}º</strong> ${u.nome}</span><span>${u.pontuacoes} pts (${u.exatos})</span>`;
+                div.onclick = () => espiarParticipante(u.chave, u.nome);
+                container.appendChild(div);
+            });
+        }
+
+        function alternarAbas(aba) {
+            document.getElementById("tab-palpites").classList.toggle("active", aba === "palpites");
+            document.getElementById("tab-ranking").classList.toggle("active", aba === "ranking");
+            document.getElementById("conteudo-palpites").classList.toggle("hidden", aba !== "palpites");
+            document.getElementById("conteudo-ranking").classList.toggle("hidden", aba !== "ranking");
+        }
+    </script>
 </body>
 </html>

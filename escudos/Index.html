@@ -2,229 +2,96 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bolão Oficial - Copa 2026</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.0.0/css/flag-icons.min.css"/>
-    <link class="pwa" rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#1a1d24">
-    
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #0f1115; color: #ffffff; display: flex; justify-content: center; padding: 15px; }
-        .container { width: 100%; max-width: 500px; background-color: #1a1d24; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        body { background: #0f1115; color: white; font-family: sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: #1a1d24; padding: 20px; border-radius: 12px; }
         .hidden { display: none !important; }
-        h2, h3 { margin-bottom: 15px; text-align: center; }
-        p { margin-bottom: 15px; color: #ccc; text-align: center; font-size: 14px; }
-        
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2f3a; padding-bottom: 15px; margin-bottom: 15px; }
-        #btn-admin { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; transition: color 0.2s; }
-        #btn-admin:hover { color: #fff; }
-
-        input[type="text"], input[type="number"], input[type="tel"] { background-color: #252a34; border: 1px solid #3a4252; color: #fff; padding: 12px; border-radius: 6px; text-align: center; outline: none; width: 100%; margin-bottom: 15px; font-size: 16px; }
-
-        button { color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: background 0.2s; margin-bottom: 10px; }
-        .btn-sucesso { background-color: #00c853; }
-        .btn-sucesso:hover { background-color: #00a844; }
-        .btn-alerta { background-color: #ff3d00; }
-        .btn-alerta:hover { background-color: #dd3300; }
-        .btn-secundario { background-color: #4b5563; }
-        .btn-secundario:hover { background-color: #374151; }
-
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
-        .tab-btn.active { background-color: #007bff; color: #fff; }
-
-        .rodadas-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
-        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
-        .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
-
-        .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
-        .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
-        .rank-tab-btn.active { background-color: #00c853; color: #ffffff; }
-
-        .aviso-trava { font-size: 13px; color: #ffb300; margin-bottom: 20px; text-align: center; font-weight: 500; padding: 8px; border-radius: 6px; background-color: rgba(255, 179, 0, 0.1); }
-        .status-jogo { font-size: 11px; font-weight: bold; text-align: center; margin-top: 5px; text-transform: uppercase; }
-        .status-aberto { color: #00c853; }
-        .status-travado { color: #ff3d00; }
-
-        .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 6px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #38bdf8; }
-        
-        .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
-        .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .confronto { display: flex; justify-content: space-between; align-items: center; }
-        .time { width: 38%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; text-align: center; gap: 6px; }
-        
-        .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
-
-        .placar-inputs { display: flex; gap: 6px; align-items: center; }
-        .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; margin-bottom: 0; }
-
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-
-        .linha-ranking { display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #2a2f3a; align-items: center; }
-        .linha-ranking.clicavel { cursor: pointer; transition: background 0.2s; }
-        .linha-ranking.clicavel:hover { background-color: #252a34; }
-        .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
-        
-        .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
-        .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
-
-        .box-whitelist { background-color: #252a34; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed #3a4252; }
-        .lista-whitelist { max-height: 150px; overflow-y: auto; margin-top: 10px; background: #151921; padding: 10px; border-radius: 6px; text-align: left; font-size: 13px; }
-        .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
-        .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
+        input, select { background: #252a34; border: 1px solid #3a4252; color: white; padding: 10px; width: 100%; margin-bottom: 10px; border-radius: 6px; }
+        button { background: #007bff; color: white; padding: 12px; border: none; width: 100%; border-radius: 6px; cursor: pointer; margin-bottom: 5px; }
+        .btn-alerta { background: #ff3d00; }
+        .card-jogo { background: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #007bff; }
     </style>
 </head>
 <body>
 
-    <div id="tela-login" class="container">
-        <h2>Bolão Copa 2026</h2>
-        <p id="instrucoes-login">Para entrar, digite seu número de telefone cadastrado pelo administrador:</p>
-        
-        <input type="tel" id="input-telefone" placeholder="Telefone (DDD + Número) ex: 24993148000">
-        
-        <div id="bloco-nome-primeiro-acesso" class="hidden">
-            <p style="color: #38bdf8; font-weight: bold; margin-top: 10px;">Identificamos que esse é seu primeiro acesso!</p>
-            <p>Escolha o nome ou apelido que aparecerá na classificação geral:</p>
-            <input type="text" id="input-nome" placeholder="Seu Nome Completo ou Apelido">
-        </div>
-        
-        <button id="btn-entrar" class="btn-sucesso">Confirmar e Entrar</button>
+<div class="container">
+    <button id="btn-admin">Área Admin</button>
+    
+    <div id="painel-admin" class="hidden">
+        <h3>Gerenciamento de Jogos</h3>
+        <select id="adm-rodada"><option value="1">Rodada 1</option><option value="2">Rodada 2</option><option value="3">Rodada 3</option></select>
+        <input type="text" id="adm-grupo" placeholder="Grupo (ex: A)">
+        <input type="text" id="adm-t1" placeholder="Time 1 (ex: BRA)">
+        <input type="text" id="adm-t2" placeholder="Time 2 (ex: ARG)">
+        <input type="datetime-local" id="adm-data">
+        <button id="adm-salvar">Salvar Jogo</button>
+        <button id="adm-reset" class="btn-alerta">Resetar Rodada</button>
     </div>
 
-    <div id="tela-principal" class="container hidden">
-        <header>
-            <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
-            <button id="btn-admin" title="Área do Administrador"><i class="fas fa-cog"></i></button>
-        </header>
+    <div id="lista-jogos"></div>
+</div>
 
-        <div class="tabs">
-            <button id="tab-palpites" class="tab-btn active">Palpites</button>
-            <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
-        </div>
+<script>
+    // Configuração com o seu novo projeto
+    const firebaseConfig = {
+        apiKey: "AIzaSyDXVtA9Wr02cW9vBtmynMB3O2Zah7AQu34",
+        authDomain: "bolao-rodadas-do-brasileirao.firebaseapp.com",
+        projectId: "bolao-rodadas-do-brasileirao",
+        storageBucket: "bolao-rodadas-do-brasileirao.firebasestorage.app",
+        messagingSenderId: "240815445810",
+        appId: "1:240815445810:web:2e552bf7bf0685fda7692b"
+    };
 
-        <div id="conteudo-palpites" class="tab-conteudo">
-            <div id="banner-spy" class="visualizando-banner hidden">
-                <span>Visualizando palpites de: <span id="spy-nome"></span></span>
-                <button id="btn-fechar-spy" class="btn-secundario">Voltar aos Meus</button>
-            </div>
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    // Função para carregar os jogos direto do novo banco
+    function carregarJogos(rodada = "1") {
+        database.ref('rodadas/' + rodada).on('value', (snap) => {
+            const jogos = snap.val() || {};
+            const lista = document.getElementById("lista-jogos");
+            lista.innerHTML = "<h4>Jogos Rodada " + rodada + "</h4>";
             
-            <div class="rodadas-tabs" id="seletor-rodadas">
-                <button class="rodada-btn active" data-rodada="1">Rodada 1</button>
-                <button class="rodada-btn" data-rodada="2">Rodada 2</button>
-                <button class="rodada-btn" data-rodada="3">Rodada 3</button>
-            </div>
-
-            <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
-            
-            <div id="lista-jogos"></div>
-            
-            <button id="btn-salvar-palpites" class="btn-sucesso">Salvar Palpites Desta Rodada</button>
-            
-            <div id="painel-admin-whitelist" class="box-whitelist hidden">
-                <h4>🔑 Registro de Telefones Autorizados</h4>
-                <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
-                <div style="display: flex; gap: 5px; margin-top: 10px;">
-                    <input type="tel" id="adm-novo-fone" placeholder="Ex: 24993148000" style="margin-bottom: 0; padding: 8px;">
-                    <button id="adm-btn-add-fone" class="btn-sucesso" style="width: auto; margin-bottom:0; padding: 8px 15px;">+ Add</button>
-                </div>
-                <div class="lista-whitelist" id="adm-lista-fones">Carregando lista...</div>
-            </div>
-
-            <button id="btn-cancelar-admin" class="btn-secundario hidden" style="margin-top: 15px;">Sair do Modo Admin</button>
-        </div>
-
-        <div id="conteudo-ranking" class="tab-conteudo hidden">
-            <h3>Classificação</h3>
-            
-            <div class="ranking-tabs" id="seletor-ranking-filtros">
-                <button class="rank-tab-btn active" data-filtro="geral">Geral</button>
-                <button class="rank-tab-btn" data-filtro="1">Rodada 1</button>
-                <button class="rank-tab-btn" data-filtro="2">Rodada 2</button>
-                <button class="rank-tab-btn" data-filtro="3">Rodada 3</button>
-            </div>
-
-            <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
-            <div id="lista-ranking"></div>
-        </div>
-    </div>
-
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
-            authDomain: "bolao-d2baf.firebaseapp.com",
-            databaseURL: "https://bolao-d2baf-default-rtdb.firebaseio.com/",
-            projectId: "bolao-d2baf",
-            storageBucket: "bolao-d2baf.firebasestorage.app",
-            messagingSenderId: "955171998764",
-            appId: "1:955171998764:web:2ccf8f2b6f23c300755589"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-
-        const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
-
-        const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
-        let isAdmin = false;
-        let modoEspiaoAtivo = false;
-        let meuNomeUsuario = "";
-        let telefoneUsuarioLogado = ""; 
-        let rodadaAtiva = "1"; 
-        let filtroRankingAtivo = "geral";
-
-        document.addEventListener("DOMContentLoaded", () => {
-            garantirTelefonesAdminNoBanco();
-            ouvirRankingDoFirebase();
-            configurarSeletorRodadas();
-            configurarSeletorFiltrosRanking();
-            checarUsuarioExistente();
-
-            document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
-
-            document.getElementById("btn-admin").addEventListener("click", () => {
-                const senhaDigitada = prompt("Senha Master do Administrador:");
-                if (senhaDigitada === SENHA_ADMIN_PRE_ESTABELECIDA) {
-                    isAdmin = true;
-                    modoEspiaoAtivo = false;
-                    document.getElementById("banner-spy").classList.add("hidden");
-                    document.getElementById("painel-admin-whitelist").classList.remove("hidden");
-                    liberarModoAdminVisual();
-                    ouvirFonesCadastradosAdmin();
-                } else {
-                    alert("Senha incorreta!");
-                }
+            Object.keys(jogos).forEach(id => {
+                const j = jogos[id];
+                lista.innerHTML += `
+                    <div class="card-jogo">
+                        ${j.t1} x ${j.t2} (Grupo ${j.grupo})
+                    </div>`;
             });
-
-            document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
-                isAdmin = false;
-                document.getElementById("painel-admin-whitelist").classList.add("hidden");
-                puxarMeusPalpitesDoFirebase();
-            });
-
-            document.getElementById("adm-btn-add-fone").addEventListener("click", adicionarTelefoneNaListaAdmin);
-
-            document.getElementById("btn-fechar-spy").addEventListener("click", () => {
-                modoEspiaoAtivo = false;
-                document.getElementById("banner-spy").classList.add("hidden");
-                puxarMeusPalpitesDoFirebase();
-            });
-
-            document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
-            document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
-
-            document.getElementById("btn-entrar").addEventListener("click", processarTentativaLogin);
-            
-            // O restante das funções continuam aqui conforme o seu código original...
         });
+    }
 
-        // (Aqui você mantém as funções que já possuía, exceto a lógica da rodada estática)
-    </script>
+    // Salvar novo jogo
+    document.getElementById("adm-salvar").onclick = () => {
+        const rodada = document.getElementById("adm-rodada").value;
+        const jogo = {
+            grupo: document.getElementById("adm-grupo").value,
+            t1: document.getElementById("adm-t1").value,
+            t2: document.getElementById("adm-t2").value,
+            data: document.getElementById("adm-data").value
+        };
+        database.ref('rodadas/' + rodada).push(jogo).then(() => alert("Jogo salvo!"));
+    };
+
+    // Resetar rodada
+    document.getElementById("adm-reset").onclick = () => {
+        const rodada = document.getElementById("adm-rodada").value;
+        if(confirm("Apagar todos os jogos da rodada " + rodada + "?")) {
+            database.ref('rodadas/' + rodada).remove();
+        }
+    };
+
+    // Toggle Admin
+    document.getElementById("btn-admin").onclick = () => 
+        document.getElementById("painel-admin").classList.toggle("hidden");
+
+    // Inicialização
+    carregarJogos("1");
+    document.getElementById("adm-rodada").onchange = (e) => carregarJogos(e.target.value);
+</script>
 </body>
 </html>

@@ -39,7 +39,7 @@
         .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
         .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
         
-        .input-edit-rodada { background: #252a34; border: 1px solid #00c853; color: #fff; font-size: 11px; text-align: center; width: 33.33%; border-radius: 6px; }
+        .input-edit-rodada { background: #252a34; border: 1px solid #00c853; color: #fff; font-size: 11px; text-align: center; width: 33.33%; border-radius: 6px; padding: 8px 2px; }
 
         .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
         .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
@@ -52,7 +52,7 @@
 
         .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 6px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #38bdf8; }
         
-        .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; }
+        .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; z-index: 1; }
         .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
         .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
         
@@ -61,7 +61,7 @@
         
         .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
 
-        .placar-inputs { display: flex; gap: 6px; align-items: center; }
+        .placar-inputs { display: flex; gap: 6px; align-items: center; z-index: 2; position: relative; }
         .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; margin-bottom: 0; }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -79,8 +79,8 @@
         .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
         .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
         
-        .input-edit-nome { background: #1a1d24; border: 1px solid #00c853; color: #fff; font-size: 12px; text-align: center; padding: 2px; width: 100%; border-radius: 4px; }
-        .btn-lixeira { position: absolute; top: 5px; right: 5px; color: #555; cursor: pointer; font-size: 14px; padding: 5px; }
+        .input-edit-nome { background: #1a1d24; border: 1px solid #00c853; color: #fff; font-size: 12px; text-align: center; padding: 2px; width: 100%; border-radius: 4px; position: relative; z-index: 2; }
+        .btn-lixeira { position: absolute; top: 5px; right: 5px; color: #555; cursor: pointer; font-size: 14px; padding: 5px; z-index: 3; }
         .btn-lixeira:hover { color: #ff3d00; }
     </style>
 </head>
@@ -399,7 +399,7 @@
                     <div class="time"><span class="fi fi-${jogo.sigla2} bandeira"></span><span>${nomeDisplay2}</span></div>
                 `;
                 
-                card.innerHTML = `<i class="fas fa-trash btn-lixeira" onclick="document.getElementById('card-${jogo.id}').style.display='none'"></i><div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div><div class="confronto">${htmlNomes}</div><div class="status-jogo" id="status-${jogo.id}"></div>`;
+                card.innerHTML = `<i class="fas fa-trash btn-lixeira" style="pointer-events: none;"></i><div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div><div class="confronto">${htmlNomes}</div><div class="status-jogo" id="status-${jogo.id}"></div>`;
                 listaDiv.appendChild(card);
             });
         }
@@ -604,7 +604,10 @@
         function salvarResultadosOficiaisAdmin() {
             salvarNomesEditados();
             let novasRodadas = {};
-            ["1", "2", "3"].forEach(r => novasRodadas[r] = document.getElementById(`edit-r${r}`).value);
+            ["1", "2", "3"].forEach(r => {
+                const el = document.getElementById(`edit-r${r}`);
+                if(el) novasRodadas[r] = el.value;
+            });
             database.ref('configuracoes_jogos/nomes_rodadas').set(novasRodadas);
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 let dadosOficiais = snapshot.val() || {};

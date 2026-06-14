@@ -69,6 +69,9 @@
         .linha-ranking.clicavel:hover { background-color: #252a34; }
         .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
         
+        /* Nova regra para destacar o último da lista */
+        .ultimo-colocado { color: #ff3d00; font-weight: bold; }
+        
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
         .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
 
@@ -869,14 +872,13 @@
                 const htmlLinha = document.createElement("div");
                 htmlLinha.className = "linha-ranking clicavel";
                 
-                // --- MODIFICAÇÃO SOLICITADA ---
-                // Identifica se é o último colocado da lista renderizada
-                const isUltimo = (index === listaRanking.length - 1);
-                const estiloCor = isUltimo ? 'color: red;' : '';
-                // ------------------------------
+                // Aplica a classe especial se for o último elemento
+                if (index === listaRanking.length - 1) {
+                    htmlLinha.classList.add("ultimo-colocado");
+                }
 
                 htmlLinha.innerHTML = `
-                    <span style="${estiloCor}"><strong>${index + 1}º</strong> ${usuario.nome}</span>
+                    <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
                     <span>${usuario.pontos} pts (${usuario.exatos})</span>
                 `;
                 htmlLinha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));

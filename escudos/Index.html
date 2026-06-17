@@ -390,7 +390,7 @@
 
                 const card = document.createElement("div");
                 card.className = "card-jogo";
-                card.id = `card-${jogo.id}`;
+                card.id = card-${jogo.id};
                 
                 card.innerHTML = `
                     <div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div>
@@ -434,7 +434,7 @@
                 database.ref('participantes/' + fone).once('value').then(snapshot => {
                     if (snapshot.exists() && snapshot.val().nome) {
                         blocoNome.classList.add("hidden");
-                        instrucoes.innerText = `Bem-vindo de volta! Clique em entrar para acessar os palpites de: ${snapshot.val().nome}`;
+                        instrucoes.innerText = Bem-vindo de volta! Clique em entrar para acessar os palpites de: ${snapshot.val().nome};
                     } else {
                         database.ref('telefones_autorizados/' + fone).once('value').then(snapAuth => {
                             if (snapAuth.exists()) {
@@ -512,8 +512,8 @@
             database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
-                    document.getElementById(`p2-${jogo.id}`).value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                    document.getElementById(p1-${jogo.id}).value = palpites[p1-${jogo.id}] !== undefined ? palpites[p1-${jogo.id}] : "";
+                    document.getElementById(p2-${jogo.id}).value = palpites[p2-${jogo.id}] !== undefined ? palpites[p2-${jogo.id}] : "";
                 });
                 atualizarEstadoDasTravasEInputs();
             });
@@ -544,10 +544,10 @@
                     const dataJogo = new Date(jogo.data);
                     const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
                     
-                    const input1 = document.getElementById(`p1-${jogo.id}`);
-                    const input2 = document.getElementById(`p2-${jogo.id}`);
-                    const statusDiv = document.getElementById(`status-${jogo.id}`);
-                    const cardDiv = document.getElementById(`card-${jogo.id}`);
+                    const input1 = document.getElementById(p1-${jogo.id});
+                    const input2 = document.getElementById(p2-${jogo.id});
+                    const statusDiv = document.getElementById(status-${jogo.id});
+                    const cardDiv = document.getElementById(card-${jogo.id});
 
                     if (!input1 || !input2) return;
 
@@ -568,9 +568,9 @@
                         if(totalMinutos > 60) {
                             const horas = Math.floor(totalMinutos / 60);
                             const mins = totalMinutos % 60;
-                            statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
+                            statusDiv.innerText = 🔓 Aberto (Trava em ${horas}h ${mins}min);
                         } else {
-                            statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
+                            statusDiv.innerText = 🔓 Aberto (Trava em ${totalMinutos} min);
                         }
                         statusDiv.className = "status-jogo status-aberto";
                     }
@@ -603,10 +603,10 @@
                     const dataJogo = new Date(jogo.data);
                     const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
                     
-                    const input1 = document.getElementById(`p1-${jogo.id}`);
-                    const input2 = document.getElementById(`p2-${jogo.id}`);
-                    const statusDiv = document.getElementById(`status-${jogo.id}`);
-                    const cardDiv = document.getElementById(`card-${jogo.id}`);
+                    const input1 = document.getElementById(p1-${jogo.id});
+                    const input2 = document.getElementById(p2-${jogo.id});
+                    const statusDiv = document.getElementById(status-${jogo.id});
+                    const cardDiv = document.getElementById(card-${jogo.id});
 
                     if (!input1 || !input2) return;
 
@@ -614,8 +614,8 @@
                     input2.disabled = true;
 
                     if (agora >= limiteTrava) {
-                        input1.value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
-                        input2.value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                        input1.value = palpites[p1-${jogo.id}] !== undefined ? palpites[p1-${jogo.id}] : "";
+                        input2.value = palpites[p2-${jogo.id}] !== undefined ? palpites[p2-${jogo.id}] : "";
                         cardDiv.classList.add("travado");
                         statusDiv.innerText = "🔒 Palpite travado (visível)";
                         statusDiv.className = "status-jogo status-travado";
@@ -635,17 +635,17 @@
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 const oficiais = snapshot.val() || {};
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    const input1 = document.getElementById(`p1-${jogo.id}`);
-                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    const input1 = document.getElementById(p1-${jogo.id});
+                    const input2 = document.getElementById(p2-${jogo.id});
                     if (!input1) return;
 
                     input1.disabled = false;
                     input2.disabled = false;
-                    input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
-                    input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
+                    input1.value = oficiais[p1-${jogo.id}] !== undefined ? oficiais[p1-${jogo.id}] : "";
+                    input2.value = oficiais[p2-${jogo.id}] !== undefined ? oficiais[p2-${jogo.id}] : "";
                     
-                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo administrador — resultados oficiais";
-                    document.getElementById(`status-${jogo.id}`).className = "status-jogo";
+                    document.getElementById(status-${jogo.id}).innerText = "📝 Modo administrador — resultados oficiais";
+                    document.getElementById(status-${jogo.id}).className = "status-jogo";
                 });
                 
                 document.getElementById("btn-cancelar-admin").classList.remove("hidden");
@@ -700,7 +700,7 @@
                 alert("Este número é o administrador master do sistema e não pode ser removido pelo painel!");
                 return;
             }
-            if(confirm(`Deseja remover a permissão do telefone ${fone}?`)) {
+            if(confirm(Deseja remover a permissão do telefone ${fone}?)) {
                 database.ref('telefones_autorizados/' + fone).remove();
                 database.ref('participantes/' + fone).remove(); 
             }
@@ -712,12 +712,12 @@
                 let preencheuAlgumNestaRodada = false;
                 
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
-                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                    const val1 = document.getElementById(p1-${jogo.id}).value;
+                    const val2 = document.getElementById(p2-${jogo.id}).value;
                     
                     if(val1 !== "" && val2 !== "") {
-                        dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
-                        dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
+                        dadosPalpites[p1-${jogo.id}] = parseInt(val1);
+                        dadosPalpites[p2-${jogo.id}] = parseInt(val2);
                         preencheuAlgumNestaRodada = true;
                     }
                 });
@@ -728,7 +728,7 @@
                 }
 
                 database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').set(dadosPalpites).then(() => {
-                    alert(`Palpites da rodada ${rodadaAtiva} salvos com sucesso!`);
+                    alert(Palpites da rodada ${rodadaAtiva} salvos com sucesso!);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
             });
@@ -739,11 +739,11 @@
                 let dadosOficiais = snapshot.val() || {};
                 
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
-                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                    const val1 = document.getElementById(p1-${jogo.id}).value;
+                    const val2 = document.getElementById(p2-${jogo.id}).value;
                     if(val1 !== "" && val2 !== "") {
-                        dadosOficiais[`p1-${jogo.id}`] = parseInt(val1);
-                        dadosOficiais[`p2-${jogo.id}`] = parseInt(val2);
+                        dadosOficiais[p1-${jogo.id}] = parseInt(val1);
+                        dadosOficiais[p2-${jogo.id}] = parseInt(val2);
                     }
                 });
 
@@ -767,10 +767,10 @@
                     let exatosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
 
                     executarEmTodosOsJogos((jogo, r) => {
-                        const res1 = resultadosOficiais[`p1-${jogo.id}`];
-                        const res2 = resultadosOficiais[`p2-${jogo.id}`];
-                        const pal1 = palpites[`p1-${jogo.id}`];
-                        const pal2 = palpites[`p2-${jogo.id}`];
+                        const res1 = resultadosOficiais[p1-${jogo.id}];
+                        const res2 = resultadosOficiais[p2-${jogo.id}];
+                        const pal1 = palpites[p1-${jogo.id}];
+                        const pal2 = palpites[p2-${jogo.id}];
 
                         if (res1 !== undefined && res2 !== undefined && pal1 !== undefined && pal2 !== undefined) {
                             let chaveRodada = "r" + r;
@@ -820,7 +820,7 @@
             Object.keys(participantes).forEach(key => {
                 const u = participantes[key];
                 if (u) {
-                    let nomeExibicao = u.nome ? u.nome : `Participante (${key})`;
+                    let nomeExibicao = u.nome ? u.nome : Participante (${key});
                     
                     let ptsExibicao = 0;
                     let exatosExibicao = 0;
@@ -860,7 +860,7 @@
 
             const containerRanking = document.getElementById("lista-ranking");
             
-            let sufixoCabecalho = filtroRankingAtivo === "geral" ? "Geral" : `Rodada ${filtroRankingAtivo}`;
+            let sufixoCabecalho = filtroRankingAtivo === "geral" ? "Geral" : Rodada ${filtroRankingAtivo};
             containerRanking.innerHTML = `
                 <div class="linha-ranking cabecalho-ranking">
                     <span>Classificação — ${sufixoCabecalho}</span>

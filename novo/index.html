@@ -172,10 +172,9 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Variável de controle para nomes editados
         let nomesEditados = {};
+        let rodadasExtrasFirebase = {};
 
-        // Carregar nomes customizados do banco ao iniciar
         database.ref('configuracoes_jogos/nomes_customizados').once('value', snap => {
             nomesEditados = snap.val() || {};
         });
@@ -225,13 +224,13 @@
                 { id: "r2_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-21T13:00:00" },
                 { id: "r2_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-21T19:00:00" },
                 { id: "r2_15", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-21T22:00:00" },
-                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-20T14:00:00" },
+                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suícia", sigla2: "se", data: "2026-06-20T14:00:00" },
                 { id: "r2_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-22T18:00:00" },
                 { id: "r2_18", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-22T21:00:00" },
                 { id: "r2_19", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-23T00:00:00" },
                 { id: "r2_20", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-23T14:00:00" },
                 { id: "r2_21", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-23T17:00:00" },
-                { id: "r2_22", group: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
+                { id: "r2_22", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
                 { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
                 { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
             ],
@@ -288,10 +287,11 @@
             configurarSeletorRodadas();
             configurarSeletorFiltrosRanking();
             checarUsuarioExistente();
+            
             database.ref('rodadas_extras').on('value', snapshot => {
-    rodadasExtrasFirebase = snapshot.val() || {};
-});
-
+                rodadasExtrasFirebase = snapshot.val() || {};
+                renderizarJogosRodadaAtiva();
+            });
 
             document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
 
@@ -312,7 +312,6 @@
             document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
                 isAdmin = false;
                 document.getElementById("painel-admin-whitelist").classList.add("hidden");
-                // Recarrega normal
                 renderizarJogosRodadaAtiva();
                 puxarMeusPalpitesDoFirebase();
             });
@@ -383,12 +382,14 @@
         }
 
         function renderizarJogosRodadaAtiva() {
-            const jogosDaRodada = rodadasBolao[rodadaAtiva] || rodadasExtrasFirebase[rodadaAtiva] || [];
+            const listaDiv = document.getElementById("lista-jogos");
+            const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+            const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+            const jogosDaRodada = [...jogosOficiais, ...jogosExtras];
 
             listaDiv.innerHTML = "";
             
             let ultimaDataGrupo = "";
-            const jogosDaRodada = rodadasBolao[rodadaAtiva];
 
             jogosDaRodada.forEach(jogo => {
                 const objData = new Date(jogo.data);
@@ -403,7 +404,6 @@
                     listaDiv.appendChild(divisor);
                 }
 
-                // Verifica se há nome editado no Firebase
                 const nomeDisplay1 = nomesEditados[jogo.id + "_1"] || jogo.nome1;
                 const nomeDisplay2 = nomesEditados[jogo.id + "_2"] || jogo.nome2;
 
@@ -427,7 +427,6 @@
                     </div>
                 `;
 
-                // Se for Admin, substitui os spans de nomes por inputs
                 if(isAdmin) {
                     htmlNomes = `
                         <div class="time">
@@ -457,11 +456,18 @@
             });
         }
 
-        // Função de salvar nomes editados no Firebase
         function salvarNomesEditados() {
-            rodadasBolao[rodadaAtiva].forEach(jogo => {
-                const n1 = document.getElementById(`edit-nome1-${jogo.id}`).value;
-                const n2 = document.getElementById(`edit-nome2-${jogo.id}`).value;
+            const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+            const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+            const todosJogos = [...jogosOficiais, ...jogosExtras];
+
+            todosJogos.forEach(jogo => {
+                const el1 = document.getElementById(`edit-nome1-${jogo.id}`);
+                const el2 = document.getElementById(`edit-nome2-${jogo.id}`);
+                if(!el1 || !el2) return;
+
+                const n1 = el1.value;
+                const n2 = el2.value;
                 
                 if (n1 !== (nomesEditados[jogo.id + "_1"] || jogo.nome1)) {
                     nomesEditados[jogo.id + "_1"] = n1;
@@ -570,9 +576,17 @@
         function puxarMeusPalpitesDoFirebase() {
             database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
-                rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
-                    document.getElementById(`p2-${jogo.id}`).value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+                const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+                const todosJogos = [...jogosOficiais, ...jogosExtras];
+                
+                todosJogos.forEach(jogo => {
+                    const p1 = document.getElementById(`p1-${jogo.id}`);
+                    const p2 = document.getElementById(`p2-${jogo.id}`);
+                    if(p1 && p2) {
+                        p1.value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
+                        p2.value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                    }
                 });
                 atualizarEstadoDasTravasEInputs();
             });
@@ -599,7 +613,11 @@
                 document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
                 document.getElementById("aviso-geral").style.color = "#ffb300";
 
-                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+                const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+                const todosJogos = [...jogosOficiais, ...jogosExtras];
+
+                todosJogos.forEach(jogo => {
                     const dataJogo = new Date(jogo.data);
                     const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
                     
@@ -608,7 +626,7 @@
                     const statusDiv = document.getElementById(`status-${jogo.id}`);
                     const cardDiv = document.getElementById(`card-${jogo.id}`);
 
-                    if (!input1 || !input2) return;
+                    if (!input1 || !input2 || !statusDiv) return;
 
                     if (agoraReal >= limiteTrava) {
                         input1.disabled = true;
@@ -658,7 +676,11 @@
                 document.getElementById("banner-spy").classList.remove("hidden");
                 document.getElementById("btn-salvar-palpites").classList.add("hidden");
 
-                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+                const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+                const todosJogos = [...jogosOficiais, ...jogosExtras];
+
+                todosJogos.forEach(jogo => {
                     const dataJogo = new Date(jogo.data);
                     const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
                     
@@ -667,7 +689,7 @@
                     const statusDiv = document.getElementById(`status-${jogo.id}`);
                     const cardDiv = document.getElementById(`card-${jogo.id}`);
 
-                    if (!input1 || !input2) return;
+                    if (!input1 || !input2 || !statusDiv) return;
 
                     input1.disabled = true;
                     input2.disabled = true;
@@ -693,18 +715,23 @@
             renderizarJogosRodadaAtiva();
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 const oficiais = snapshot.val() || {};
-                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+                const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+                const todosJogos = [...jogosOficiais, ...jogosExtras];
+
+                todosJogos.forEach(jogo => {
                     const input1 = document.getElementById(`p1-${jogo.id}`);
                     const input2 = document.getElementById(`p2-${jogo.id}`);
-                    if (!input1) return;
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    if (!input1 || !statusDiv) return;
 
                     input1.disabled = false;
                     input2.disabled = false;
                     input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
                     input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
                     
-                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo Admin — Resultados Oficiais";
-                    document.getElementById(`status-${jogo.id}`).className = "status-jogo";
+                    statusDiv.innerText = "📝 Modo Admin — Resultados Oficiais";
+                    statusDiv.className = "status-jogo";
                 });
                 
                 document.getElementById("btn-cancelar-admin").classList.remove("hidden");
@@ -769,14 +796,17 @@
             database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 let dadosPalpites = snapshot.val() || {};
                 let preencheuAlgumNestaRodada = false;
+                const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+                const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+                const todosJogos = [...jogosOficiais, ...jogosExtras];
                 
-                rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
-                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                todosJogos.forEach(jogo => {
+                    const v1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const v2 = document.getElementById(`p2-${jogo.id}`).value;
                     
-                    if(val1 !== "" && val2 !== "") {
-                        dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
-                        dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
+                    if(v1 !== "" && v2 !== "") {
+                        dadosPalpites[`p1-${jogo.id}`] = parseInt(v1);
+                        dadosPalpites[`p2-${jogo.id}`] = parseInt(v2);
                         preencheuAlgumNestaRodada = true;
                     }
                 });
@@ -794,18 +824,20 @@
         }
 
         function salvarResultadosOficiaisAdmin() {
-            // Salva nomes alterados antes
             salvarNomesEditados();
 
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 let dadosOficiais = snapshot.val() || {};
+                const jogosOficiais = rodadasBolao[rodadaAtiva] || [];
+                const jogosExtras = rodadasExtrasFirebase[rodadaAtiva] || [];
+                const todosJogos = [...jogosOficiais, ...jogosExtras];
                 
-                rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
-                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
-                    if(val1 !== "" && val2 !== "") {
-                        dadosOficiais[`p1-${jogo.id}`] = parseInt(val1);
-                        dadosOficiais[`p2-${jogo.id}`] = parseInt(val2);
+                todosJogos.forEach(jogo => {
+                    const v1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const v2 = document.getElementById(`p2-${jogo.id}`).value;
+                    if(v1 !== "" && v2 !== "") {
+                        dadosOficiais[`p1-${jogo.id}`] = parseInt(v1);
+                        dadosOficiais[`p2-${jogo.id}`] = parseInt(v2);
                     }
                 });
 

@@ -77,7 +77,6 @@
         .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
         .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
         
-        /* Estilo para edição Admin */
         .input-edit-nome { background: #1a1d24; border: 1px solid #00c853; color: #fff; font-size: 12px; text-align: center; padding: 2px; width: 100%; border-radius: 4px; }
     </style>
 </head>
@@ -90,7 +89,7 @@
         <input type="tel" id="input-telefone" placeholder="Telefone (DDD + Número) ex: 24993148000">
         
         <div id="bloco-nome-primeiro-acesso" class="hidden">
-            <p style="color: #38bdf8; font-weight: bold; margin-top: 10px;">Identificamos que esse é seu primeiro acesso!</p>
+            <p style="color: #38bdf8; font-weight: bold; margin-top: 10px;">Identificamos que este é seu primeiro acesso!</p>
             <p>Escolha o nome ou apelido que aparecerá na classificação geral:</p>
             <input type="text" id="input-nome" placeholder="Seu Nome Completo ou Apelido">
         </div>
@@ -203,7 +202,7 @@
                 { id: "r1_18", grupo: "I", t1: "IRQ", nome1: "Iraque", sigla1: "iq", t2: "NOR", nome2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
                 { id: "r1_19", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
                 { id: "r1_20", grupo: "J", t1: "AST", nome1: "Áustria", sigla1: "at", t2: "JRD", nome2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
-                { id: "r1_21", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
+                { id: "r1_21", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "RDC", nome2: "Rep. Dem. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
                 { id: "r1_22", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
                 { id: "r1_23", grupo: "L", t1: "GHA", nome1: "Gana", sigla1: "gh", t2: "PAN", nome2: "Panamá", sigla2: "pa", data: "2026-06-17T20:00:00" },
                 { id: "r1_24", grupo: "K", t1: "UZB", nome1: "Uzbequistão", sigla1: "uz", t2: "COL", nome2: "Colômbia", sigla2: "co", data: "2026-06-17T23:00:00" }
@@ -224,14 +223,14 @@
                 { id: "r2_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-21T13:00:00" },
                 { id: "r2_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-21T19:00:00" },
                 { id: "r2_15", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-21T22:00:00" },
-                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suícia", sigla2: "se", data: "2026-06-20T14:00:00" },
+                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-20T14:00:00" },
                 { id: "r2_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-22T18:00:00" },
                 { id: "r2_18", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-22T21:00:00" },
                 { id: "r2_19", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-23T00:00:00" },
                 { id: "r2_20", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-23T14:00:00" },
                 { id: "r2_21", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-23T17:00:00" },
                 { id: "r2_22", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
-                { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
+                { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dem. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
                 { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
             ],
             "3": [
@@ -245,7 +244,7 @@
                 { id: "r3_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "USA", nome2: "Estados Unidos", sigla2: "us", data: "2026-06-25T23:00:00" },
                 { id: "r3_09", grupo: "E", t1: "CUR", nome1: "Curaçao", sigla1: "cw", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-25T17:00:00" },
                 { id: "r3_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "ALE", nome2: "Alemanha", sigla2: "de", data: "2026-06-25T17:00:00" },
-                { id: "r3_11", grupo: "F", t1: "JAP", nome1: "Japão", sigla1: "jp", t2: "SUE", nome2: "Suíça", sigla2: "se", data: "2026-06-25T20:00:00" },
+                { id: "r3_11", grupo: "F", t1: "JAP", nome1: "Japão", sigla1: "jp", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-25T20:00:00" },
                 { id: "r3_12", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "HOL", nome2: "Holanda", sigla2: "nl", data: "2026-06-25T20:00:00" },
                 { id: "r3_13", grupo: "H", t1: "CAB", nome1: "Cabo Verde", sigla1: "cv", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-26T21:00:00" },
                 { id: "r3_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "ESP", nome2: "Espanha", sigla2: "es", data: "2026-06-26T21:00:00" },
@@ -255,7 +254,7 @@
                 { id: "r3_18", grupo: "G", t1: "EGT", nome1: "Egito", sigla1: "eg", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-27T00:00:00" },
                 { id: "r3_19", grupo: "J", t1: "AGL", nome1: "Argélia", sigla1: "dz", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-27T23:00:00" },
                 { id: "r3_20", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "ARG", nome2: "Argentina", sigla2: "ar", data: "2026-06-27T23:00:00" },
-                { id: "r3_21", grupo: "K", t1: "RDC", nome1: "Rep. Dom. Congo", sigla1: "cd", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-27T20:30:00" },
+                { id: "r3_21", grupo: "K", t1: "RDC", nome1: "Rep. Dem. Congo", sigla1: "cd", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-27T20:30:00" },
                 { id: "r3_22", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "POR", nome2: "Portugal", sigla2: "pt", data: "2026-06-27T20:30:00" },
                 { id: "r3_23", grupo: "L", t1: "CRO", nome1: "Croácia", sigla1: "hr", t2: "GHA", nome2: "Gana", sigla1: "gh", data: "2026-06-27T18:00:00" },
                 { id: "r3_24", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "ING", nome2: "Inglaterra", sigla2: "gb-eng", data: "2026-06-27T18:00:00" }
@@ -540,7 +539,7 @@
                     database.ref('telefones_autorizados/' + foneInput).once('value').then(snapAuth => {
                         if (snapAuth.exists()) {
                             if (!nomeInput) {
-                                alert("Esse é seu primeiro acesso! Digite o nome ou apelido que quer usar no ranking.");
+                                alert("Este é seu primeiro acesso! Digite o nome ou apelido que quer usar no ranking.");
                                 return;
                             }
                             

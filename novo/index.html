@@ -288,6 +288,10 @@
             configurarSeletorRodadas();
             configurarSeletorFiltrosRanking();
             checarUsuarioExistente();
+            database.ref('rodadas_extras').on('value', snapshot => {
+    rodadasExtrasFirebase = snapshot.val() || {};
+});
+
 
             document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
 
@@ -379,7 +383,8 @@
         }
 
         function renderizarJogosRodadaAtiva() {
-            const listaDiv = document.getElementById("lista-jogos");
+            const jogosDaRodada = rodadasBolao[rodadaAtiva] || rodadasExtrasFirebase[rodadaAtiva] || [];
+
             listaDiv.innerHTML = "";
             
             let ultimaDataGrupo = "";

@@ -49,4 +49,1078 @@
         .status-aberto { color: #00c853; }
         .status-travado { color: #ff3d00; }
 
-        .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight:
+        .separador-data { background-color: #1e293b; color: #38bdf8; font-size: 12px; font-weight: bold; padding: 6px 12px; border-radius: 6px; margin: 20px 0 10px 0; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid #38bdf8; }
+        
+        .card-jogo { background-color: #252a34; padding: 15px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #007bff; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card-jogo.travado { border-left-color: #ff3d00; opacity: 0.8; }
+        .info-jogo { font-size: 11px; color: #aaa; text-align: center; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .confronto { display: flex; justify-content: space-between; align-items: center; }
+        .time { width: 38%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; text-align: center; gap: 6px; }
+        
+        .bandeira { font-size: 24px; border-radius: 50%; background-size: cover; background-position: center; box-shadow: 0 2px 4px rgba(0,0,0,0.3); border: 1px solid #3a4252; width: 1.33333333em; height: 1em; }
+
+        .placar-inputs { display: flex; gap: 6px; align-items: center; }
+        .placar-inputs input { width: 42px; height: 38px; font-size: 18px; font-weight: bold; margin-bottom: 0; }
+
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .linha-ranking { display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid #2a2f3a; align-items: center; }
+        .linha-ranking.clicavel { cursor: pointer; transition: background 0.2s; }
+        .linha-ranking.clicavel:hover { background-color: #252a34; }
+        .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
+        
+        .ultimo-colocado { color: #ff3d00; font-weight: bold; }
+        
+        .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
+        .visualizando-banner button { width: auto; margin: 0; padding: 5px 10px; background-color: rgba(255,255,255,0.2); font-size: 12px; }
+
+        .box-whitelist { background-color: #252a34; padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px dashed #3a4252; }
+        .lista-whitelist { max-height: 150px; overflow-y: auto; margin-top: 10px; background: #151921; padding: 10px; border-radius: 6px; text-align: left; font-size: 13px; }
+        .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
+        .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
+
+        .form-admin-jogos { display: flex; flex-direction: column; gap: 2px; text-align: left; margin-top: 10px; }
+        .form-admin-jogos label { font-size: 12px; font-weight: bold; color: #38bdf8; margin-top: 6px; }
+        .form-admin-jogos input, .form-admin-jogos select { margin-bottom: 4px; padding: 8px; font-size: 14px; text-align: left; }
+        .form-admin-jogos .row-dupla { display: flex; gap: 8px; }
+        .form-admin-jogos .row-dupla div { flex: 1; display: flex; flex-direction: column; }
+    </style>
+</head>
+<body>
+
+    <div id="tela-login" class="container">
+        <h2>Bolão Copa 2026</h2>
+        <p id="instrucoes-login">Para entrar, digite seu número de telefone cadastrado pelo administrador:</p>
+        
+        <input type="tel" id="input-telefone" placeholder="Telefone (DDD + Número) ex: 24993148000">
+        
+        <div id="bloco-nome-primeiro-acesso" class="hidden">
+            <p style="color: #38bdf8; font-weight: bold; margin-top: 10px;">Identificamos que este é o seu primeiro acesso!</p>
+            <p>Escolha o nome ou apelido que aparecerá na classificação geral:</p>
+            <input type="text" id="input-nome" placeholder="Seu nome completo ou apelido">
+        </div>
+        
+        <button id="btn-entrar" class="btn-sucesso">Confirmar e entrar</button>
+    </div>
+
+    <div id="tela-principal" class="container hidden">
+        <header>
+            <span id="boas-vindas">Olá, <strong id="nome-usuario"></strong></span>
+            <button id="btn-admin" title="Área do Administrador"><i class="fas fa-cog"></i></button>
+        </header>
+
+        <div class="tabs">
+            <button id="tab-palpites" class="tab-btn active">Palpites</button>
+            <button id="tab-ranking" class="tab-btn">Ranking Geral</button>
+        </div>
+
+        <div id="conteudo-palpites" class="tab-conteudo">
+            <div id="banner-spy" class="visualizando-banner hidden">
+                <span>Visualizando palpites de: <span id="spy-nome"></span></span>
+                <button id="btn-fechar-spy" class="btn-secundario">Voltar aos meus</button>
+            </div>
+            
+            <div class="rodadas-tabs" id="seletor-rodadas"></div>
+
+            <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
+            
+            <div id="lista-jogos"></div>
+            
+            <button id="btn-salvar-palpites" class="btn-sucesso">Salvar palpites desta rodada</button>
+            
+            <div id="painel-admin-gerenciador" class="box-whitelist hidden" style="margin-bottom: 15px;">
+                <div style="margin-bottom: 15px; text-align: center;">
+                    <button id="adm-btn-criar-rodada" class="btn-secundario" style="background-color: #38bdf8; color: #1a1d24;">
+                        ➕ Criar Nova Rodada
+                    </button>
+                </div>
+                <h4>➕ Criar Nova Rodada / Adicionar Jogo</h4>
+                <div class="form-admin-jogos">
+                    <div class="row-dupla">
+                        <div>
+                            <label>Número da Rodada:</label>
+                            <input type="number" id="adm-jogo-rodada" placeholder="Ex: 4" min="1">
+                        </div>
+                        <div>
+                            <label>ID Único do Jogo:</label>
+                            <input type="text" id="adm-jogo-id" placeholder="Ex: r4_01">
+                        </div>
+                    </div>
+
+                    <div class="row-dupla">
+                        <div>
+                            <label>Grupo:</label>
+                            <input type="text" id="adm-jogo-grupo" placeholder="Ex: A">
+                        </div>
+                        <div>
+                            <label>Data e Hora do Jogo:</label>
+                            <input type="datetime-local" id="adm-jogo-data">
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px dashed #3a4252; margin-top: 5px; padding-top: 5px;"><strong>Time Mandante (1)</strong></div>
+                    <div class="row-dupla">
+                        <div>
+                            <input type="text" id="adm-jogo-t1" placeholder="Sigla (Ex: BRA)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-nome1" placeholder="Nome (Ex: Brasil)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-sigla1" placeholder="Bandeira CSS (Ex: br)">
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px dashed #3a4252; margin-top: 5px; padding-top: 5px;"><strong>Time Visitante (2)</strong></div>
+                    <div class="row-dupla">
+                        <div>
+                            <input type="text" id="adm-jogo-t2" placeholder="Sigla (Ex: FRA)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-nome2" placeholder="Nome (Ex: França)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-sigla2" placeholder="Bandeira CSS (Ex: fr)">
+                        </div>
+                    </div>
+
+                    <button id="adm-btn-salvar-jogo" class="btn-sucesso" style="margin-top: 10px; padding: 10px;">Gravar Jogo no Banco</button>
+                </div>
+            </div>
+
+            <div id="painel-admin-whitelist" class="box-whitelist hidden">
+                <h4>🔑 Registro de telefones autorizados</h4>
+                <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
+                <div style="display: flex; gap: 5px; margin-top: 10px;">
+                    <input type="tel" id="adm-novo-fone" placeholder="Ex: 24993148000" style="margin-bottom: 0; padding: 8px; text-align: left;">
+                    <button id="adm-btn-add-fone" class="btn-sucesso" style="width: auto; margin-bottom:0; padding: 8px 15px;">+ Add</button>
+                </div>
+                <div class="lista-whitelist" id="adm-lista-fones">Carregando lista...</div>
+            </div>
+
+            <button id="btn-cancelar-admin" class="btn-secundario hidden" style="margin-top: 15px;">Sair do modo administrador</button>
+        </div>
+
+        <div id="conteudo-ranking" class="tab-conteudo hidden">
+            <h3>Classificação</h3>
+            
+            <div class="ranking-tabs" id="seletor-ranking-filtros"></div>
+
+            <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
+            <div id="lista-ranking"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_G6wZX1LGYBdnwMonMd-srnV_ktBPMNU",
+            authDomain: "bolao-d2baf.firebaseapp.com",
+            databaseURL: "https://bolao-d2baf-default-rtdb.firebaseio.com/",
+            projectId: "bolao-d2baf",
+            storageBucket: "bolao-d2baf.firebasestorage.app",
+            messagingSenderId: "955171998764",
+            appId: "1:955171998764:web:2ccf8f2b6f23c300755589"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
+
+        let rodadasBolao = {};
+
+        const CADASTRAR_RODADAS_PADRAO_SE_VAZIO = {
+            "1": [
+                { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
+                { id: "r1_02", grupo: "A", t1: "COR", nome1: "Coreia do Sul", sigla1: "kr", t2: "TCH", nome2: "Rep. Checa", sigla2: "cz", data: "2026-06-11T23:00:00" },
+                { id: "r1_03", grupo: "B", t1: "CAN", nome1: "Canadá", sigla1: "ca", t2: "BOS", nome2: "Bósnia", sigla2: "ba", data: "2026-06-12T16:00:00" },
+                { id: "r1_04", grupo: "D", t1: "USA", nome1: "Estados Unidos", sigla1: "us", t2: "PAR", nome2: "Paraguai", sigla2: "py", data: "2026-06-12T22:00:00" },
+                { id: "r1_05", grupo: "B", t1: "CAT", nome1: "Catar", sigla1: "qa", t2: "SUI", nome2: "Suíça", sigla2: "ch", data: "2026-06-13T16:00:00" },
+                { id: "r1_06", grupo: "C", t1: "BRA", nome1: "Brasil", sigla1: "br", t2: "MAR", nome2: "Marrocos", sigla2: "ma", data: "2026-06-13T19:00:00" },
+                { id: "r1_07", grupo: "C", t1: "HAI", nome1: "Haiti", sigla1: "ht", t2: "SCO", nome2: "Escócia", sigla2: "gb-sct", data: "2026-06-13T22:00:00" },
+                { id: "r1_08", grupo: "D", t1: "AUS", nome1: "Austrália", sigla1: "au", t2: "TUR", nome2: "Turquia", sigla2: "tr", data: "2026-06-14T01:00:00" },
+                { id: "r1_09", grupo: "E", t1: "ALE", nome1: "Alemanha", sigla1: "de", t2: "CUR", nome2: "Curaçao", sigla2: "cw", data: "2026-06-14T14:00:00" },
+                { id: "r1_10", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
+                { id: "r1_11", grupo: "E", t1: "CDI", nome1: "Costa do Marfim", sigla1: "ci", t2: "EQU", nome2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
+                { id: "r1_12", grupo: "F", t1: "SUE", nome1: "Suécia", sigla1: "se", t2: "TUN", nome2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
+                { id: "r3_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
+                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", siglet2: "eg", data: "2026-06-15T16:00:00" },
+                { id: "r1_15", grupo: "H", t1: "SAU", nome1: "Arábia Saudita", sigla1: "sa", t2: "URU", nome2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
+                { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
+                { id: "r1_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
+                { id: "r1_18", grupo: "I", t1: "IRQ", nome1: "Iraque", sigla1: "iq", t2: "NOR", nome2: "Noruega", sigla2: "no", data: "2026-06-16T19:00:00" },
+                { id: "r1_19", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-16T22:00:00" },
+                { id: "r1_20", grupo: "J", t1: "AST", nome1: "Áustria", sigla1: "at", t2: "JRD", nome2: "Jordânia", sigla2: "jo", data: "2026-06-17T01:00:00" },
+                { id: "r1_21", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-17T14:00:00" },
+                { id: "r1_22", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-17T17:00:00" },
+                { id: "r1_23", grupo: "L", t1: "GHA", nome1: "Gana", sigla1: "gh", t2: "PAN", nome2: "Panamá", sigla2: "pa", data: "2026-06-17T20:00:00" },
+                { id: "r1_24", grupo: "K", t1: "UZB", nome1: "Uzbequistão", sigla1: "uz", t2: "COL", nome2: "Colômbia", sigla2: "co", data: "2026-06-17T23:00:00" }
+            ],
+            "2": [
+                { id: "r2_01", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-18T13:00:00" },
+                { id: "r2_02", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "BOS", nome2: "Bósnia", sigla2: "ba", data: "2026-06-18T16:00:00" },
+                { id: "r2_03", grupo: "B", t1: "CAN", nome1: "Canadá", sigla1: "ca", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-18T19:00:00" },
+                { id: "r2_04", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "COR", nome2: "Coreia do Sul", sigla2: "kr", data: "2026-06-18T22:00:00" },
+                { id: "r2_05", grupo: "D", t1: "USA", nome1: "Estados Unidos", sigla1: "us", t2: "AUS", nome2: "Austrália", sigla2: "au", data: "2026-06-19T16:00:00" },
+                { id: "r2_06", grupo: "C", t1: "SCO", nome1: "Escócia", sigla1: "gb-sct", t2: "MAR", nome2: "Marrocos", sigla2: "ma", data: "2026-06-19T19:00:00" },
+                { id: "r2_07", grupo: "C", t1: "BRA", nome1: "Brasil", sigla1: "br", t2: "HAI", nome2: "Haiti", sigla2: "ht", data: "2026-06-19T21:30:00" },
+                { id: "r2_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "PAR", nome2: "Paraguai", sigla2: "py", data: "2026-06-20T01:00:00" },
+                { id: "r2_09", grupo: "E", t1: "ALE", nome1: "Alemanha", sigla1: "de", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-20T17:00:00" },
+                { id: "r2_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "CUR", nome2: "Curaçao", sigla2: "cw", data: "2026-06-20T21:00:00" },
+                { id: "r2_11", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-21T01:00:00" },
+                { id: "r2_12", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-21T16:00:00" },
+                { id: "r2_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-21T13:00:00" },
+                { id: "r2_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-21T19:00:00" },
+                { id: "r2_15", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-21T22:00:00" },
+                { id: "r2_16", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-20T14:00:00" },
+                { id: "r2_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-22T18:00:00" },
+                { id: "r2_18", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-22T21:00:00" },
+                { id: "r2_19", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "AGL", nome2: "Argélia", sigla2: "dz", data: "2026-06-23T00:00:00" },
+                { id: "r2_20", grupo: "K", t1: "POR", nome1: "Portugal", sigla1: "pt", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-23T14:00:00" },
+                { id: "r2_21", grupo: "L", t1: "ING", nome1: "Inglaterra", sigla1: "gb-eng", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-23T17:00:00" },
+                { id: "r2_22", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "CRO", nome2: "Croácia", sigla2: "hr", data: "2026-06-23T20:00:00" },
+                { id: "r2_23", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "RDC", nome2: "Rep. Dom. Congo", sigla2: "cd", data: "2026-06-23T23:00:00" },
+                { id: "r2_24", grupo: "J", t1: "ARG", nome1: "Argentina", sigla1: "ar", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-22T14:00:00" }
+            ],
+            "3": [
+                { id: "r3_01", grupo: "A", t1: "AFS", nome1: "África do Sul", sigla1: "za", t2: "COR", nome2: "Coreia do Sul", sigla2: "kr", data: "2026-06-24T22:00:00" },
+                { id: "r3_02", grupo: "A", t1: "TCH", nome1: "Rep. Checa", sigla1: "cz", t2: "MEX", nome2: "México", sigla2: "mx", data: "2026-06-24T22:00:00" },
+                { id: "r3_03", grupo: "B", t1: "BOS", nome1: "Bósnia", sigla1: "ba", t2: "CAT", nome2: "Catar", sigla2: "qa", data: "2026-06-24T16:00:00" },
+                { id: "r3_04", grupo: "B", t1: "SUI", nome1: "Suíça", sigla1: "ch", t2: "CAN", nome2: "Canadá", sigla2: "ca", data: "2026-06-24T16:00:00" },
+                { id: "r3_05", grupo: "C", t1: "SCO", nome1: "Escócia", sigla1: "gb-sct", t2: "BRA", nome2: "Brasil", sigla2: "br", data: "2026-06-24T19:00:00" },
+                { id: "r3_06", grupo: "C", t1: "MAR", nome1: "Marrocos", sigla1: "ma", t2: "HAI", nome2: "Haiti", sigla2: "ht", data: "2026-06-24T19:00:00" },
+                { id: "r3_07", grupo: "D", t1: "PAR", nome1: "Paraguai", sigla1: "py", t2: "AUS", nome2: "Austrália", sigla2: "au", data: "2026-06-25T23:00:00" },
+                { id: "r3_08", grupo: "D", t1: "TUR", nome1: "Turquia", sigla1: "tr", t2: "USA", nome2: "Estados Unidos", sigla2: "us", data: "2026-06-25T23:00:00" },
+                { id: "r3_09", grupo: "E", t1: "CUR", nome1: "Curaçao", sigla1: "cw", t2: "CDI", nome2: "Costa do Marfim", sigla2: "ci", data: "2026-06-25T17:00:00" },
+                { id: "r3_10", grupo: "E", t1: "EQU", nome1: "Equador", sigla1: "ec", t2: "ALE", nome2: "Alemanha", sigla2: "de", data: "2026-06-25T17:00:00" },
+                { id: "r3_11", grupo: "F", t1: "JAP", nome1: "Japão", sigla1: "jp", t2: "SUE", nome2: "Suécia", sigla2: "se", data: "2026-06-25T20:00:00" },
+                { id: "r3_12", grupo: "F", t1: "TUN", nome1: "Tunísia", sigla1: "tn", t2: "HOL", nome2: "Holanda", sigla2: "nl", data: "2026-06-25T20:00:00" },
+                { id: "r3_13", grupo: "H", t1: "CAB", nome1: "Cabo Verde", sigla1: "cv", t2: "SAU", nome2: "Arábia Saudita", sigla2: "sa", data: "2026-06-26T21:00:00" },
+                { id: "r3_14", grupo: "H", t1: "URU", nome1: "Uruguai", sigla1: "uy", t2: "ESP", nome2: "Espanha", sigla2: "es", data: "2026-06-26T21:00:00" },
+                { id: "r3_15", grupo: "I", t1: "SNG", nome1: "Senegal", sigla1: "sn", t2: "IRQ", nome2: "Iraque", sigla2: "iq", data: "2026-06-26T16:00:00" },
+                { id: "r3_16", grupo: "I", t1: "NOR", nome1: "Noruega", sigla1: "no", t2: "FRA", nome2: "França", sigla2: "fr", data: "2026-06-26T16:00:00" },
+                { id: "r3_17", grupo: "G", t1: "NZE", nome1: "Nova Zelândia", sigla1: "nz", t2: "BEL", nome2: "Bélgica", sigla2: "be", data: "2026-06-27T00:00:00" },
+                { id: "r3_18", grupo: "G", t1: "EGT", nome1: "Egito", sigla1: "eg", t2: "IRA", nome2: "Irã", sigla2: "ir", data: "2026-06-27T00:00:00" },
+                { id: "r3_19", grupo: "J", t1: "AGL", nome1: "Argélia", sigla1: "dz", t2: "AST", nome2: "Áustria", sigla2: "at", data: "2026-06-27T23:00:00" },
+                { id: "r3_20", grupo: "J", t1: "JRD", nome1: "Jordânia", sigla1: "jo", t2: "ARG", nome2: "Argentina", sigla2: "ar", data: "2026-06-27T23:00:00" },
+                { id: "r3_21", grupo: "K", t1: "RDC", nome1: "Rep. Dom. Congo", sigla1: "cd", t2: "UZB", nome2: "Uzbequistão", sigla2: "uz", data: "2026-06-27T20:30:00" },
+                { id: "r3_22", grupo: "K", t1: "COL", nome1: "Colômbia", sigla1: "co", t2: "POR", nome2: "Portugal", sigla2: "pt", data: "2026-06-27T20:30:00" },
+                { id: "r3_23", grupo: "L", t1: "CRO", nome1: "Croácia", sigla1: "hr", t2: "GHA", nome2: "Gana", sigla2: "gh", data: "2026-06-27T18:00:00" },
+                { id: "r3_24", grupo: "L", t1: "PAN", nome1: "Panamá", sigla1: "pa", t2: "ING", nome2: "Inglaterra", sigla2: "gb-eng", data: "2026-06-27T18:00:00" }
+            ]
+        };
+
+        const SENHA_ADMIN_PRE_ESTABELECIDA = "1052";
+        let isAdmin = false;
+        let modoEspiaoAtivo = false;
+        let meuNomeUsuario = "";
+        let telefoneUsuarioLogado = ""; 
+        let rodadaAtiva = "1"; 
+        let filtroRankingAtivo = "geral";
+
+        function executarEmTodosOsJogos(callback) {
+            Object.keys(rodadasBolao).forEach(r => {
+                if (Array.isArray(rodadasBolao[r])) {
+                    rodadasBolao[r].forEach(jogo => callback(jogo, r));
+                }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            garantirTelefonesAdminNoBanco();
+            ouvirRodadasDoFirebase(); 
+            ouvirRankingDoFirebase();
+            checarUsuarioExistente();
+
+            document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
+
+            document.getElementById("btn-admin").addEventListener("click", () => {
+                const senhaDigitada = prompt("Senha master do administrador:");
+                if (senhaDigitada === SENHA_ADMIN_PRE_ESTABELECIDA) {
+                    isAdmin = true;
+                    modoEspiaoAtivo = false;
+                    document.getElementById("banner-spy").classList.add("hidden");
+                    document.getElementById("painel-admin-whitelist").classList.remove("hidden");
+                    document.getElementById("painel-admin-gerenciador").classList.remove("hidden");
+                    liberarModoAdminVisual();
+                    ouvirFonesCadastradosAdmin();
+                } else {
+                    alert("Senha incorreta!");
+                }
+            });
+
+            document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
+                isAdmin = false;
+                document.getElementById("painel-admin-whitelist").classList.add("hidden");
+                document.getElementById("painel-admin-gerenciador").classList.add("hidden");
+                puxarMeusPalpitesDoFirebase();
+            });
+
+            // Lógica para criar nova rodada
+            document.getElementById("adm-btn-criar-rodada").addEventListener("click", () => {
+                const numero = prompt("Digite o número da nova rodada:");
+                if (numero && !isNaN(numero)) {
+                    database.ref('rodadas/' + numero).set([]).then(() => {
+                        alert("Rodada " + numero + " criada com sucesso!");
+                    }).catch((error) => {
+                        alert("Erro ao criar rodada: " + error.message);
+                    });
+                } else {
+                    alert("Por favor, digite um número válido.");
+                }
+            });
+
+            document.getElementById("adm-btn-add-fone").addEventListener("click", adicionarTelefoneNaListaAdmin);
+            document.getElementById("adm-btn-salvar-jogo").addEventListener("click", adicionarNovoJogoAdmin);
+
+            document.getElementById("btn-fechar-spy").addEventListener("click", () => {
+                modoEspiaoAtivo = false;
+                document.getElementById("banner-spy").classList.add("hidden");
+                puxarMeusPalpitesDoFirebase();
+            });
+
+            document.getElementById("tab-palpites").addEventListener("click", () => {
+                alternarAbas("palpites");
+                atualizarEstadoDasTravasEInputs();
+            });
+            document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
+
+            document.getElementById("btn-entrar").addEventListener("click", processarTentativaLogin);
+
+            document.getElementById("btn-salvar-palpites").addEventListener("click", () => {
+                if (isAdmin) {
+                    salvarResultadosOficiaisAdmin();
+                } else {
+                    salvarPalpitesUsuario();
+                }
+            });
+            
+            setInterval(atualizarEstadoDasTravasEInputs, 4000);
+        });
+
+        function ouvirRodadasDoFirebase() {
+            database.ref('rodadas').on('value', snapshot => {
+                const dados = snapshot.val();
+                if (!dados) {
+                    database.ref('rodadas').set(CADASTRAR_RODADAS_PADRAO_SE_VAZIO);
+                    rodadasBolao = JSON.parse(JSON.stringify(CADASTRAR_RODADAS_PADRAO_SE_VAZIO));
+                } else {
+                    rodadasBolao = dados;
+                }
+
+                Object.keys(rodadasBolao).forEach(r => {
+                    if (Array.isArray(rodadasBolao[r])) {
+                        rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
+                    }
+                });
+
+                renderizarAbasDeRodadasDinamicas();
+                renderizarAbasDeRankingDinamicas();
+                
+                if (isAdmin) {
+                    liberarModoAdminVisual();
+                } else {
+                    renderizarJogosRodadaAtiva();
+                    if (telefoneUsuarioLogado) {
+                        puxarMeusPalpitesDoFirebase();
+                    }
+                }
+            });
+        }
+
+        function renderizarAbasDeRodadasDinamicas() {
+            const seletor = document.getElementById("seletor-rodadas");
+            seletor.innerHTML = "";
+            
+            const chavesRodadas = Object.keys(rodadasBolao).sort((a, b) => Number(a) - Number(b));
+            
+            if (!chavesRodadas.includes(rodadaAtiva) && chavesRodadas.length > 0) {
+                rodadaAtiva = chavesRodadas[0];
+            }
+
+            chavesRodadas.forEach(r => {
+                const btn = document.createElement("button");
+                btn.className = `rodada-btn ${r === rodadaAtiva ? 'active' : ''}`;
+                btn.setAttribute("data-rodada", r);
+                btn.innerText = `Rodada ${r}`;
+                
+                btn.addEventListener("click", (e) => {
+                    document.querySelectorAll("#seletor-rodadas .rodada-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    rodadaAtiva = r;
+                    
+                    if (isAdmin) {
+                        liberarModoAdminVisual();
+                    } else if (modoEspiaoAtivo) {
+                        document.getElementById("btn-fechar-spy").click(); 
+                    } else {
+                        renderizarJogosRodadaAtiva();
+                        puxarMeusPalpitesDoFirebase();
+                    }
+                });
+                seletor.appendChild(btn);
+            });
+        }
+
+        function renderizarAbasDeRankingDinamicas() {
+            const seletor = document.getElementById("seletor-ranking-filtros");
+            if (!seletor) return;
+            seletor.innerHTML = "";
+
+            const btnGeral = document.createElement("button");
+            btnGeral.className = `rank-tab-btn ${filtroRankingAtivo === 'geral' ? 'active' : ''}`;
+            btnGeral.setAttribute("data-filtro", "geral");
+            btnGeral.innerText = "Geral";
+            btnGeral.addEventListener("click", acaoFiltroRanking);
+            seletor.appendChild(btnGeral);
+
+            const chavesRodadas = Object.keys(rodadasBolao).sort((a, b) => Number(a) - Number(b));
+            chavesRodadas.forEach(r => {
+                const btn = document.createElement("button");
+                btn.className = `rank-tab-btn ${filtroRankingAtivo === r ? 'active' : ''}`;
+                btn.setAttribute("data-filtro", r);
+                btn.innerText = `Rodada ${r}`;
+                btn.addEventListener("click", acaoFiltroRanking);
+                seletor.appendChild(btn);
+            });
+        }
+
+        function acaoFiltroRanking(e) {
+            document.querySelectorAll("#seletor-ranking-filtros .rank-tab-btn").forEach(b => b.classList.remove("active"));
+            e.target.classList.add("active");
+            filtroRankingAtivo = e.target.getAttribute("data-filtro");
+            
+            database.ref('participantes').once('value').then(snapshot => {
+                processarERenderizarRanking(snapshot.val() || {});
+            });
+        }
+
+        function garantirTelefonesAdminNoBanco() {
+            TELEFONES_ADMIN_PADRAO.forEach(fone => {
+                database.ref('telefones_autorizados/' + fone).set(true);
+            });
+        }
+
+        function renderizarJogosRodadaAtiva() {
+            const listaDiv = document.getElementById("lista-jogos");
+            listaDiv.innerHTML = "";
+            
+            let ultimaDataGrupo = "";
+            const jogosDaRodada = rodadasBolao[rodadaAtiva] || [];
+
+            jogosDaRodada.forEach(jogo => {
+                const objData = new Date(jogo.data);
+                const dataTextoDia = objData.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+                const horaFormatada = objData.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                if (dataTextoDia !== ultimaDataGrupo) {
+                    ultimaDataGrupo = dataTextoDia;
+                    const divisor = document.createElement("div");
+                    divisor.className = "separador-data";
+                    divisor.innerText = dataTextoDia;
+                    listaDiv.appendChild(divisor);
+                }
+
+                const card = document.createElement("div");
+                card.className = "card-jogo";
+                card.id = `card-${jogo.id}`;
+                
+                card.innerHTML = `
+                    <div class="info-jogo">Grupo ${jogo.grupo} — Às ${horaFormatada}</div>
+                    <div class="confronto">
+                        <div class="time">
+                            <span class="fi fi-${jogo.sigla1} bandeira"></span>
+                            <span>${jogo.t1}</span>
+                        </div>
+                        <div class="placar-inputs">
+                            <input type="number" id="p1-${jogo.id}" min="0" placeholder="-">
+                            <span>x</span>
+                            <input type="number" id="p2-${jogo.id}" min="0" placeholder="-">
+                        </div>
+                        <div class="time">
+                            <span class="fi fi-${jogo.sigla2} bandeira"></span>
+                            <span>${jogo.t2}</span>
+                        </div>
+                    </div>
+                    <div class="status-jogo" id="status-${jogo.id}"></div>
+                `;
+                listaDiv.appendChild(card);
+            });
+        }
+
+        function checarUsuarioExistente() {
+            const foneSalvo = localStorage.getItem("bolao_telefone");
+            const nomeSalvo = localStorage.getItem("bolao_nome_exibicao");
+            
+            if (foneSalvo && nomeSalvo) {
+                telefoneUsuarioLogado = foneSalvo;
+                mostrarTelaPrincipal(nomeSalvo);
+            }
+        }
+
+        function verificarStatusDoTelefoneInserido() {
+            const fone = document.getElementById("input-telefone").value.replace(/\D/g, "");
+            const blocoNome = document.getElementById("bloco-nome-primeiro-acesso");
+            const instrucoes = document.getElementById("instrucoes-login");
+
+            if (fone.length >= 10) {
+                database.ref('participantes/' + fone).once('value').then(snapshot => {
+                    if (snapshot.exists() && snapshot.val().nome) {
+                        blocoNome.classList.add("hidden");
+                        instrucoes.innerText = `Bem-vindo de volta! Clique em entrar para acessar os palpites de: ${snapshot.val().nome}`;
+                    } else {
+                        database.ref('telefones_autorizados/' + fone).once('value').then(snapAuth => {
+                            if (snapAuth.exists()) {
+                                blocoNome.classList.remove("hidden");
+                                instrucoes.innerText = "Número localizado com sucesso! Agora digite seu nome de exibição abaixo:";
+                            } else {
+                                blocoNome.classList.add("hidden");
+                                instrucoes.innerText = "⚠️ Este telefone não foi listado pelo administrador. Verifique o número!";
+                            }
+                        });
+                    }
+                });
+            } else {
+                blocoNome.classList.add("hidden");
+                instrucoes.innerText = "Para entrar, digite seu número de telefone cadastrado pelo administrador:";
+            }
+        }
+
+        function processarTentativaLogin() {
+            const foneInput = document.getElementById("input-telefone").value.replace(/\D/g, "");
+            const nomeInput = document.getElementById("input-nome").value.trim();
+
+            if (!foneInput) {
+                alert("Por favor, preencha o número de telefone celular!");
+                return;
+            }
+
+            database.ref('participantes/' + foneInput).once('value').then(snapshot => {
+                if (snapshot.exists() && snapshot.val().nome) {
+                    const dadosUsuario = snapshot.val();
+                    
+                    localStorage.setItem("bolao_telefone", foneInput);
+                    localStorage.setItem("bolao_nome_exibicao", dadosUsuario.nome);
+                    
+                    telefoneUsuarioLogado = foneInput;
+                    mostrarTelaPrincipal(dadosUsuario.nome);
+                } else {
+                    database.ref('telefones_autorizados/' + foneInput).once('value').then(snapAuth => {
+                        if (snapAuth.exists()) {
+                            if (!nomeInput) {
+                                alert("Este é o seu primeiro acesso! Digite o nome ou apelido que quer usar no ranking.");
+                                return;
+                            }
+                            
+                            localStorage.setItem("bolao_telefone", foneInput);
+                            localStorage.setItem("bolao_nome_exibicao", nomeInput);
+                            
+                            telefoneUsuarioLogado = foneInput;
+
+                            database.ref('participantes/' + foneInput).set({
+                                nome: nomeInput,
+                                telefone: foneInput,
+                                pontuacoes: 0,
+                                exatos: 0
+                            }).then(() => {
+                                mostrarTelaPrincipal(nomeInput);
+                            });
+                        } else {
+                            alert("Acesso negado! Seu número de celular não consta na lista de participantes autorizados.");
+                        }
+                    });
+                }
+            });
+        }
+
+        function mostrarTelaPrincipal(nome) {
+            meuNomeUsuario = nome;
+            document.getElementById("tela-login").classList.add("hidden");
+            document.getElementById("tela-principal").classList.remove("hidden");
+            document.getElementById("nome-usuario").innerText = nome;
+            puxarMeusPalpitesDoFirebase();
+        }
+
+        function puxarMeusPalpitesDoFirebase() {
+            if (!telefoneUsuarioLogado || !rodadasBolao[rodadaAtiva]) return;
+            
+            database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
+                const palpites = snapshot.val() || {};
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const field1 = document.getElementById(`p1-${jogo.id}`);
+                    const field2 = document.getElementById(`p2-${jogo.id}`);
+                    if (field1 && field2) {
+                        field1.value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
+                        field2.value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                    }
+                });
+                atualizarEstadoDasTravasEInputs();
+            });
+        }
+
+        function atualizarEstadoDasTravasEInputs() {
+            if (isAdmin || !rodadasBolao[rodadaAtiva]) return;
+
+            database.ref('.info/serverTimeOffset').once('value', (snapshot) => {
+                const offset = snapshot.val() || 0;
+                const agoraReal = new Date(Date.now() + offset);
+                const trintaMinutos = 30 * 60 * 1000;
+                const btnSalvar = document.getElementById("btn-salvar-palpites");
+
+                if (modoEspiaoAtivo) {
+                    if (btnSalvar) btnSalvar.classList.add("hidden");
+                    return;
+                }
+
+                if (btnSalvar) {
+                    btnSalvar.classList.remove("hidden");
+                    btnSalvar.className = "btn-sucesso";
+                    btnSalvar.innerText = "Salvar palpites desta rodada";
+                }
+                document.getElementById("btn-cancelar-admin").classList.add("hidden");
+                document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
+                document.getElementById("aviso-geral").style.color = "#ffb300";
+
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const dataJogo = new Date(jogo.data);
+                    const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
+                    
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    const cardDiv = document.getElementById(`card-${jogo.id}`);
+
+                    if (!input1 || !input2) return;
+
+                    if (agoraReal >= limiteTrava) {
+                        input1.disabled = true;
+                        input2.disabled = true;
+                        if (cardDiv) cardDiv.classList.add("travado");
+                        if (statusDiv) {
+                            statusDiv.innerText = "🔒 Palpites bloqueados";
+                            statusDiv.className = "status-jogo status-travado";
+                        }
+                    } else {
+                        input1.disabled = false;
+                        input2.disabled = false;
+                        if (cardDiv) cardDiv.classList.remove("travado");
+                        
+                        const diferencaMs = limiteTrava - agoraReal;
+                        const totalMinutos = Math.ceil(diferencaMs / (1000 * 60));
+                        
+                        if (statusDiv) {
+                            if(totalMinutos > 60) {
+                                const horas = Math.floor(totalMinutos / 60);
+                                const mins = totalMinutos % 60;
+                                statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
+                            } else {
+                                statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
+                            }
+                            statusDiv.className = "status-jogo status-aberto";
+                        }
+                    }
+                });
+            });
+        }
+
+        function espiarParticipante(chaveFoneAlvo, nomeExibicaoAlvo) {
+            if (chaveFoneAlvo === telefoneUsuarioLogado) {
+                modoEspiaoAtivo = false;
+                document.getElementById("banner-spy").classList.add("hidden");
+                puxarMeusPalpitesDoFirebase();
+                return;
+            }
+
+            database.ref('participantes/' + chaveFoneAlvo + '/palpites').once('value').then((snapshot) => {
+                const palpites = snapshot.val() || {};
+                const agora = new Date();
+                const trintaMinutos = 30 * 60 * 1000;
+
+                modoEspiaoAtivo = true;
+                alternarAbas("palpites");
+                renderizarJogosRodadaAtiva(); 
+                
+                document.getElementById("spy-nome").innerText = nomeExibicaoAlvo;
+                document.getElementById("banner-spy").classList.remove("hidden");
+                document.getElementById("btn-salvar-palpites").classList.add("hidden");
+
+                if (!rodadasBolao[rodadaAtiva]) return;
+
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const dataJogo = new Date(jogo.data);
+                    const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
+                    
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    const cardDiv = document.getElementById(`card-${jogo.id}`);
+
+                    if (!input1 || !input2) return;
+
+                    input1.disabled = true;
+                    input2.disabled = true;
+
+                    if (agora >= limiteTrava) {
+                        input1.value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
+                        input2.value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                        if (cardDiv) cardDiv.classList.add("travado");
+                        if (statusDiv) {
+                            statusDiv.innerText = "🔒 Palpite travado (visível)";
+                            statusDiv.className = "status-jogo status-travado";
+                        }
+                    } else {
+                        input1.value = "";
+                        input2.value = "";
+                        if (cardDiv) cardDiv.classList.remove("travado");
+                        if (statusDiv) {
+                            statusDiv.innerText = "🙈 Oculto até travar!";
+                            statusDiv.className = "status-jogo status-aberto";
+                        }
+                    }
+                });
+            });
+        }
+
+        function liberarModoAdminVisual() {
+            renderizarJogosRodadaAtiva();
+            database.ref('resultados_oficiais').once('value').then((snapshot) => {
+                const oficiais = snapshot.val() || {};
+                if (!rodadasBolao[rodadaAtiva]) return;
+
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const input1 = document.getElementById(`p1-${jogo.id}`);
+                    const input2 = document.getElementById(`p2-${jogo.id}`);
+                    if (!input1) return;
+
+                    input1.disabled = false;
+                    input2.disabled = false;
+                    input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
+                    input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
+                    
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    if (statusDiv) {
+                        statusDiv.innerText = "📝 Modo administrador — resultados oficiais";
+                        statusDiv.className = "status-jogo";
+                    }
+                });
+                
+                document.getElementById("btn-cancelar-admin").classList.remove("hidden");
+                const btnSalvar = document.getElementById("btn-salvar-palpites");
+                if (btnSalvar) {
+                    btnSalvar.classList.remove("hidden");
+                    btnSalvar.innerText = "Salvar resultados oficiais (admin)";
+                    btnSalvar.className = "btn-alerta";
+                }
+                
+                document.getElementById("aviso-geral").innerText = "MODO ADMINISTRADOR ATIVO";
+                document.getElementById("aviso-geral").style.color = "#ff3d00";
+            });
+        }
+
+        function adicionarTelefoneNaListaAdmin() {
+            const foneInput = document.getElementById("adm-novo-fone").value.replace(/\D/g, "");
+            if (foneInput.length < 10) {
+                alert("Digite um número com DDD válido!");
+                return;
+            }
+            database.ref('telefones_autorizados/' + foneInput).set(true).then(() => {
+                document.getElementById("adm-novo-fone").value = "";
+                alert("Telefone autorizado com sucesso!");
+            });
+        }
+
+        function adicionarNovoJogoAdmin() {
+            const nrRodada = document.getElementById("adm-jogo-rodada").value.trim();
+            const jogoId = document.getElementById("adm-jogo-id").value.trim();
+            const grupo = document.getElementById("adm-jogo-grupo").value.trim().toUpperCase();
+            const dataHora = document.getElementById("adm-jogo-data").value;
+            
+            const t1 = document.getElementById("adm-jogo-t1").value.trim().toUpperCase();
+            const nome1 = document.getElementById("adm-jogo-nome1").value.trim();
+            const sigla1 = document.getElementById("adm-jogo-sigla1").value.trim().toLowerCase();
+
+            const t2 = document.getElementById("adm-jogo-t2").value.trim().toUpperCase();
+            const nome2 = document.getElementById("adm-jogo-nome2").value.trim();
+            const sigla2 = document.getElementById("adm-jogo-sigla2").value.trim().toLowerCase();
+
+            if (!nrRodada || !jogoId || !grupo || !dataHora || !t1 || !nome1 || !sigla1 || !t2 || !nome2 || !sigla2) {
+                alert("Preencha todos os campos do formulário para inserir o jogo!");
+                return;
+            }
+
+            const novoJogoObj = {
+                id: jogoId,
+                grupo: grupo,
+                data: dataHora,
+                t1: t1,
+                nome1: nome1,
+                sigla1: sigla1,
+                t2: t2,
+                nome2: nome2,
+                sigla2: sigla2
+            };
+
+            database.ref(`rodadas/${nrRodada}`).once('value').then(snapshot => {
+                let jogosExistentes = snapshot.val() || [];
+                if (!Array.isArray(jogosExistentes)) {
+                    jogosExistentes = Object.values(jogosExistentes);
+                }
+
+                jogosExistentes = jogosExistentes.filter(j => j.id !== jogoId);
+                jogosExistentes.push(novoJogoObj);
+
+                database.ref(`rodadas/${nrRodada}`).set(jogosExistentes).then(() => {
+                    alert(`Jogo ${jogoId} gravado com sucesso na Rodada ${nrRodada}!`);
+                    
+                    document.getElementById("adm-jogo-id").value = "";
+                    document.getElementById("adm-jogo-t1").value = "";
+                    document.getElementById("adm-jogo-nome1").value = "";
+                    document.getElementById("adm-jogo-sigla1").value = "";
+                    document.getElementById("adm-jogo-t2").value = "";
+                    document.getElementById("adm-jogo-nome2").value = "";
+                    document.getElementById("adm-jogo-sigla2").value = "";
+                });
+            });
+        }
+
+        function ouvirFonesCadastradosAdmin() {
+            database.ref('telefones_autorizados').on('value', snapshot => {
+                const fones = snapshot.val() || {};
+                const container = document.getElementById("adm-lista-fones");
+                container.innerHTML = "";
+                
+                const chaves = Object.keys(fones);
+                if(chaves.length === 0) {
+                    container.innerText = "Nenhum telefone pré-registrado.";
+                    return;
+                }
+
+                chaves.forEach(fone => {
+                    const item = document.createElement("div");
+                    item.className = "item-whitelist";
+                    item.innerHTML = `
+                        <span>📞 ${fone}</span>
+                        <button class="btn-alerta" onclick="removerFoneAdmin('${fone}')">Excluir</button>
+                    `;
+                    container.appendChild(item);
+                });
+            });
+        }
+
+        window.removerFoneAdmin = function(fone) {
+            if (TELEFONES_ADMIN_PADRAO.includes(fone)) {
+                alert("Este número é o administrador master do sistema e não pode ser removido pelo painel!");
+                return;
+            }
+            if(confirm(`Deseja remover a permissão do telefone ${fone}?`)) {
+                database.ref('telefones_autorizados/' + fone).remove();
+                database.ref('participantes/' + fone).remove(); 
+            }
+        }
+
+        function salvarPalpitesUsuario() {
+            if (!rodadasBolao[rodadaAtiva]) return;
+
+            database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
+                let dadosPalpites = snapshot.val() || {};
+                let preencheuAlgumNestaRodada = false;
+                
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                    
+                    if(val1 !== "" && val2 !== "") {
+                        dadosPalpites[`p1-${jogo.id}`] = parseInt(val1);
+                        dadosPalpites[`p2-${jogo.id}`] = parseInt(val2);
+                        preencheuAlgumNestaRodada = true;
+                    }
+                });
+
+                if(!preencheuAlgumNestaRodada) {
+                    alert("Digite pelo menos um placar completo nesta rodada antes de salvar!");
+                    return;
+                }
+
+                database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').set(dadosPalpites).then(() => {
+                    alert(`Palpites da rodada ${rodadaAtiva} salvos com sucesso!`);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            });
+        }
+
+        function salvarResultadosOficiaisAdmin() {
+            if (!rodadasBolao[rodadaAtiva]) return;
+
+            database.ref('resultados_oficiais').once('value').then((snapshot) => {
+                let dadosOficiais = snapshot.val() || {};
+                
+                rodadasBolao[rodadaAtiva].forEach(jogo => {
+                    const val1 = document.getElementById(`p1-${jogo.id}`).value;
+                    const val2 = document.getElementById(`p2-${jogo.id}`).value;
+                    if(val1 !== "" && val2 !== "") {
+                        dadosOficiais[`p1-${jogo.id}`] = parseInt(val1);
+                        dadosOficiais[`p2-${jogo.id}`] = parseInt(val2);
+                    }
+                });
+
+                database.ref('resultados_oficiais').set(dadosOficiais).then(() => {
+                    recalcularPontuacoesGerais(dadosOficiais);
+                });
+            });
+        }
+
+        function recalcularPontuacoesGerais(resultadosOficiais) {
+            database.ref('participantes').once('value').then((snapshot) => {
+                const participantes = snapshot.val() || {};
+                const chavesRodadas = Object.keys(rodadasBolao);
+
+                Object.keys(participantes).forEach(key => {
+                    const usuario = participantes[key];
+                    const palpites = usuario.palpites || {};
+                    
+                    let pontosGeral = 0;
+                    let exatosGeral = 0;
+                    
+                    let pontosRodadas = {};
+                    let exatosRodadas = {};
+                    chavesRodadas.forEach(r => {
+                        pontosRodadas["r" + r] = 0;
+                        exatosRodadas["r" + r] = 0;
+                    });
+
+                    executarEmTodosOsJogos((jogo, r) => {
+                        const res1 = resultadosOficiais[`p1-${jogo.id}`];
+                        const res2 = resultadosOficiais[`p2-${jogo.id}`];
+                        const pal1 = palpites[`p1-${jogo.id}`];
+                        const pal2 = palpites[`p2-${jogo.id}`];
+
+                        if (res1 !== undefined && res2 !== undefined && pal1 !== undefined && pal2 !== undefined) {
+                            let chaveRodada = "r" + r;
+                            
+                            if (res1 === pal1 && res2 === pal2) {
+                                pontosGeral += 5;
+                                exatosGeral += 1;
+                                pontosRodadas[chaveRodada] += 5;
+                                exatosRodadas[chaveRodada] += 1;
+                            } 
+                            else if ((res1 > res2 && pal1 > pal2) || (res1 < res2 && pal1 < pal2) || (res1 === res2 && pal1 === pal2)) {
+                                pontosGeral += 3;
+                                pontosRodadas[chaveRodada] += 3;
+                            }
+                        }
+                    });
+
+                    let dadosUpdate = {
+                        pontuacoes: pontosGeral,
+                        exatos: exatosGeral
+                    };
+
+                    chavesRodadas.forEach(r => {
+                        dadosUpdate[`pontos_r${r}`] = pontosRodadas["r" + r];
+                        dadosUpdate[`exatos_r${r}`] = exatosRodadas["r" + r];
+                    });
+
+                    database.ref('participantes/' + key).update(dadosUpdate);
+                });
+
+                alert("Pontuações recalculadas com sucesso!");
+                isAdmin = false;
+                document.getElementById("painel-admin-whitelist").classList.add("hidden");
+                document.getElementById("painel-admin-gerenciador").classList.add("hidden");
+                puxarMeusPalpitesDoFirebase();
+                alternarAbas("palpites");
+            });
+        }
+
+        function ouvirRankingDoFirebase() {
+            database.ref('participantes').on('value', (snapshot) => {
+                processarERenderizarRanking(snapshot.val() || {});
+            });
+        }
+
+        function processarERenderizarRanking(participantes) {
+            let listaRanking = [];
+
+            Object.keys(participantes).forEach(key => {
+                const u = participantes[key];
+                if (u) {
+                    let nomeExibicao = u.nome ? u.nome : `Participante (${key})`;
+                    
+                    let ptsExibicao = 0;
+                    let exatosExibicao = 0;
+
+                    if (filtroRankingAtivo === "geral") {
+                        ptsExibicao = u.pontuacoes || 0;
+                        exatosExibicao = u.exatos || 0;
+                    } else {
+                        ptsExibicao = u[`pontos_r${filtroRankingAtivo}`] || 0;
+                        exatosExibicao = u[`exatos_r${filtroRankingAtivo}`] || 0;
+                    }
+
+                    listaRanking.push({
+                        chaveBanco: key,
+                        nome: nomeExibicao,
+                        pontos: ptsExibicao,
+                        exatos: exatosExibicao,
+                        acertos_vencedor: u.acertos_vencedor || 0
+                    });
+                }
+            });
+
+            listaRanking.sort((a, b) => {
+                if (b.pontos !== a.pontos) return b.pontos - a.pontos;
+                if (b.exatos !== a.exatos) return b.exatos - a.exatos;
+                const acertosVencedorA = a.acertos_vencedor || 0;
+                const acertosVencedorB = b.acertos_vencedor || 0;
+                if (acertosVencedorB !== acertosVencedorA) return acertosVencedorB - acertosVencedorA;
+                return a.nome.localeCompare(b.nome);
+            });
+
+            const containerRanking = document.getElementById("lista-ranking");
+            if (!containerRanking) return;
+            
+            let sufixoCabecalho = filtroRankingAtivo === "geral" ? "Geral" : `Rodada ${filtroRankingAtivo}`;
+            containerRanking.innerHTML = `
+                <div class="linha-ranking cabecalho-ranking">
+                    <span>Classificação — ${sufixoCabecalho}</span>
+                    <span>Pontos (Exatos)</span>
+                </div>
+            `;
+
+            listaRanking.forEach((usuario, index) => {
+                const htmlLinha = document.createElement("div");
+                htmlLinha.className = "linha-ranking clicavel";
+                
+                if (index === listaRanking.length - 1 && listaRanking.length > 1) {
+                    htmlLinha.classList.add("ultimo-colocado");
+                }
+
+                htmlLinha.innerHTML = `
+                    <span><strong>${index + 1}º</strong> ${usuario.nome}</span>
+                    <span>${usuario.pontos} pts (${usuario.exatos})</span>
+                `;
+                htmlLinha.addEventListener("click", () => espiarParticipante(usuario.chaveBanco, usuario.nome));
+                containerRanking.appendChild(htmlLinha);
+            });
+        }
+
+        function alternarAbas(aba) {
+            if (aba === "palpites") {
+                document.getElementById("tab-palpites").classList.add("active");
+                document.getElementById("tab-ranking").classList.remove("active");
+                document.getElementById("conteudo-palpites").classList.remove("hidden");
+                document.getElementById("conteudo-ranking").classList.add("hidden");
+            } else {
+                document.getElementById("tab-palpites").classList.remove("active");
+                document.getElementById("tab-ranking").classList.add("active");
+                document.getElementById("conteudo-palpites").classList.add("hidden");
+                document.getElementById("conteudo-ranking").classList.remove("hidden");
+            }
+        }
+    </script>
+</body>
+</html>

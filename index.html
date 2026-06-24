@@ -69,7 +69,6 @@
         .linha-ranking.clicavel:hover { background-color: #252a34; }
         .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
         
-        /* Nova regra para destacar o último da lista */
         .ultimo-colocado { color: #ff3d00; font-weight: bold; }
         
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
@@ -641,8 +640,9 @@
 
                     input1.disabled = false;
                     input2.disabled = false;
-                    input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
-                    input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
+                    // Busca os resultados oficiais usando a nova estrutura (chave_p1 e chave_p2)
+                    input1.value = oficiais[`${jogo.id}_p1`] !== undefined ? oficiais[`${jogo.id}_p1`] : "";
+                    input2.value = oficiais[`${jogo.id}_p2`] !== undefined ? oficiais[`${jogo.id}_p2`] : "";
                     
                     document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo administrador — resultados oficiais";
                     document.getElementById(`status-${jogo.id}`).className = "status-jogo";
@@ -736,19 +736,19 @@
 
         function salvarResultadosOficiaisAdmin() {
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
-                let dadosOficiais = snapshot.val() || {};
+                let novosOficiais = {};
                 
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const val1 = document.getElementById(`p1-${jogo.id}`).value;
                     const val2 = document.getElementById(`p2-${jogo.id}`).value;
                     if(val1 !== "" && val2 !== "") {
-                        dadosOficiais[`p1-${jogo.id}`] = parseInt(val1);
-                        dadosOficiais[`p2-${jogo.id}`] = parseInt(val2);
+                        novosOficiais[`${jogo.id}_p1`] = parseInt(val1);
+                        novosOficiais[`${jogo.id}_p2`] = parseInt(val2);
                     }
                 });
 
-                database.ref('resultados_oficiais').set(dadosOficiais).then(() => {
-                    recalcularPontuacoesGerais(dadosOficiais);
+                database.ref('resultados_oficiais').set(novosOficiais).then(() => {
+                    recalcularPontuacoesGerais(novosOficiais);
                 });
             });
         }
@@ -767,8 +767,8 @@
                     let exatosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
 
                     executarEmTodosOsJogos((jogo, r) => {
-                        const res1 = resultadosOficiais[`p1-${jogo.id}`];
-                        const res2 = resultadosOficiais[`p2-${jogo.id}`];
+                        const res1 = resultadosOficiais[`${jogo.id}_p1`];
+                        const res2 = resultadosOficiais[`${jogo.id}_p2`];
                         const pal1 = palpites[`p1-${jogo.id}`];
                         const pal2 = palpites[`p2-${jogo.id}`];
 
@@ -800,7 +800,7 @@
                     });
                 });
 
-                alert("Pontuações recalculadas com sucesso!");
+                alert("Recálculo concluído com sucesso!");
                 isAdmin = false;
                 document.getElementById("painel-admin-whitelist").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();

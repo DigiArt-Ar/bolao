@@ -21,7 +21,8 @@
         #btn-admin { background: none; border: none; color: #888; font-size: 20px; cursor: pointer; transition: color 0.2s; }
         #btn-admin:hover { color: #fff; }
 
-        input[type="text"], input[type="number"], input[type="tel"] { background-color: #252a34; border: 1px solid #3a4252; color: #fff; padding: 12px; border-radius: 6px; text-align: center; outline: none; width: 100%; margin-bottom: 15px; font-size: 16px; }
+        input[type="text"], input[type="number"], input[type="tel"], input[type="datetime-local"], select { background-color: #252a34; border: 1px solid #3a4252; color: #fff; padding: 12px; border-radius: 6px; text-align: center; outline: none; width: 100%; margin-bottom: 15px; font-size: 16px; }
+        select { text-align-last: center; -webkit-appearance: none; -moz-appearance: none; appearance: none; }
 
         button { color: white; border: none; padding: 14px; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; transition: background 0.2s; margin-bottom: 10px; }
         .btn-sucesso { background-color: #00c853; }
@@ -35,12 +36,12 @@
         .tab-btn { background-color: #252a34; color: #aaa; padding: 10px; font-size: 14px; width: 50%; border-radius: 6px; }
         .tab-btn.active { background-color: #007bff; color: #fff; }
 
-        .rodadas-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
-        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; width: 33.33%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; }
+        .rodadas-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; overflow-x: auto; }
+        .rodada-btn { background: none; color: #aaa; padding: 8px; font-size: 12px; min-width: 70px; flex: 1; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; white-space: nowrap; }
         .rodada-btn.active { background-color: #38bdf8; color: #1a1d24; }
 
-        .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; }
-        .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; width: 25%; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; }
+        .ranking-tabs { display: flex; gap: 4px; margin-bottom: 15px; background-color: #252a34; padding: 4px; border-radius: 8px; overflow-x: auto; }
+        .rank-tab-btn { background: none; color: #aaa; padding: 8px 4px; font-size: 11px; min-width: 65px; flex: 1; border-radius: 6px; margin-bottom: 0; border: none; cursor: pointer; font-weight: bold; text-align: center; white-space: nowrap; }
         .rank-tab-btn.active { background-color: #00c853; color: #ffffff; }
 
         .aviso-trava { font-size: 13px; color: #ffb300; margin-bottom: 20px; text-align: center; font-weight: 500; padding: 8px; border-radius: 6px; background-color: rgba(255, 179, 0, 0.1); }
@@ -69,7 +70,6 @@
         .linha-ranking.clicavel:hover { background-color: #252a34; }
         .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
         
-        /* Nova regra para destacar o último da lista */
         .ultimo-colocado { color: #ff3d00; font-weight: bold; }
         
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
@@ -79,6 +79,12 @@
         .lista-whitelist { max-height: 150px; overflow-y: auto; margin-top: 10px; background: #151921; padding: 10px; border-radius: 6px; text-align: left; font-size: 13px; }
         .item-whitelist { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #252a34; align-items: center; }
         .item-whitelist button { width: auto; padding: 2px 6px; font-size: 11px; margin-bottom: 0; }
+
+        .form-admin-jogos { display: flex; flex-direction: column; gap: 2px; text-align: left; margin-top: 10px; }
+        .form-admin-jogos label { font-size: 12px; font-weight: bold; color: #38bdf8; margin-top: 6px; }
+        .form-admin-jogos input, .form-admin-jogos select { margin-bottom: 4px; padding: 8px; font-size: 14px; text-align: left; }
+        .form-admin-jogos .row-dupla { display: flex; gap: 8px; }
+        .form-admin-jogos .row-dupla div { flex: 1; display: flex; flex-direction: column; }
     </style>
 </head>
 <body>
@@ -115,11 +121,7 @@
                 <button id="btn-fechar-spy" class="btn-secundario">Voltar aos meus</button>
             </div>
             
-            <div class="rodadas-tabs" id="seletor-rodadas">
-                <button class="rodada-btn active" data-rodada="1">Rodada 1</button>
-                <button class="rodada-btn" data-rodada="2">Rodada 2</button>
-                <button class="rodada-btn" data-rodada="3">Rodada 3</button>
-            </div>
+            <div class="rodadas-tabs" id="seletor-rodadas"></div>
 
             <p class="aviso-trava" id="aviso-geral">Cada jogo trava individualmente 30 minutos antes do início!</p>
             
@@ -127,11 +129,66 @@
             
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar palpites desta rodada</button>
             
+            <div id="painel-admin-gerenciador" class="box-whitelist hidden" style="margin-bottom: 15px;">
+                <h4>➕ Criar Nova Rodada / Adicionar Jogo</h4>
+                <div class="form-admin-jogos">
+                    <div class="row-dupla">
+                        <div>
+                            <label>Número da Rodada:</label>
+                            <input type="number" id="adm-jogo-rodada" placeholder="Ex: 4" min="1">
+                        </div>
+                        <div>
+                            <label>ID Único do Jogo:</label>
+                            <input type="text" id="adm-jogo-id" placeholder="Ex: r4_01">
+                        </div>
+                    </div>
+
+                    <div class="row-dupla">
+                        <div>
+                            <label>Grupo:</label>
+                            <input type="text" id="adm-jogo-grupo" placeholder="Ex: A">
+                        </div>
+                        <div>
+                            <label>Data e Hora do Jogo:</label>
+                            <input type="datetime-local" id="adm-jogo-data">
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px dashed #3a4252; margin-top: 5px; padding-top: 5px;"><strong>Time Mandante (1)</strong></div>
+                    <div class="row-dupla">
+                        <div>
+                            <input type="text" id="adm-jogo-t1" placeholder="Sigla (Ex: BRA)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-nome1" placeholder="Nome (Ex: Brasil)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-sigla1" placeholder="Bandeira CSS (Ex: br)">
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px dashed #3a4252; margin-top: 5px; padding-top: 5px;"><strong>Time Visitante (2)</strong></div>
+                    <div class="row-dupla">
+                        <div>
+                            <input type="text" id="adm-jogo-t2" placeholder="Sigla (Ex: FRA)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-nome2" placeholder="Nome (Ex: França)">
+                        </div>
+                        <div>
+                            <input type="text" id="adm-jogo-sigla2" placeholder="Bandeira CSS (Ex: fr)">
+                        </div>
+                    </div>
+
+                    <button id="adm-btn-salvar-jogo" class="btn-sucesso" style="margin-top: 10px; padding: 10px;">Gravar Jogo no Banco</button>
+                </div>
+            </div>
+
             <div id="painel-admin-whitelist" class="box-whitelist hidden">
                 <h4>🔑 Registro de telefones autorizados</h4>
                 <p style="text-align: left; font-size: 11px; margin-top: 5px;">Adicione o telefone de quem comprou o bolão aqui antes de passar o link para ele:</p>
                 <div style="display: flex; gap: 5px; margin-top: 10px;">
-                    <input type="tel" id="adm-novo-fone" placeholder="Ex: 24993148000" style="margin-bottom: 0; padding: 8px;">
+                    <input type="tel" id="adm-novo-fone" placeholder="Ex: 24993148000" style="margin-bottom: 0; padding: 8px; text-align: left;">
                     <button id="adm-btn-add-fone" class="btn-sucesso" style="width: auto; margin-bottom:0; padding: 8px 15px;">+ Add</button>
                 </div>
                 <div class="lista-whitelist" id="adm-lista-fones">Carregando lista...</div>
@@ -143,12 +200,7 @@
         <div id="conteudo-ranking" class="tab-conteudo hidden">
             <h3>Classificação</h3>
             
-            <div class="ranking-tabs" id="seletor-ranking-filtros">
-                <button class="rank-tab-btn active" data-filtro="geral">Geral</button>
-                <button class="rank-tab-btn" data-filtro="1">Rodada 1</button>
-                <button class="rank-tab-btn" data-filtro="2">Rodada 2</button>
-                <button class="rank-tab-btn" data-filtro="3">Rodada 3</button>
-            </div>
+            <div class="ranking-tabs" id="seletor-ranking-filtros"></div>
 
             <p style="margin-bottom: 10px; font-size: 12px; color: #888;">Clique em um participante para ver os palpites travados dele!</p>
             <div id="lista-ranking"></div>
@@ -174,7 +226,10 @@
 
         const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
 
-        const rodadasBolao = {
+        // Objeto dinâmico populado via Firebase
+        let rodadasBolao = {};
+
+        const CADASTRAR_RODADAS_PADRAO_SE_VAZIO = {
             "1": [
                 { id: "r1_01", grupo: "A", t1: "MEX", nome1: "México", sigla1: "mx", t2: "AFS", nome2: "África do Sul", sigla2: "za", data: "2026-06-11T16:00:00" },
                 { id: "r1_02", grupo: "A", t1: "COR", nome1: "Coreia do Sul", sigla1: "kr", t2: "TCH", nome2: "Rep. Checa", sigla2: "cz", data: "2026-06-11T23:00:00" },
@@ -189,7 +244,7 @@
                 { id: "r1_11", grupo: "E", t1: "CDI", nome1: "Costa do Marfim", sigla1: "ci", t2: "EQU", nome2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
                 { id: "r1_12", grupo: "F", t1: "SUE", nome1: "Suécia", sigla1: "se", t2: "TUN", nome2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
                 { id: "r3_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
-                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
+                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", siglet2: "eg", data: "2026-06-15T16:00:00" },
                 { id: "r1_15", grupo: "H", t1: "SAU", nome1: "Arábia Saudita", sigla1: "sa", t2: "URU", nome2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
                 { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
                 { id: "r1_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
@@ -263,22 +318,18 @@
         let rodadaAtiva = "1"; 
         let filtroRankingAtivo = "geral";
 
-        Object.keys(rodadasBolao).forEach(r => {
-            rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
-        });
-
         function executarEmTodosOsJogos(callback) {
             Object.keys(rodadasBolao).forEach(r => {
-                rodadasBolao[r].forEach(jogo => callback(jogo, r));
+                if (Array.isArray(rodadasBolao[r])) {
+                    rodadasBolao[r].forEach(jogo => callback(jogo, r));
+                }
             });
         }
 
         document.addEventListener("DOMContentLoaded", () => {
             garantirTelefonesAdminNoBanco();
-            renderizarJogosRodadaAtiva();
+            ouvirRodadasDoFirebase(); 
             ouvirRankingDoFirebase();
-            configurarSeletorRodadas();
-            configurarSeletorFiltrosRanking();
             checarUsuarioExistente();
 
             document.getElementById("input-telefone").addEventListener("input", verificarStatusDoTelefoneInserido);
@@ -290,6 +341,7 @@
                     modoEspiaoAtivo = false;
                     document.getElementById("banner-spy").classList.add("hidden");
                     document.getElementById("painel-admin-whitelist").classList.remove("hidden");
+                    document.getElementById("painel-admin-gerenciador").classList.remove("hidden");
                     liberarModoAdminVisual();
                     ouvirFonesCadastradosAdmin();
                 } else {
@@ -300,10 +352,12 @@
             document.getElementById("btn-cancelar-admin").addEventListener("click", () => {
                 isAdmin = false;
                 document.getElementById("painel-admin-whitelist").classList.add("hidden");
+                document.getElementById("painel-admin-gerenciador").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();
             });
 
             document.getElementById("adm-btn-add-fone").addEventListener("click", adicionarTelefoneNaListaAdmin);
+            document.getElementById("adm-btn-salvar-jogo").addEventListener("click", adicionarNovoJogoAdmin);
 
             document.getElementById("btn-fechar-spy").addEventListener("click", () => {
                 modoEspiaoAtivo = false;
@@ -311,7 +365,10 @@
                 puxarMeusPalpitesDoFirebase();
             });
 
-            document.getElementById("tab-palpites").addEventListener("click", () => alternarAbas("palpites"));
+            document.getElementById("tab-palpites").addEventListener("click", () => {
+                alternarAbas("palpites");
+                atualizarEstadoDasTravasEInputs();
+            });
             document.getElementById("tab-ranking").addEventListener("click", () => alternarAbas("ranking"));
 
             document.getElementById("btn-entrar").addEventListener("click", processarTentativaLogin);
@@ -327,19 +384,59 @@
             setInterval(atualizarEstadoDasTravasEInputs, 4000);
         });
 
-        function garantirTelefonesAdminNoBanco() {
-            TELEFONES_ADMIN_PADRAO.forEach(fone => {
-                database.ref('telefones_autorizados/' + fone).set(true);
+        function ouvirRodadasDoFirebase() {
+            database.ref('rodadas').on('value', snapshot => {
+                const dados = snapshot.val();
+                if (!dados) {
+                    // Inicializa banco de dados com as rodadas estáveis iniciais se estiver zerado
+                    database.ref('rodadas').set(CADASTRAR_RODADAS_PADRAO_SE_VAZIO);
+                    rodadasBolao = JSON.parse(JSON.stringify(CADASTRAR_RODADAS_PADRAO_SE_VAZIO));
+                } else {
+                    rodadasBolao = dados;
+                }
+
+                // Ordena os jogos cronologicamente em cada rodada
+                Object.keys(rodadasBolao).forEach(r => {
+                    if (Array.isArray(rodadasBolao[r])) {
+                        rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
+                    }
+                });
+
+                renderizarAbasDeRodadasDinamicas();
+                renderizarAbasDeRankingDinamicas();
+                
+                if (isAdmin) {
+                    liberarModoAdminVisual();
+                } else {
+                    renderizarJogosRodadaAtiva();
+                    if (telefoneUsuarioLogado) {
+                        puxarMeusPalpitesDoFirebase();
+                    }
+                }
             });
         }
 
-        function configurarSeletorRodadas() {
-            const botoes = document.querySelectorAll("#seletor-rodadas .rodada-btn");
-            botoes.forEach(btn => {
+        function renderizarAbasDeRodadasDinamicas() {
+            const seletor = document.getElementById("seletor-rodadas");
+            seletor.innerHTML = "";
+            
+            const chavesRodadas = Object.keys(rodadasBolao).sort((a, b) => Number(a) - Number(b));
+            
+            // Validação de segurança para manter a rodada selecionada consistente
+            if (!chavesRodadas.includes(rodadaAtiva) && chavesRodadas.length > 0) {
+                rodadaAtiva = chavesRodadas[0];
+            }
+
+            chavesRodadas.forEach(r => {
+                const btn = document.createElement("button");
+                btn.className = `rodada-btn ${r === rodadaAtiva ? 'active' : ''}`;
+                btn.setAttribute("data-rodada", r);
+                btn.innerText = `Rodada ${r}`;
+                
                 btn.addEventListener("click", (e) => {
-                    botoes.forEach(b => b.classList.remove("active"));
-                    e.target.classList.add("active");
-                    rodadaAtiva = e.target.getAttribute("data-rodada");
+                    document.querySelectorAll("#seletor-rodadas .rodada-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    rodadaAtiva = r;
                     
                     if (isAdmin) {
                         liberarModoAdminVisual();
@@ -350,21 +447,46 @@
                         puxarMeusPalpitesDoFirebase();
                     }
                 });
+                seletor.appendChild(btn);
             });
         }
 
-        function configurarSeletorFiltrosRanking() {
-            const botoes = document.querySelectorAll("#seletor-ranking-filtros .rank-tab-btn");
-            botoes.forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    botoes.forEach(b => b.classList.remove("active"));
-                    e.target.classList.add("active");
-                    filtroRankingAtivo = e.target.getAttribute("data-filtro");
-                    
-                    database.ref('participantes').once('value').then(snapshot => {
-                        processarERenderizarRanking(snapshot.val() || {});
-                    });
-                });
+        function renderizarAbasDeRankingDinamicas() {
+            const seletor = document.getElementById("seletor-ranking-filtros");
+            if (!seletor) return;
+            seletor.innerHTML = "";
+
+            const btnGeral = document.createElement("button");
+            btnGeral.className = `rank-tab-btn ${filtroRankingAtivo === 'geral' ? 'active' : ''}`;
+            btnGeral.setAttribute("data-filtro", "geral");
+            btnGeral.innerText = "Geral";
+            btnGeral.addEventListener("click", acaoFiltroRanking);
+            seletor.appendChild(btnGeral);
+
+            const chavesRodadas = Object.keys(rodadasBolao).sort((a, b) => Number(a) - Number(b));
+            chavesRodadas.forEach(r => {
+                const btn = document.createElement("button");
+                btn.className = `rank-tab-btn ${filtroRankingAtivo === r ? 'active' : ''}`;
+                btn.setAttribute("data-filtro", r);
+                btn.innerText = `Rodada ${r}`;
+                btn.addEventListener("click", acaoFiltroRanking);
+                seletor.appendChild(btn);
+            });
+        }
+
+        function acaoFiltroRanking(e) {
+            document.querySelectorAll("#seletor-ranking-filtros .rank-tab-btn").forEach(b => b.classList.remove("active"));
+            e.target.classList.add("active");
+            filtroRankingAtivo = e.target.getAttribute("data-filtro");
+            
+            database.ref('participantes').once('value').then(snapshot => {
+                processarERenderizarRanking(snapshot.val() || {});
+            });
+        }
+
+        function garantirTelefonesAdminNoBanco() {
+            TELEFONES_ADMIN_PADRAO.forEach(fone => {
+                database.ref('telefones_autorizados/' + fone).set(true);
             });
         }
 
@@ -373,7 +495,7 @@
             listaDiv.innerHTML = "";
             
             let ultimaDataGrupo = "";
-            const jogosDaRodada = rodadasBolao[rodadaAtiva];
+            const jogosDaRodada = rodadasBolao[rodadaAtiva] || [];
 
             jogosDaRodada.forEach(jogo => {
                 const objData = new Date(jogo.data);
@@ -509,18 +631,24 @@
         }
 
         function puxarMeusPalpitesDoFirebase() {
+            if (!telefoneUsuarioLogado || !rodadasBolao[rodadaAtiva]) return;
+            
             database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 const palpites = snapshot.val() || {};
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
-                    document.getElementById(`p1-${jogo.id}`).value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
-                    document.getElementById(`p2-${jogo.id}`).value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                    const field1 = document.getElementById(`p1-${jogo.id}`);
+                    const field2 = document.getElementById(`p2-${jogo.id}`);
+                    if (field1 && field2) {
+                        field1.value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
+                        field2.value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
+                    }
                 });
                 atualizarEstadoDasTravasEInputs();
             });
         }
 
         function atualizarEstadoDasTravasEInputs() {
-            if (isAdmin) return;
+            if (isAdmin || !rodadasBolao[rodadaAtiva]) return;
 
             database.ref('.info/serverTimeOffset').once('value', (snapshot) => {
                 const offset = snapshot.val() || 0;
@@ -529,13 +657,15 @@
                 const btnSalvar = document.getElementById("btn-salvar-palpites");
 
                 if (modoEspiaoAtivo) {
-                    btnSalvar.classList.add("hidden");
+                    if (btnSalvar) btnSalvar.classList.add("hidden");
                     return;
                 }
 
-                btnSalvar.classList.remove("hidden");
-                btnSalvar.className = "btn-sucesso";
-                btnSalvar.innerText = "Salvar palpites desta rodada";
+                if (btnSalvar) {
+                    btnSalvar.classList.remove("hidden");
+                    btnSalvar.className = "btn-sucesso";
+                    btnSalvar.innerText = "Salvar palpites desta rodada";
+                }
                 document.getElementById("btn-cancelar-admin").classList.add("hidden");
                 document.getElementById("aviso-geral").innerText = "Cada jogo trava individualmente 30 minutos antes do início!";
                 document.getElementById("aviso-geral").style.color = "#ffb300";
@@ -554,25 +684,29 @@
                     if (agoraReal >= limiteTrava) {
                         input1.disabled = true;
                         input2.disabled = true;
-                        cardDiv.classList.add("travado");
-                        statusDiv.innerText = "🔒 Palpites bloqueados";
-                        statusDiv.className = "status-jogo status-travado";
+                        if (cardDiv) cardDiv.classList.add("travado");
+                        if (statusDiv) {
+                            statusDiv.innerText = "🔒 Palpites bloqueados";
+                            statusDiv.className = "status-jogo status-travado";
+                        }
                     } else {
                         input1.disabled = false;
                         input2.disabled = false;
-                        cardDiv.classList.remove("travado");
+                        if (cardDiv) cardDiv.classList.remove("travado");
                         
                         const diferencaMs = limiteTrava - agoraReal;
                         const totalMinutos = Math.ceil(diferencaMs / (1000 * 60));
                         
-                        if(totalMinutos > 60) {
-                            const horas = Math.floor(totalMinutos / 60);
-                            const mins = totalMinutos % 60;
-                            statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
-                        } else {
-                            statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
+                        if (statusDiv) {
+                            if(totalMinutos > 60) {
+                                const horas = Math.floor(totalMinutos / 60);
+                                const mins = totalMinutos % 60;
+                                statusDiv.innerText = `🔓 Aberto (Trava em ${horas}h ${mins}min)`;
+                            } else {
+                                statusDiv.innerText = `🔓 Aberto (Trava em ${totalMinutos} min)`;
+                            }
+                            statusDiv.className = "status-jogo status-aberto";
                         }
-                        statusDiv.className = "status-jogo status-aberto";
                     }
                 });
             });
@@ -599,6 +733,8 @@
                 document.getElementById("banner-spy").classList.remove("hidden");
                 document.getElementById("btn-salvar-palpites").classList.add("hidden");
 
+                if (!rodadasBolao[rodadaAtiva]) return;
+
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const dataJogo = new Date(jogo.data);
                     const limiteTrava = new Date(dataJogo.getTime() - trintaMinutos);
@@ -616,15 +752,19 @@
                     if (agora >= limiteTrava) {
                         input1.value = palpites[`p1-${jogo.id}`] !== undefined ? palpites[`p1-${jogo.id}`] : "";
                         input2.value = palpites[`p2-${jogo.id}`] !== undefined ? palpites[`p2-${jogo.id}`] : "";
-                        cardDiv.classList.add("travado");
-                        statusDiv.innerText = "🔒 Palpite travado (visível)";
-                        statusDiv.className = "status-jogo status-travado";
+                        if (cardDiv) cardDiv.classList.add("travado");
+                        if (statusDiv) {
+                            statusDiv.innerText = "🔒 Palpite travado (visível)";
+                            statusDiv.className = "status-jogo status-travado";
+                        }
                     } else {
                         input1.value = "";
                         input2.value = "";
-                        cardDiv.classList.remove("travado");
-                        statusDiv.innerText = "🙈 Oculto até travar!";
-                        statusDiv.className = "status-jogo status-aberto";
+                        if (cardDiv) cardDiv.classList.remove("travado");
+                        if (statusDiv) {
+                            statusDiv.innerText = "🙈 Oculto até travar!";
+                            statusDiv.className = "status-jogo status-aberto";
+                        }
                     }
                 });
             });
@@ -634,6 +774,8 @@
             renderizarJogosRodadaAtiva();
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 const oficiais = snapshot.val() || {};
+                if (!rodadasBolao[rodadaAtiva]) return;
+
                 rodadasBolao[rodadaAtiva].forEach(jogo => {
                     const input1 = document.getElementById(`p1-${jogo.id}`);
                     const input2 = document.getElementById(`p2-${jogo.id}`);
@@ -644,15 +786,20 @@
                     input1.value = oficiais[`p1-${jogo.id}`] !== undefined ? oficiais[`p1-${jogo.id}`] : "";
                     input2.value = oficiais[`p2-${jogo.id}`] !== undefined ? oficiais[`p2-${jogo.id}`] : "";
                     
-                    document.getElementById(`status-${jogo.id}`).innerText = "📝 Modo administrador — resultados oficiais";
-                    document.getElementById(`status-${jogo.id}`).className = "status-jogo";
+                    const statusDiv = document.getElementById(`status-${jogo.id}`);
+                    if (statusDiv) {
+                        statusDiv.innerText = "📝 Modo administrador — resultados oficiais";
+                        statusDiv.className = "status-jogo";
+                    }
                 });
                 
                 document.getElementById("btn-cancelar-admin").classList.remove("hidden");
                 const btnSalvar = document.getElementById("btn-salvar-palpites");
-                btnSalvar.classList.remove("hidden");
-                btnSalvar.innerText = "Salvar resultados oficiais (admin)";
-                btnSalvar.className = "btn-alerta";
+                if (btnSalvar) {
+                    btnSalvar.classList.remove("hidden");
+                    btnSalvar.innerText = "Salvar resultados oficiais (admin)";
+                    btnSalvar.className = "btn-alerta";
+                }
                 
                 document.getElementById("aviso-geral").innerText = "MODO ADMINISTRADOR ATIVO";
                 document.getElementById("aviso-geral").style.color = "#ff3d00";
@@ -668,6 +815,63 @@
             database.ref('telefones_autorizados/' + foneInput).set(true).then(() => {
                 document.getElementById("adm-novo-fone").value = "";
                 alert("Telefone autorizado com sucesso!");
+            });
+        }
+
+        function adicionarNovoJogoAdmin() {
+            const nrRodada = document.getElementById("adm-jogo-rodada").value.trim();
+            const jogoId = document.getElementById("adm-jogo-id").value.trim();
+            const grupo = document.getElementById("adm-jogo-grupo").value.trim().toUpperCase();
+            const dataHora = document.getElementById("adm-jogo-data").value;
+            
+            const t1 = document.getElementById("adm-jogo-t1").value.trim().toUpperCase();
+            const nome1 = document.getElementById("adm-jogo-nome1").value.trim();
+            const sigla1 = document.getElementById("adm-jogo-sigla1").value.trim().toLowerCase();
+
+            const t2 = document.getElementById("adm-jogo-t2").value.trim().toUpperCase();
+            const nome2 = document.getElementById("adm-jogo-nome2").value.trim();
+            const sigla2 = document.getElementById("adm-jogo-sigla2").value.trim().toLowerCase();
+
+            if (!nrRodada || !jogoId || !grupo || !dataHora || !t1 || !nome1 || !sigla1 || !t2 || !nome2 || !sigla2) {
+                alert("Preencha todos os campos do formulário para inserir o jogo!");
+                return;
+            }
+
+            const novoJogoObj = {
+                id: jogoId,
+                grupo: grupo,
+                data: dataHora,
+                t1: t1,
+                nome1: nome1,
+                sigla1: sigla1,
+                t2: t2,
+                nome2: nome2,
+                sigla2: sigla2
+            };
+
+            // Baixa a lista atual daquela rodada específica para anexar sem sobrescrever o resto
+            database.ref(`rodadas/${nrRodada}`).once('value').then(snapshot => {
+                let jogosExistentes = snapshot.val() || [];
+                if (!Array.isArray(jogosExistentes)) {
+                    jogosExistentes = Object.values(jogosExistentes);
+                }
+
+                // Remove jogo duplicado com o mesmo ID se houver, para atualização
+                jogosExistentes = jogosExistentes.filter(j => j.id !== jogoId);
+                jogosExistentes.push(novoJogoObj);
+
+                database.ref(`rodadas/${nrRodada}`).set(jogosExistentes).then(() => {
+                    alert(`Jogo ${jogoId} gravado com sucesso na Rodada ${nrRodada}!`);
+                    
+                    // Limpa apenas campos específicos do jogo anterior, mantendo a rodada
+                    document.getElementById("adm-jogo-id").value = "";
+                    document.getElementById("adm-jogo-t1").value = "";
+                    document.getElementById("adm-jogo-nome1").value = "";
+                    document.getElementById("adm-jogo-sigla1").value = "";
+                    document.getElementById("adm-jogo-t2").value = "";
+                    document.getElementById("adm-jogo-nome2").value = "";
+                    document.getElementById("adm-jogo-sigla2").value = "";
+                });
             });
         }
 
@@ -707,6 +911,8 @@
         }
 
         function salvarPalpitesUsuario() {
+            if (!rodadasBolao[rodadaAtiva]) return;
+
             database.ref('participantes/' + telefoneUsuarioLogado + '/palpites').once('value').then((snapshot) => {
                 let dadosPalpites = snapshot.val() || {};
                 let preencheuAlgumNestaRodada = false;
@@ -735,6 +941,8 @@
         }
 
         function salvarResultadosOficiaisAdmin() {
+            if (!rodadasBolao[rodadaAtiva]) return;
+
             database.ref('resultados_oficiais').once('value').then((snapshot) => {
                 let dadosOficiais = snapshot.val() || {};
                 
@@ -756,15 +964,21 @@
         function recalcularPontuacoesGerais(resultadosOficiais) {
             database.ref('participantes').once('value').then((snapshot) => {
                 const participantes = snapshot.val() || {};
-                
+                const chavesRodadas = Object.keys(rodadasBolao);
+
                 Object.keys(participantes).forEach(key => {
                     const usuario = participantes[key];
                     const palpites = usuario.palpites || {};
                     
                     let pontosGeral = 0;
                     let exatosGeral = 0;
-                    let pontosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
-                    let exatosRodadas = { "r1": 0, "r2": 0, "r3": 0 };
+                    
+                    let pontosRodadas = {};
+                    let exatosRodadas = {};
+                    chavesRodadas.forEach(r => {
+                        pontosRodadas["r" + r] = 0;
+                        exatosRodadas["r" + r] = 0;
+                    });
 
                     executarEmTodosOsJogos((jogo, r) => {
                         const res1 = resultadosOficiais[`p1-${jogo.id}`];
@@ -788,21 +1002,23 @@
                         }
                     });
 
-                    database.ref('participantes/' + key).update({
+                    let dadosUpdate = {
                         pontuacoes: pontosGeral,
-                        exatos: exatosGeral,
-                        pontos_r1: pontosRodadas["r1"],
-                        exatos_r1: exatosRodadas["r1"],
-                        pontos_r2: pontosRodadas["r2"],
-                        exatos_r2: exatosRodadas["r2"],
-                        pontos_r3: pontosRodadas["r3"],
-                        exatos_r3: exatosRodadas["r3"]
+                        exatos: exatosGeral
+                    };
+
+                    chavesRodadas.forEach(r => {
+                        dadosUpdate[`pontos_r${r}`] = pontosRodadas["r" + r];
+                        dadosUpdate[`exatos_r${r}`] = exatosRodadas["r" + r];
                     });
+
+                    database.ref('participantes/' + key).update(dadosUpdate);
                 });
 
                 alert("Pontuações recalculadas com sucesso!");
                 isAdmin = false;
                 document.getElementById("painel-admin-whitelist").classList.add("hidden");
+                document.getElementById("painel-admin-gerenciador").classList.add("hidden");
                 puxarMeusPalpitesDoFirebase();
                 alternarAbas("palpites");
             });
@@ -828,15 +1044,9 @@
                     if (filtroRankingAtivo === "geral") {
                         ptsExibicao = u.pontuacoes || 0;
                         exatosExibicao = u.exatos || 0;
-                    } else if (filtroRankingAtivo === "1") {
-                        ptsExibicao = u.pontos_r1 || 0;
-                        exatosExibicao = u.exatos_r1 || 0;
-                    } else if (filtroRankingAtivo === "2") {
-                        ptsExibicao = u.pontos_r2 || 0;
-                        exatosExibicao = u.exatos_r2 || 0;
-                    } else if (filtroRankingAtivo === "3") {
-                        ptsExibicao = u.pontos_r3 || 0;
-                        exatosExibicao = u.exatos_r3 || 0;
+                    } else {
+                        ptsExibicao = u[`pontos_r${filtroRankingAtivo}`] || 0;
+                        exatosExibicao = u[`exatos_r${filtroRankingAtivo}`] || 0;
                     }
 
                     listaRanking.push({
@@ -859,6 +1069,7 @@
             });
 
             const containerRanking = document.getElementById("lista-ranking");
+            if (!containerRanking) return;
             
             let sufixoCabecalho = filtroRankingAtivo === "geral" ? "Geral" : `Rodada ${filtroRankingAtivo}`;
             containerRanking.innerHTML = `
@@ -872,7 +1083,7 @@
                 const htmlLinha = document.createElement("div");
                 htmlLinha.className = "linha-ranking clicavel";
                 
-                if (index === listaRanking.length - 1) {
+                if (index === listaRanking.length - 1 && listaRanking.length > 1) {
                     htmlLinha.classList.add("ultimo-colocado");
                 }
 
@@ -900,4 +1111,4 @@
         }
     </script>
 </body>
-    </html>
+</html>

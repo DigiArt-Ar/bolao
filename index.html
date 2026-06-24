@@ -1,3 +1,32 @@
+Adicione o botão no seu HTML
+​Localize no seu código onde está o painel-admin-gerenciador (dentro da div com id conteudo-palpites). Adicione este botão logo acima da seção "➕ Criar Nova Rodada / Adicionar Jogo":
+
+<div style="margin-bottom: 15px; text-align: center;">
+    <button id="adm-btn-criar-rodada" class="btn-secundario" style="background-color: #38bdf8; color: #1a1d24;">
+        ➕ Criar Nova Rodada
+    </button>
+</div>
+
+Adicione a lógica no seu script
+​Localize a seção onde você define os eventListeners (dentro do document.addEventListener("DOMContentLoaded", ...)). Adicione este trecho lá dentro:
+
+// Lógica para criar nova rodada
+document.getElementById("adm-btn-criar-rodada").addEventListener("click", () => {
+    const numero = prompt("Digite o número da nova rodada:");
+    if (numero && !isNaN(numero)) {
+        database.ref('rodadas/' + numero).set([]).then(() => {
+            alert("Rodada " + numero + " criada com sucesso!");
+        }).catch((error) => {
+            alert("Erro ao criar rodada: " + error.message);
+        });
+    } else {
+        alert("Por favor, digite um número válido.");
+    }
+});
+
+Abaixo onde será feito esse encaixe 
+Depois de juntar tudo no lugar correto devolva k código completo já com as novidades e expressamente proibido retirar qualquer coisa do código original 
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -130,11 +159,6 @@
             <button id="btn-salvar-palpites" class="btn-sucesso">Salvar palpites desta rodada</button>
             
             <div id="painel-admin-gerenciador" class="box-whitelist hidden" style="margin-bottom: 15px;">
-                <div style="margin-bottom: 15px; text-align: center;">
-                    <button id="adm-btn-criar-rodada" class="btn-secundario" style="background-color: #38bdf8; color: #1a1d24;">
-                        ➕ Criar Nova Rodada
-                    </button>
-                </div>
                 <h4>➕ Criar Nova Rodada / Adicionar Jogo</h4>
                 <div class="form-admin-jogos">
                     <div class="row-dupla">
@@ -231,6 +255,7 @@
 
         const TELEFONES_ADMIN_PADRAO = ["24981035118", "24992788226"];
 
+        // Objeto dinâmico populado via Firebase
         let rodadasBolao = {};
 
         const CADASTRAR_RODADAS_PADRAO_SE_VAZIO = {
@@ -360,20 +385,6 @@
                 puxarMeusPalpitesDoFirebase();
             });
 
-            // Lógica para criar nova rodada
-            document.getElementById("adm-btn-criar-rodada").addEventListener("click", () => {
-                const numero = prompt("Digite o número da nova rodada:");
-                if (numero && !isNaN(numero)) {
-                    database.ref('rodadas/' + numero).set([]).then(() => {
-                        alert("Rodada " + numero + " criada com sucesso!");
-                    }).catch((error) => {
-                        alert("Erro ao criar rodada: " + error.message);
-                    });
-                } else {
-                    alert("Por favor, digite um número válido.");
-                }
-            });
-
             document.getElementById("adm-btn-add-fone").addEventListener("click", adicionarTelefoneNaListaAdmin);
             document.getElementById("adm-btn-salvar-jogo").addEventListener("click", adicionarNovoJogoAdmin);
 
@@ -406,12 +417,14 @@
             database.ref('rodadas').on('value', snapshot => {
                 const dados = snapshot.val();
                 if (!dados) {
+                    // Inicializa banco de dados com as rodadas estáveis iniciais se estiver zerado
                     database.ref('rodadas').set(CADASTRAR_RODADAS_PADRAO_SE_VAZIO);
                     rodadasBolao = JSON.parse(JSON.stringify(CADASTRAR_RODADAS_PADRAO_SE_VAZIO));
                 } else {
                     rodadasBolao = dados;
                 }
 
+                // Ordena os jogos cronologicamente em cada rodada
                 Object.keys(rodadasBolao).forEach(r => {
                     if (Array.isArray(rodadasBolao[r])) {
                         rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -438,6 +451,7 @@
             
             const chavesRodadas = Object.keys(rodadasBolao).sort((a, b) => Number(a) - Number(b));
             
+            // Validação de segurança para manter a rodada selecionada consistente
             if (!chavesRodadas.includes(rodadaAtiva) && chavesRodadas.length > 0) {
                 rodadaAtiva = chavesRodadas[0];
             }
@@ -864,18 +878,21 @@
                 sigla2: sigla2
             };
 
+            // Baixa a lista atual daquela rodada específica para anexar sem sobrescrever o resto
             database.ref(`rodadas/${nrRodada}`).once('value').then(snapshot => {
                 let jogosExistentes = snapshot.val() || [];
                 if (!Array.isArray(jogosExistentes)) {
                     jogosExistentes = Object.values(jogosExistentes);
                 }
 
+                // Remove jogo duplicado com o mesmo ID se houver, para atualização
                 jogosExistentes = jogosExistentes.filter(j => j.id !== jogoId);
                 jogosExistentes.push(novoJogoObj);
 
                 database.ref(`rodadas/${nrRodada}`).set(jogosExistentes).then(() => {
                     alert(`Jogo ${jogoId} gravado com sucesso na Rodada ${nrRodada}!`);
                     
+                    // Limpa apenas campos específicos do jogo anterior, mantendo a rodada
                     document.getElementById("adm-jogo-id").value = "";
                     document.getElementById("adm-jogo-t1").value = "";
                     document.getElementById("adm-jogo-nome1").value = "";
@@ -1123,4 +1140,4 @@
         }
     </script>
 </body>
-    </html>
+</html>

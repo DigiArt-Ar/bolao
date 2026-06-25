@@ -247,8 +247,8 @@
                 { id: "r1_10", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
                 { id: "r1_11", grupo: "E", t1: "CDI", nome1: "Costa do Marfim", sigla1: "ci", t2: "EQU", nome2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
                 { id: "r1_12", grupo: "F", t1: "SUE", nome1: "Suécia", sigla1: "se", t2: "TUN", nome2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
-                { id: "r3_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
-                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", siglet2: "eg", data: "2026-06-15T16:00:00" },
+                { id: "r1_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
+                { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
                 { id: "r1_15", grupo: "H", t1: "SAU", nome1: "Arábia Saudita", sigla1: "sa", t2: "URU", nome2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
                 { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
                 { id: "r1_17", grupo: "I", t1: "FRA", nome1: "França", sigla1: "fr", t2: "SNG", nome2: "Senegal", sigla2: "sn", data: "2026-06-16T16:00:00" },
@@ -360,7 +360,6 @@
                 puxarMeusPalpitesDoFirebase();
             });
 
-            // Lógica para criar nova rodada
             document.getElementById("adm-btn-criar-rodada").addEventListener("click", () => {
                 const numero = prompt("Digite o número da nova rodada:");
                 if (numero && !isNaN(numero)) {
@@ -980,6 +979,7 @@
 
                 Object.keys(participantes).forEach(key => {
                     const usuario = participantes[key];
+                    if (!usuario) return;
                     const palpites = usuario.palpites || {};
                     
                     let pontosGeral = 0;

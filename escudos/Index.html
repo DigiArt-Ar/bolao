@@ -69,7 +69,6 @@
         .linha-ranking.clicavel:hover { background-color: #252a34; }
         .cabecalho-ranking { font-weight: bold; border-bottom: 2px solid #007bff; color: #007bff; cursor: default; }
         
-        /* Nova regra para destacar o último da lista */
         .ultimo-colocado { color: #ff3d00; font-weight: bold; }
         
         .visualizando-banner { background-color: #007bff; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
@@ -188,7 +187,7 @@
                 { id: "r1_10", grupo: "F", t1: "HOL", nome1: "Holanda", sigla1: "nl", t2: "JAP", nome2: "Japão", sigla2: "jp", data: "2026-06-14T17:00:00" },
                 { id: "r1_11", grupo: "E", t1: "CDI", nome1: "Costa do Marfim", sigla1: "ci", t2: "EQU", nome2: "Equador", sigla2: "ec", data: "2026-06-14T20:00:00" },
                 { id: "r1_12", grupo: "F", t1: "SUE", nome1: "Suécia", sigla1: "se", t2: "TUN", nome2: "Tunísia", sigla2: "tn", data: "2026-06-14T23:00:00" },
-                { id: "r3_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
+                { id: "r1_13", grupo: "H", t1: "ESP", nome1: "Espanha", sigla1: "es", t2: "CAB", nome2: "Cabo Verde", sigla2: "cv", data: "2026-06-15T13:00:00" },
                 { id: "r1_14", grupo: "G", t1: "BEL", nome1: "Bélgica", sigla1: "be", t2: "EGT", nome2: "Egito", sigla2: "eg", data: "2026-06-15T16:00:00" },
                 { id: "r1_15", grupo: "H", t1: "SAU", nome1: "Arábia Saudita", sigla1: "sa", t2: "URU", nome2: "Uruguai", sigla2: "uy", data: "2026-06-15T19:00:00" },
                 { id: "r1_16", grupo: "G", t1: "IRA", nome1: "Irã", sigla1: "ir", t2: "NZE", nome2: "Nova Zelândia", sigla2: "nz", data: "2026-06-15T22:00:00" },
@@ -262,6 +261,12 @@
         let telefoneUsuarioLogado = ""; 
         let rodadaAtiva = "1"; 
         let filtroRankingAtivo = "geral";
+
+        function critérioDesempate(a, b) {
+            const acertosVencedorA = a.acertos_vencedor || 0;
+            const acertosVencedorB = b.acertos_vencedor || 0;
+            return acertosVencedorB - acertosVencedorA;
+        }
 
         Object.keys(rodadasBolao).forEach(r => {
             rodadasBolao[r].sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -852,10 +857,7 @@
             listaRanking.sort((a, b) => {
                 if (b.pontos !== a.pontos) return b.pontos - a.pontos;
                 if (b.exatos !== a.exatos) return b.exatos - a.exatos;
-                const acertosVencedorA = a.acertos_vencedor || 0;
-                const acertosVencedorB = b.acertos_vencedor || 0;
-                if (acertosVencedorB !== acertosVencedorA) return acertosVencedorB - acertosVencedorA;
-                return a.nome.localeCompare(b.nome);
+                return critérioDesempate(a, b);
             });
 
             const containerRanking = document.getElementById("lista-ranking");
@@ -900,4 +902,4 @@
         }
     </script>
 </body>
-            </html>
+    </html>

@@ -1,67 +1,18 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <style>
-        body { background: #000; display: flex; flex-direction: column; align-items: center; color: white; margin: 0; padding: 10px; }
-        canvas { background: #333; border: 2px solid #555; max-width: 100%; height: auto; }
-        .controls { display: grid; grid-template-columns: 60px 60px 60px; gap: 10px; margin-top: 20px; }
-        button { height: 60px; background: #444; color: white; border: none; border-radius: 5px; font-size: 20px; }
-    </style>
-</head>
-<body>
-    <canvas id="game" width="400" height="280"></canvas>
-    <div class="controls">
-        <div></div><button onclick="move(0, -1)">▲</button><div></div>
-        <button onclick="move(-1, 0)">◀</button><button onclick="dropBomb()">💣</button><button onclick="move(1, 0)">▶</button>
-        <div></div><button onclick="move(0, 1)">▼</button><div></div>
-    </div>
-
-<script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const size = 40;
-let map = [
-    [1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,2,0,0,2,0,0,1],
-    [1,0,1,0,1,0,1,0,1,1],
-    [1,2,0,2,0,2,0,2,0,1],
-    [1,0,1,0,1,0,1,0,1,1],
-    [1,0,0,0,0,0,0,0,0,1],
-    [1,1,1,1,1,1,1,1,1,1]
-];
-let player = {x: 1, y: 1};
-
-function draw() {
-    ctx.clearRect(0, 0, 400, 280);
-    for(let y=0; y<map.length; y++) {
-        for(let x=0; x<map[y].length; x++) {
-            ctx.fillStyle = map[y][x] === 1 ? "#555" : (map[y][x] === 2 ? "#8b4513" : "#222");
-            ctx.fillRect(x*size, y*size, size-1, size-1);
+function alternarVencedor(time, faseDestino, faseOrigem) {
+    let slot = document.getElementById(faseDestino);
+    
+    // Se o slot já estiver ocupado pelo time, limpa (reset)
+    if (slot.dataset.timeSelecionado === time.id) {
+        slot.innerHTML = "";
+        slot.dataset.timeSelecionado = "";
+    } else {
+        // Se estiver vazio ou for outro time, preenche
+        slot.innerHTML = `<img src="${time.bandeira}" alt="${time.nome}">`;
+        slot.dataset.timeSelecionado = time.id;
+        
+        // Se for semifinal, dispara a lógica automática para 3º lugar
+        if (faseOrigem === 'semifinal') {
+            enviarPerdedorParaTerceiroLugar(time.perdedor);
         }
     }
-    ctx.fillStyle = "cyan";
-    ctx.fillRect(player.x*size+5, player.y*size+5, 30, 30);
 }
-
-function move(dx, dy) {
-    let nx = player.x + dx, ny = player.y + dy;
-    if(map[ny] && map[ny][nx] === 0) { player.x = nx; player.y = ny; draw(); }
-}
-
-function dropBomb() {
-    ctx.fillStyle = "red";
-    ctx.fillRect(player.x*size+10, player.y*size+10, 20, 20);
-    setTimeout(() => {
-        [[0,1],[0,-1],[1,0],[-1,0]].forEach(d => {
-            let tx = player.x+d[0], ty = player.y+d[1];
-            if(map[ty] && map[ty][tx] === 2) map[ty][tx] = 0;
-        });
-        draw();
-    }, 1000);
-}
-
-draw();
-</script>
-</body>
-</html>

@@ -2,45 +2,60 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Copa 2026 - Tabela Oficial</title>
+    <title>Copa 2026 - Gestor de Chaves</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css">
     <style>
-        body { background: #333; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
-        .bracket { display: flex; gap: 20px; padding: 20px; }
-        .column { display: flex; flex-direction: column; justify-content: space-around; gap: 10px; }
-        .match { border: 1px solid #555; padding: 10px; background: #444; border-radius: 5px; width: 140px; position: relative; }
-        .team { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 4px; font-size: 12px; }
-        .team:hover { background: #666; }
-        .winner { border: 1px dashed #f1c40f; min-height: 20px; margin-top: 5px; text-align: center; cursor: pointer; }
+        body { font-family: sans-serif; background: #2c3e50; color: white; padding: 20px; }
+        .admin-panel { background: #34495e; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .bracket { display: flex; gap: 40px; justify-content: center; margin-top: 50px; }
+        .column { display: flex; flex-direction: column; gap: 20px; }
+        .slot { width: 120px; height: 50px; border: 2px dashed #95a5a6; display: flex; align-items: center; justify-content: center; background: #ecf0f1; color: #2c3e50; border-radius: 4px; }
+        input, select, button { padding: 8px; margin: 5px; }
     </style>
 </head>
 <body>
 
-    <h1>Copa 2026</h1>
-    <div class="bracket" id="bracket">
+    <div class="admin-panel">
+        <h2>Painel Administrativo</h2>
+        <input type="text" id="gameId" placeholder="ID do Jogo (ex: jogo1)">
+        <input type="text" id="countryCode" placeholder="Sigla (ex: br, mx, jp)">
+        <button onclick="salvarJogo()">Salvar Jogo</button>
+        <button onclick="localStorage.clear(); location.reload()">Limpar Tudo</button>
+    </div>
+
+    <div class="bracket">
         <div class="column">
-            <div class="match" id="m1">
-                <div class="team" onclick="selectWinner(this, 'q1')"><span class="fi fi-mx"></span> México</div>
-                <div class="team" onclick="selectWinner(this, 'q1')"><span class="fi fi-ch"></span> Suíça</div>
-                <div class="winner" id="q1" onclick="clearSlot(this)"></div>
-            </div>
-            <div class="match" id="m2">
-                <div class="team" onclick="selectWinner(this, 'q2')"><span class="fi fi-br"></span> Brasil</div>
-                <div class="team" onclick="selectWinner(this, 'q2')"><span class="fi fi-jp"></span> Japão</div>
-                <div class="winner" id="q2" onclick="clearSlot(this)"></div>
-            </div>
+            <h3>Oitavas</h3>
+            <div id="jogo1" class="slot">Vazio</div>
+            <div id="jogo2" class="slot">Vazio</div>
         </div>
+        <div class="column">
+            <h3>Quartas</h3>
+            <div id="q1" class="slot">Vazio</div>
         </div>
+    </div>
 
     <script>
-        function selectWinner(element, destId) {
-            const dest = document.getElementById(destId);
-            dest.innerHTML = element.innerHTML;
+        // Carrega os dados salvos no localStorage ao abrir
+        function carregarDados() {
+            const slots = ['jogo1', 'jogo2', 'q1'];
+            slots.forEach(id => {
+                const dado = localStorage.getItem(id);
+                if (dado) {
+                    document.getElementById(id).innerHTML = `<span class="fi fi-${dado}"></span>`;
+                }
+            });
         }
 
-        function clearSlot(element) {
-            element.innerHTML = "";
+        // Salva o jogo no localStorage
+        function salvarJogo() {
+            const id = document.getElementById('gameId').value;
+            const code = document.getElementById('countryCode').value;
+            localStorage.setItem(id, code);
+            carregarDados();
         }
+
+        window.onload = carregarDados;
     </script>
 </body>
 </html>

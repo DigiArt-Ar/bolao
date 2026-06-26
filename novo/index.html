@@ -1,18 +1,25 @@
-function alternarVencedor(time, faseDestino, faseOrigem) {
-    let slot = document.getElementById(faseDestino);
-    
-    // Se o slot já estiver ocupado pelo time, limpa (reset)
-    if (slot.dataset.timeSelecionado === time.id) {
-        slot.innerHTML = "";
-        slot.dataset.timeSelecionado = "";
-    } else {
-        // Se estiver vazio ou for outro time, preenche
-        slot.innerHTML = `<img src="${time.bandeira}" alt="${time.nome}">`;
-        slot.dataset.timeSelecionado = time.id;
-        
-        // Se for semifinal, dispara a lógica automática para 3º lugar
-        if (faseOrigem === 'semifinal') {
-            enviarPerdedorParaTerceiroLugar(time.perdedor);
-        }
-    }
-}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css">
+    <style>
+        body { background-color: #333; color: white; font-family: sans-serif; }
+        .bracket { display: flex; justify-content: space-around; padding: 20px; }
+        .match { margin: 10px 0; border: 1px solid #555; padding: 5px; cursor: pointer; border-radius: 4px; }
+        .match:hover { background-color: #444; }
+        .team { display: flex; align-items: center; gap: 8px; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>World Cup 2026 - Bracket</h1>
+    <div class="bracket">
+        <div class="column">
+            <div class="match" onclick="selectWinner('br')">
+                <div class="team"><span class="fi fi-mx"></span> México</div>
+                <div class="team"><span class="fi fi-ch"></span> Suíça</div>
+            </div>
+            </div>
+    </div>
+</body>
+</html>

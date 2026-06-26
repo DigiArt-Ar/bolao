@@ -2,16 +2,16 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Copa 2026 - Árvore Dinâmica</title>
+    <title>Copa 2026 - Tabela Oficial</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icons/7.2.3/css/flag-icons.min.css">
     <style>
-        body { background: #2c3e50; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
+        body { background: #333; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; }
         .bracket { display: flex; gap: 20px; padding: 20px; }
-        .column { display: flex; flex-direction: column; justify-content: space-around; }
-        .match { border: 2px solid #34495e; padding: 10px; margin: 10px 0; background: #34495e; border-radius: 5px; width: 150px; }
-        .team { cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 5px; transition: 0.3s; }
-        .team:hover { background: #5d6d7e; }
-        .winner-slot { border: 2px dashed #f1c40f; min-height: 30px; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
+        .column { display: flex; flex-direction: column; justify-content: space-around; gap: 10px; }
+        .match { border: 1px solid #555; padding: 10px; background: #444; border-radius: 5px; width: 140px; position: relative; }
+        .team { cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 4px; font-size: 12px; }
+        .team:hover { background: #666; }
+        .winner { border: 1px dashed #f1c40f; min-height: 20px; margin-top: 5px; text-align: center; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -19,27 +19,27 @@
     <h1>Copa 2026</h1>
     <div class="bracket" id="bracket">
         <div class="column">
-            <div class="match" id="match1">
-                <div class="team" onclick="moveWinner(this, 'quartas1')"><span class="fi fi-mx"></span> México</div>
-                <div class="team" onclick="moveWinner(this, 'quartas1')"><span class="fi fi-ch"></span> Suíça</div>
-                <div class="winner-slot" id="quartas1" onclick="resetSlot(this)"></div>
+            <div class="match" id="m1">
+                <div class="team" onclick="selectWinner(this, 'q1')"><span class="fi fi-mx"></span> México</div>
+                <div class="team" onclick="selectWinner(this, 'q1')"><span class="fi fi-ch"></span> Suíça</div>
+                <div class="winner" id="q1" onclick="clearSlot(this)"></div>
             </div>
+            <div class="match" id="m2">
+                <div class="team" onclick="selectWinner(this, 'q2')"><span class="fi fi-br"></span> Brasil</div>
+                <div class="team" onclick="selectWinner(this, 'q2')"><span class="fi fi-jp"></span> Japão</div>
+                <div class="winner" id="q2" onclick="clearSlot(this)"></div>
             </div>
-    </div>
+        </div>
+        </div>
 
     <script>
-        // Função para mover o vencedor
-        function moveWinner(element, destinationId) {
-            const dest = document.getElementById(destinationId);
-            // Copia o conteúdo (bandeira + nome) para o destino
+        function selectWinner(element, destId) {
+            const dest = document.getElementById(destId);
             dest.innerHTML = element.innerHTML;
-            dest.style.borderColor = "#27ae60"; // Indica selecionado
         }
 
-        // Função para resetar (apagar) o clique errado
-        function resetSlot(element) {
+        function clearSlot(element) {
             element.innerHTML = "";
-            element.style.borderColor = "#f1c40f";
         }
     </script>
 </body>

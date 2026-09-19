@@ -3,7 +3,7 @@ import { consultarCopilotoTatico } from './gemini-service.js';
 import { buscarDadosFutebol } from './sports-api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet - Inicializando sistema com blindagem máxima...");
+  console.log("MauBet - Inicializando sistema com envio blindado para mobile...");
 
   try {
     const chatForm = document.getElementById('chat-form');
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // --- Recurso do Microfone (Seguro para Mobile) ---
+    // --- Recurso do Microfone (Seguro para Mobile - mantido sem interferir) ---
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition && btnMic) {
       try {
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // Limpa o input imediatamente e trava/exibe a mensagem
+      // Limpa o input imediatamente e exibe a mensagem do usuário na tela
       chatInput.value = '';
       adicionarMensagem(mensagemUsuario, 'usuario');
 
@@ -126,11 +126,23 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // --- Evento de Envio por Formulário ---
+    // --- Evento de Envio por Formulário ou Botão ---
     if (chatForm) {
       chatForm.addEventListener('submit', (e) => {
         e.preventDefault();
         executarEnvio();
+      });
+    }
+
+    // Blindagem extra para o botão de envio no mobile caso o submit falhe
+    const btnEnviar = chatForm ? chatForm.querySelector('button[type="submit"], .btn-enviar, button:last-of-type') : null;
+    if (btnEnviar) {
+      btnEnviar.addEventListener('click', (e) => {
+        // Se o formulário já disparou o submit, evitamos duplicar, mas garantimos o clique
+        if (chatInput && chatInput.value.trim() !== "") {
+          e.preventDefault();
+          executarEnvio();
+        }
       });
     }
 

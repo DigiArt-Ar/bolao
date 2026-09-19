@@ -1,5 +1,5 @@
-import { db, auth } from './firebase-config.js';
-import { collection, getDocs, query, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { obterContextoPrivadoCompleto } from './firebase-service.js';
+import { consultarCopilotoTatico } from './gemini-service.js';
 
 // Elementos da Interface
 const chatContainer = document.getElementById('chatContainer');
@@ -7,9 +7,8 @@ const userInput = document.getElementById('userInput');
 const btnSend = document.getElementById('btnSend');
 const btnMic = document.getElementById('btnMic');
 const micIcon = document.getElementById('micIcon');
-const statusBadge = document.getElementById('statusBadge');
 
-// Função auxiliar para adicionar mensagem na tela
+// Adiciona mensagens no feed do chat
 function appendMessage(text, sender = 'bot') {
   const msgDiv = document.createElement('div');
   msgDiv.classList.add('message', sender === 'user' ? 'user-message' : 'bot-message');
@@ -20,60 +19,46 @@ function appendMessage(text, sender = 'bot') {
   
   chatContainer.appendChild(msgDiv);
   chatContainer.scrollTop = chatContainer.scrollHeight;
+  return msgDiv;
 }
 
-// Processa a mensagem do usuário consultando o Firestore
+// Processa a pergunta do usuário integrando Firestore + Gemini
 async function handleUserMessage() {
   const text = userInput.value.trim();
   if (!text) return;
 
-  // Mostra mensagem do usuário
+  // 1. Mostra a pergunta do usuário na tela
   appendMessage(text, 'user');
   userInput.value = '';
 
-  // Mensagem temporária de processamento
-  appendMessage('Consultando dados do banco privado...', 'bot');
+  // 2. Cria mensagem de status "pensando"
+  const loadingMsg = appendMessage('Consultando banco de dados privado e analisando com o Gemini...', 'bot');
 
   try {
-    // Exemplo de consulta simples ao Firestore (Coleção: "bilhetes")
-    const q = query(collection(db, "bilhetes"), limit(5));
-    const querySnapshot = await getDocs(q);
-    
-    let responseText = "";
-    
-    if (querySnapshot.empty) {
-      responseText = `Entendido: "${text}". No momento, não há bilhetes cadastrados no Firestore para cruzamento exato. Cadastre novos palpites/bilhetes no banco para gerar análises táticas sem alucinações.`;
-    } else {
-      let tickets = [];
-      querySnapshot.forEach((doc) => {
-        tickets.push(doc.data());
-      });
-      responseText = `Consultei seus dados privados! Encontrei ${tickets.length} registro(s) relevante(s) no Firestore para analisar sua solicitação: "${text}".`;
-    }
+    // 3. Busca o contexto privado no Firestore
+    const dadosPrivados = await obterContextoPrivadoCompleto();
 
-    // Remove a mensagem temporária de carregamento e insere a resposta
-    const lastMsg = chatContainer.lastElementChild;
-    if (lastMsg && lastMsg.textContent.includes('Consultando dados')) {
-      chatContainer.removeChild(lastMsg);
-    }
-    
-    appendMessage(responseText, 'bot');
+    // 4. Envia a pergunta + contexto privado para a IA
+    const respostaIA = await consultarCopilotoTatico(text, dadosPrivados);
+
+    // 5. Remove a mensagem de carregamento e exibe a análise tática real
+    chatContainer.removeChild(loadingMsg);
+    appendMessage(respostaIA, 'bot');
 
   } catch (error) {
-    console.error("Erro ao conectar no Firestore:", error);
-    appendMessage("Erro ao acessar a base de dados privada. Verifique as regras do Firestore.", 'bot');
+    console.error("Erro no processamento:", error);
+    chatContainer.removeChild(loadingMsg);
+    appendMessage("Desculpe, ocorreu um erro ao consultar as informações táticas.", 'bot');
   }
 }
 
-// Eventos de envio por botão ou ENTER
+// Eventos de Envio
 btnSend.addEventListener('click', handleUserMessage);
 userInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') {
-    handleUserMessage();
-  }
+  if (e.key === 'Enter') handleUserMessage();
 });
 
-// Suporte Inicial a Reconhecimento de Voz (Microfone)
+// Suporte a Voz (Microfone)
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 if (SpeechRecognition) {
@@ -92,8 +77,7 @@ if (SpeechRecognition) {
     handleUserMessage();
   };
 
-  recognition.onerror = (event) => {
-    console.error("Erro de voz:", event.error);
+  recognition.onerror = () => {
     btnMic.classList.remove('recording');
     micIcon.textContent = 'mic';
   };
@@ -108,6 +92,6 @@ if (SpeechRecognition) {
   });
 } else {
   btnMic.addEventListener('click', () => {
-    alert("Seu navegador não suporta a API de voz diretamente. Digite sua mensagem no campo de texto.");
+    alert("Reconhecimento de voz não suportado neste navegador. Utilize a digitação.");
   });
 }

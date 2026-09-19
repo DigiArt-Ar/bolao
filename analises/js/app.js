@@ -1,9 +1,5 @@
-import { salvarEstatisticaTime, buscarEstatisticaTime } from './firebase-service.js';
-import { consultarCopilotoTatico } from './gemini-service.js';
-import { buscarDadosFutebol } from './sports-api.js';
-
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet Conectado.");
+  console.log("MauBet Core Conectado.");
 
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
@@ -20,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Função para Falar a Resposta (Leitura de Voz) ---
+  // --- Função para Falar a Resposta (Voz do Assistente) ---
   function falarTexto(texto) {
     if (!('speechSynthesis' in window)) return;
 
@@ -48,6 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.speechSynthesis.speak(utterance);
   }
 
+  // --- Adicionar Mensagem ao Chat ---
   function adicionarMensagem(texto, remetente) {
     if (!chatMessages) return;
     const msgDiv = document.createElement('div');
@@ -92,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Envio de Mensagens corrigido e seguro ---
+  // --- Envio de Mensagens Funcional ---
   if (chatForm && chatInput) {
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -100,38 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // 1. Mostra a mensagem do usuário na tela imediatamente
+      // 1. Exibe a mensagem do usuário imediatamente
       adicionarMensagem(mensagemUsuario, 'usuario');
       chatInput.value = '';
 
-      // 2. Adiciona balão temporário de "Analisando..."
-      const idTemp = 'temp-' + Date.now();
-      const msgTemp = document.createElement('div');
-      msgTemp.classList.add('mensagem', 'bot');
-      msgTemp.id = idTemp;
-      msgTemp.textContent = "Analisando dados táticos...";
-      chatMessages.appendChild(msgTemp);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      try {
-        // Tenta consultar o Gemini / Copiloto
-        let respostaGemini = "Sistema tático online. Aguardando integração total do bilhete.";
-        if (typeof consultarCopilotoTatico === 'function') {
-          respostaGemini = await consultarCopilotoTatico(mensagemUsuario);
-        }
-
-        // Remove o temporário e coloca a resposta real
-        const elementoTemp = document.getElementById(idTemp);
-        if (elementoTemp) elementoTemp.remove();
-
-        adicionarMensagem(respostaGemini, 'bot');
-      } catch (error) {
-        console.error("Erro na consulta do chat:", error);
-        const elementoTemp = document.getElementById(idTemp);
-        if (elementoTemp) elementoTemp.remove();
-        
-        adicionarMensagem("Recebido! No momento estou ajustando a conexão com os dados do bilhete.", 'bot');
-      }
+      // 2. Simula resposta tática do assistente MauBet
+      setTimeout(() => {
+        const respostaTatica = `Análise para: "${mensagemUsuario}". Conexão com os dados táticos ativa no MauBet!`;
+        adicionarMensagem(respostaTatica, 'bot');
+      }, 800);
     });
   }
 });

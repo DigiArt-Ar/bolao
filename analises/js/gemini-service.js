@@ -1,7 +1,7 @@
 // Serviço de integração com a API do Gemini com Trava Tática Anti-Alucinação
 
-// Insira aqui sua chave de API da Gemini (ou gerencie via variável de ambiente/proxy se preferir)
-const GEMINI_API_KEY = "SUA_CHAVE_GEMINI_AQUI"; 
+// Chave de API do Google AI Studio configurada
+const GEMINI_API_KEY = "AIzaSyAX-wW-Yabotsy5rZOdMom4Kj3jau8dAb0"; 
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 /**

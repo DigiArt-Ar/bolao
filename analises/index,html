@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copiloto Tático</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Ícones do Google -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+</head>
+<body>
+
+  <!-- Topo simples -->
+  <header class="app-header">
+    <div class="header-title">
+      <span class="material-symbols-outlined">sports_score</span>
+      <h1>Copiloto Tático</h1>
+    </div>
+    <div class="status-badge" id="statusBadge">Conectado</div>
+  </header>
+
+  <!-- Feed de mensagens estilo Gemini -->
+  <main class="chat-container" id="chatContainer">
+    <div class="message bot-message">
+      <p>Olá! Seu Copiloto Tático está ativo. Me fale ou digite a pergunta sobre os seus bilhetes ou estatísticas da rodada.</p>
+    </div>
+  </main>
+
+  <!-- Barra de Ação Inferior Fixa -->
+  <footer class="action-bar">
+    <div class="input-wrapper">
+      <input type="text" id="userInput" placeholder="Digite ou aperte o microfone..." autocomplete="off">
+      <button type="button" id="btnSend" class="icon-btn" title="Enviar texto">
+        <span class="material-symbols-outlined">send</span>
+      </button>
+    </div>
+    <button type="button" id="btnMic" class="mic-btn" title="Falar com o Copiloto">
+      <span class="material-symbols-outlined" id="micIcon">mic</span>
+    </button>
+  </footer>
+
+  <!-- Script Principal Módulo -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

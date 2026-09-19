@@ -1,5 +1,9 @@
+import { salvarEstatisticaTime, buscarEstatisticaTime } from './firebase-service.js';
+import { consultarCopilotoTatico } from './gemini-service.js';
+import { buscarDadosFutebol } from './sports-api.js';
+
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet Core Conectado.");
+  console.log("MauBet com Conexão Real Ativa.");
 
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
@@ -16,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Função para Falar a Resposta ---
+  // --- Função para Falar a Resposta (Voz do Assistente) ---
   function falarTexto(texto) {
     if (!('speechSynthesis' in window)) return;
 
@@ -89,27 +93,9 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Respostas Diretas e Naturais ---
-  function gerarRespostaDireta(pergunta) {
-    const p = pergunta.toLowerCase();
-
-    if (p.includes('boa tarde') || p.includes('olá') || p.includes('oi')) {
-      return "Boa tarde! Tudo bem por aí? Como posso te ajudar com as análises hoje?";
-    } 
-    else if (p.includes('jogo') || p.includes('partida') || p.includes('hoje')) {
-      return "Os principais jogos de hoje são:\n1. Flamengo x Palmeiras\n2. Real Madrid x Barcelona\n3. Manchester City x Liverpool\n\nQuer que eu analise o mercado de gols ou de vencedor para algum deles?";
-    } 
-    else if (p.includes('cartão') || p.includes('falta')) {
-      return "Nas últimas partidas, a média está alta, girando em torno de 5.2 cartões por jogo. Quer ver o histórico de um juiz específico?";
-    } 
-    else {
-      return "Entendido. Para essa situação, os indicadores apontam um cenário equilibrado, com leve favoritismo para o mandante. Quer focar em gols ou em resultado final?";
-    }
-  }
-
-  // --- Envio de Mensagens Fluido ---
+  // --- Envio de Mensagens Integrado com API e Gemini ---
   if (chatForm && chatInput) {
-    chatForm.addEventListener('submit', (e) => {
+    chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       const mensagemUsuario = chatInput.value.trim();
@@ -119,11 +105,48 @@ document.addEventListener('DOMContentLoaded', () => {
       adicionarMensagem(mensagemUsuario, 'usuario');
       chatInput.value = '';
 
-      // 2. Responde rápido e direto, sem enrolação
-      setTimeout(() => {
-        const resposta = gerarRespostaDireta(mensagemUsuario);
-        adicionarMensagem(resposta, 'bot');
-      }, 250);
+      // 2. Balão temporário discreto de carregamento
+      const idTemp = 'temp-' + Date.now();
+      const msgTemp = document.createElement('div');
+      msgTemp.classList.add('mensagem', 'bot');
+      msgTemp.id = idTemp;
+      msgTemp.textContent = "Buscando dados na API...";
+      chatMessages.appendChild(msgTemp);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        // Tenta buscar dados reais na RapidAPI se necessário
+        let dadosExtras = "";
+        if (typeof buscarDadosFutebol === 'function' && (mensagemUsuario.toLowerCase().includes('jogo') || mensagemUsuario.toLowerCase().includes('placar'))) {
+          try {
+            dadosExtras = await buscarDadosFutebol(mensagemUsuario);
+          } catch (err) {
+            console.warn("Aviso na API de esportes:", err);
+          }
+        }
+
+        // Envia para o Gemini 1.5 Flash processar o contexto real
+        const promptFinal = dadosExtras ? `Contexto da API: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
+        
+        let respostaFinal = "Não encontrei registros atualizados no momento. Tente novamente em instantes.";
+        if (typeof consultarCopilotoTatico === 'function') {
+          respostaFinal = await consultarCopilotoTatico(promptFinal);
+        } else {
+          respostaFinal = "Consulta processada com sucesso!";
+        }
+
+        // Remove o temporário e mostra a resposta limpa e direta
+        const elementoTemp = document.getElementById(idTemp);
+        if (elementoTemp) elementoTemp.remove();
+
+        adicionarMensagem(respostaFinal, 'bot');
+
+      } catch (error) {
+        console.error("Erro no processamento:", error);
+        const elementoTemp = document.getElementById(idTemp);
+        if (elementoTemp) elementoTemp.remove();
+        adicionarMensagem("Ocorreu um erro ao consultar os dados. Verifique a conexão com a API.", 'bot');
+      }
     });
   }
 });

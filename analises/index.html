@@ -3,43 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Copiloto Tático</title>
+  <title>MauBet - Análise Esportiva</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Ícones do Google -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
 </head>
 <body>
 
-  <!-- Topo simples -->
-  <header class="app-header">
-    <div class="header-title">
-      <span class="material-symbols-outlined">sports_score</span>
-      <h1>Copiloto Tático</h1>
-    </div>
-    <div class="status-badge" id="statusBadge">Conectado</div>
-  </header>
+  <div class="app-container">
+    <!-- Cabeçalho com o nome da marca -->
+    <header class="chat-header">
+      <h1>MauBet</h1>
+      <span class="status-online">● Assistente Ativo</span>
+    </header>
 
-  <!-- Feed de mensagens estilo Gemini -->
-  <main class="chat-container" id="chatContainer">
-    <div class="message bot-message">
-      <p>Olá! Seu Copiloto Tático está ativo. Me fale ou digite a pergunta sobre os seus bilhetes ou estatísticas da rodada.</p>
-    </div>
-  </main>
+    <!-- Área de Exibição das Mensagens -->
+    <main id="chat-messages" class="chat-messages">
+      <div class="mensagem bot">
+        Olá! Sou o assistente de análise esportiva do MauBet. O que vamos analisar hoje?
+      </div>
+    </main>
 
-  <!-- Barra de Ação Inferior Fixa -->
-  <footer class="action-bar">
-    <div class="input-wrapper">
-      <input type="text" id="userInput" placeholder="Digite ou aperte o microfone..." autocomplete="off">
-      <button type="button" id="btnSend" class="icon-btn" title="Enviar texto">
-        <span class="material-symbols-outlined">send</span>
-      </button>
-    </div>
-    <button type="button" id="btnMic" class="mic-btn" title="Falar com o Copiloto">
-      <span class="material-symbols-outlined" id="micIcon">mic</span>
-    </button>
-  </footer>
+    <!-- Formulário de Envio de Mensagem -->
+    <footer class="chat-footer">
+      <form id="chat-form">
+        <input 
+          type="text" 
+          id="chat-input" 
+          placeholder="Digite sua dúvida ou partida para análise..." 
+          autocomplete="off"
+          required
+        />
+        <button type="submit" id="btn-enviar">Enviar</button>
+      </form>
+    </footer>
+  </div>
 
-  <!-- Script Principal Módulo -->
+  <!-- Carregamento do Módulo Principal JavaScript -->
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@ import { consultarCopilotoTatico } from './gemini-service.js';
 import { buscarDadosFutebol } from './sports-api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet - Conexão Real com API e Gemini Ativa.");
+  console.log("MauBet - Sistema Conectado e Operacional.");
 
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Função para adicionar mensagem na tela ---
+  // --- Adicionar Mensagem ao Chat ---
   function adicionarMensagem(texto, remetente) {
     if (!chatMessages) return;
     const msgDiv = document.createElement('div');
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // --- Configuração do Microfone ---
+  // --- Configuração do Microfone (Do jeito que estava funcionando perfeitamente) ---
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SpeechRecognition && btnMic) {
     const recognition = new SpeechRecognition();
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Processo de Envio Real Integrado com API e Gemini ---
+  // --- Função Central de Processamento de Envio (Integrada com API e Gemini) ---
   if (chatForm && chatInput) {
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -68,46 +68,51 @@ document.addEventListener('DOMContentLoaded', () => {
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // 1. Fixa a mensagem do usuário na tela imediatamente
+      // 1. Exibe imediatamente a mensagem do usuário na tela
       adicionarMensagem(mensagemUsuario, 'usuario');
       chatInput.value = '';
 
-      // 2. Cria o balão temporário de carregamento da API
+      // 2. Balão temporário de carregamento enquanto busca os dados
       const idTemp = 'temp-' + Date.now();
       const msgTemp = document.createElement('div');
       msgTemp.classList.add('mensagem', 'bot');
       msgTemp.id = idTemp;
-      msgTemp.textContent = "Buscando dados na API de esportes...";
+      msgTemp.textContent = "Buscando dados na API e consultando o Copiloto Tático...";
       chatMessages.appendChild(msgTemp);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      let respostaFinal = "Não consegui processar a resposta no momento.";
+      let respostaFinal = "Não consegui processar a resposta.";
 
       try {
-        // 3. Tenta buscar os dados reais na RapidAPI
+        // 3. Busca dados reais na API de futebol e converte o JSON em texto stringificado
         let dadosExtras = "";
         if (typeof buscarDadosFutebol === 'function') {
           try {
-            dadosExtras = await buscarDadosFutebol(mensagemUsuario);
+            const resultadoApi = await buscarDadosFutebol(mensagemUsuario);
+            if (resultadoApi) {
+              dadosExtras = JSON.stringify(resultadoApi, null, 2);
+            }
           } catch (err) {
             console.warn("Aviso na API de esportes:", err);
           }
         }
 
-        // 4. Envia o contexto obtido para o Gemini processar a análise tática
-        const promptFinal = dadosExtras ? `Contexto da API de Futebol: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
+        // 4. Prepara o prompt unificando o contexto da API com a pergunta do usuário para o Gemini
+        const promptFinal = dadosExtras 
+          ? `Contexto da API de Futebol: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` 
+          : mensagemUsuario;
         
         if (typeof consultarCopilotoTatico === 'function') {
           respostaFinal = await consultarCopilotoTatico(promptFinal);
         } else {
-          respostaFinal = "Erro: O serviço do Copiloto Tático (Gemini) não está carregado corretamente.";
+          respostaFinal = "Erro: O serviço do Copiloto Tático não está carregado corretamente.";
         }
 
       } catch (error) {
         console.error("Erro no processamento:", error);
-        respostaFinal = "Ocorreu um erro ao consultar os dados na API. Verifique a conexão.";
+        respostaFinal = "Ocorreu um erro ao consultar os dados. Verifique a conexão.";
       } finally {
-        // 5. Remove o balão de carregamento e insere a resposta real da API/Gemini
+        // 5. Remove o balão temporário e exibe a resposta real da IA na tela
         const elementoTemp = document.getElementById(idTemp);
         if (elementoTemp) {
           elementoTemp.remove();

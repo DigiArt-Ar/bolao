@@ -3,7 +3,7 @@ import { consultarCopilotoTatico } from './gemini-service.js';
 import { buscarDadosFutebol } from './sports-api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet com Conexão Real, Voz Fixa e Blindagem de Tela Ativos.");
+  console.log("MauBet - Sistema Completo e Blindado Ativo.");
 
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
@@ -12,64 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnConfig = document.getElementById('btn-config');
   const painelConfig = document.getElementById('painel-config');
 
-  let vozSelecionadaCache = null;
-
   // Alternar painel de configurações
   if (btnConfig && painelConfig) {
     btnConfig.addEventListener('click', () => {
       painelConfig.classList.toggle('escondido');
     });
-  }
-
-  // --- Função Definitiva para Selecionar a Melhor Voz do Google ---
-  function obterMelhorVoz() {
-    if (!('speechSynthesis' in window)) return null;
-    if (vozSelecionadaCache) return vozSelecionadaCache;
-
-    const voces = window.speechSynthesis.getVoices();
-    if (!voces || voces.length === 0) return null;
-
-    // Filtra prioritariamente por vozes do Google em Português do Brasil (naturalidade alta)
-    let voz = voces.find(v => v.lang === 'pt-BR' && v.name.includes('Google'));
-
-    // Segunda opção: Qualquer voz em pt-BR disponível
-    if (!voz) {
-      voz = voces.find(v => v.lang === 'pt-BR' || v.lang === 'pt_BR');
-    }
-
-    // Fallback absoluto se não achar pt-BR
-    if (!voz && voces.length > 0) {
-      voz = voces[0];
-    }
-
-    vozSelecionadaCache = voz;
-    return voz;
-  }
-
-  // Garante o carregamento das vozes assíncronas do navegador
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.onvoiceschanged = () => {
-      vozSelecionadaCache = null;
-      obterMelhorVoz();
-    };
-  }
-
-  // --- Função para Falar com Voz Fixa e Natural ---
-  function falarTexto(texto) {
-    if (!('speechSynthesis' in window)) return;
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(texto);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 1.0; 
-    utterance.pitch = 1.0; 
-
-    const melhorVoz = obterMelhorVoz();
-    if (melhorVoz) {
-      utterance.voice = melhorVoz;
-    }
-
-    window.speechSynthesis.speak(utterance);
   }
 
   // --- Adicionar Mensagem ao Chat ---
@@ -80,10 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
     msgDiv.textContent = texto;
     chatMessages.appendChild(msgDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
-
-    if (remetente === 'bot') {
-      falarTexto(texto);
-    }
   }
 
   // --- Recurso do Microfone (Voz para Texto) ---
@@ -111,62 +54,74 @@ document.addEventListener('DOMContentLoaded', () => {
       btnMic.classList.remove('gravando');
     };
 
-    recognition.onerror = () => btnMic.classList.remove('gravando');
+    recognition.onerror = (event) => {
+      console.error("Erro no microfone:", event.error);
+      btnMic.classList.remove('gravando');
+    };
+    
     recognition.onend = () => btnMic.classList.remove('gravando');
   } else if (btnMic) {
     btnMic.style.display = 'none';
   }
 
-  // --- Envio de Mensagens Integrado (Com Proteção contra Travamentos) ---
-  if (chatForm && chatInput) {
-    chatForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const mensagemUsuario = chatInput.value.trim();
-      if (!mensagemUsuario) return;
+  // --- Função Central de Processamento de Envio ---
+  async function executarEnvio() {
+    const mensagemUsuario = chatInput.value.trim();
+    if (!mensagemUsuario) return;
 
-      adicionarMensagem(mensagemUsuario, 'usuario');
-      chatInput.value = '';
+    // 1. Exibe a mensagem do usuário imediatamente
+    adicionarMensagem(mensagemUsuario, 'usuario');
+    chatInput.value = '';
 
-      const idTemp = 'temp-' + Date.now();
-      const msgTemp = document.createElement('div');
-      msgTemp.classList.add('mensagem', 'bot');
-      msgTemp.id = idTemp;
-      msgTemp.textContent = "Buscando dados na API...";
-      chatMessages.appendChild(msgTemp);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+    // 2. Balão temporário de carregamento
+    const idTemp = 'temp-' + Date.now();
+    const msgTemp = document.createElement('div');
+    msgTemp.classList.add('mensagem', 'bot');
+    msgTemp.id = idTemp;
+    msgTemp.textContent = "Buscando dados na API...";
+    chatMessages.appendChild(msgTemp);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      let respostaFinal = "Não consegui processar a resposta.";
+    let respostaFinal = "Não consegui processar a resposta.";
 
-      try {
-        let dadosExtras = "";
-        if (typeof buscarDadosFutebol === 'function') {
-          try {
-            dadosExtras = await buscarDadosFutebol(mensagemUsuario);
-          } catch (err) {
-            console.warn("Aviso na API de esportes:", err);
-          }
+    try {
+      // 3. Tenta buscar dados reais na API de futebol
+      let dadosExtras = "";
+      if (typeof buscarDadosFutebol === 'function') {
+        try {
+          dadosExtras = await buscarDadosFutebol(mensagemUsuario);
+        } catch (err) {
+          console.warn("Aviso na API de esportes:", err);
         }
-
-        const promptFinal = dadosExtras ? `Contexto da API: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
-        
-        if (typeof consultarCopilotoTatico === 'function') {
-          respostaFinal = await consultarCopilotoTatico(promptFinal);
-        } else {
-          respostaFinal = "Erro: O serviço do Gemini não está carregado corretamente.";
-        }
-
-      } catch (error) {
-        console.error("Erro no processamento:", error);
-        respostaFinal = "Ocorreu um erro ao consultar os dados. Verifique a conexão.";
-      } finally {
-        // Bloco de segurança: remove o "Buscando..." e garante que a resposta aparece na tela
-        const elementoTemp = document.getElementById(idTemp);
-        if (elementoTemp) {
-          elementoTemp.remove();
-        }
-        adicionarMensagem(respostaFinal, 'bot');
       }
+
+      // 4. Monta o prompt para o Gemini processar
+      const promptFinal = dadosExtras ? `Contexto da API: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
+      
+      if (typeof consultarCopilotoTatico === 'function') {
+        respostaFinal = await consultarCopilotoTatico(promptFinal);
+      } else {
+        respostaFinal = "Erro: O serviço do Gemini não está carregado corretamente.";
+      }
+
+    } catch (error) {
+      console.error("Erro no processamento:", error);
+      respostaFinal = "Ocorreu um erro ao consultar os dados. Verifique a conexão.";
+    } finally {
+      // 5. Remove o balão de "Buscando..." e exibe a resposta final na tela
+      const elementoTemp = document.getElementById(idTemp);
+      if (elementoTemp) {
+        elementoTemp.remove();
+      }
+      adicionarMensagem(respostaFinal, 'bot');
+    }
+  }
+
+  // --- Evento de Envio por Formulário (Enter ou Botão Enviar) ---
+  if (chatForm) {
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      executarEnvio();
     });
   }
 });

@@ -1,152 +1,66 @@
-import { salvarEstatisticaTime, buscarEstatisticaTime } from './firebase-service.js';
-import { consultarCopilotoTatico } from './gemini-service.js';
-import { buscarDadosFutebol } from './sports-api.js';
-
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet - Inicializando sistema com envio blindado para mobile...");
+  console.log("MauBet - Modo de Teste Isolado Ativo.");
 
-  try {
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
-    const btnMic = document.getElementById('btn-mic');
-    const btnConfig = document.getElementById('btn-config');
-    const painelConfig = document.getElementById('painel-config');
+  const chatForm = document.getElementById('chat-form');
+  const chatInput = document.getElementById('chat-input');
+  const chatMessages = document.getElementById('chat-messages');
+  const btnMic = document.getElementById('btn-mic');
 
-    if (!chatForm || !chatInput || !chatMessages) {
-      console.error("ERRO CRÍTICO: Elementos essenciais do chat (form, input ou messages) não foram encontrados no HTML!");
-    }
+  // --- Adicionar Mensagem ao Chat ---
+  function adicionarMensagem(texto, remetente) {
+    if (!chatMessages) return;
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('mensagem', remetente);
+    msgDiv.textContent = texto;
+    chatMessages.appendChild(msgDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
 
-    // Alternar painel de configurações
-    if (btnConfig && painelConfig) {
-      btnConfig.addEventListener('click', () => {
-        painelConfig.classList.toggle('escondido');
-      });
-    }
+  // --- Configuração básica do microfone (Visual / Teste) ---
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition && btnMic) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'pt-BR';
+    recognition.continuous = false;
 
-    // --- Adicionar Mensagem ao Chat ---
-    function adicionarMensagem(texto, remetente) {
-      if (!chatMessages) return;
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('mensagem', remetente);
-      msgDiv.textContent = texto;
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // --- Recurso do Microfone (Seguro para Mobile - mantido sem interferir) ---
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition && btnMic) {
+    btnMic.addEventListener('click', () => {
       try {
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-
-        btnMic.addEventListener('click', () => {
-          try {
-            recognition.start();
-            btnMic.classList.add('gravando');
-            console.log("Microfone acionado.");
-          } catch (e) {
-            console.error("Erro ao iniciar reconhecimento de voz:", e);
-          }
-        });
-
-        recognition.onresult = (event) => {
-          const textoGravado = event.results[0][0].transcript;
-          if (chatInput) {
-            chatInput.value = textoGravado;
-            chatInput.focus();
-          }
-          btnMic.classList.remove('gravando');
-        };
-
-        recognition.onerror = (event) => {
-          console.warn("Aviso do microfone:", event.error);
-          btnMic.classList.remove('gravando');
-        };
-        
-        recognition.onend = () => {
-          btnMic.classList.remove('gravando');
-        };
-      } catch (micErr) {
-        console.warn("SpeechRecognition não pôde ser configurado:", micErr);
+        recognition.start();
+        btnMic.classList.add('gravando');
+      } catch (e) {
+        console.error("Erro ao iniciar microfone:", e);
       }
-    } else if (btnMic) {
-      btnMic.style.display = 'none';
-    }
+    });
 
-    // --- Função Central de Processamento de Envio ---
-    async function executarEnvio() {
-      if (!chatInput) return;
+    recognition.onresult = (event) => {
+      const textoGravado = event.results[0][0].transcript;
+      if (chatInput) {
+        chatInput.value = textoGravado;
+        chatInput.focus();
+      }
+      btnMic.classList.remove('gravando');
+    };
+
+    recognition.onerror = () => btnMic.classList.remove('gravando');
+    recognition.onend = () => btnMic.classList.remove('gravando');
+  }
+
+  // --- Envio Direto (Isolado para validar a tela) ---
+  if (chatForm && chatInput) {
+    chatForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // Limpa o input imediatamente e exibe a mensagem do usuário na tela
-      chatInput.value = '';
+      // Exibe imediatamente a mensagem do usuário
       adicionarMensagem(mensagemUsuario, 'usuario');
+      chatInput.value = '';
 
-      const idTemp = 'temp-' + Date.now();
-      const msgTemp = document.createElement('div');
-      msgTemp.classList.add('mensagem', 'bot');
-      msgTemp.id = idTemp;
-      msgTemp.textContent = "Buscando dados na API...";
-      chatMessages.appendChild(msgTemp);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-
-      let respostaFinal = "Não consegui processar a resposta.";
-
-      try {
-        let dadosExtras = "";
-        if (typeof buscarDadosFutebol === 'function') {
-          try {
-            dadosExtras = await buscarDadosFutebol(mensagemUsuario);
-          } catch (err) {
-            console.warn("Aviso na API de esportes:", err);
-          }
-        }
-
-        const promptFinal = dadosExtras ? `Contexto da API: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
-        
-        if (typeof consultarCopilotoTatico === 'function') {
-          respostaFinal = await consultarCopilotoTatico(promptFinal);
-        } else {
-          respostaFinal = "Erro: O serviço do Gemini não está carregado corretamente.";
-        }
-
-      } catch (error) {
-        console.error("Erro no processamento da mensagem:", error);
-        respostaFinal = "Ocorreu um erro ao consultar os dados. Verifique a conexão.";
-      } finally {
-        const elementoTemp = document.getElementById(idTemp);
-        if (elementoTemp) {
-          elementoTemp.remove();
-        }
-        adicionarMensagem(respostaFinal, 'bot');
-      }
-    }
-
-    // --- Evento de Envio por Formulário ou Botão ---
-    if (chatForm) {
-      chatForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        executarEnvio();
-      });
-    }
-
-    // Blindagem extra para o botão de envio no mobile caso o submit falhe
-    const btnEnviar = chatForm ? chatForm.querySelector('button[type="submit"], .btn-enviar, button:last-of-type') : null;
-    if (btnEnviar) {
-      btnEnviar.addEventListener('click', (e) => {
-        // Se o formulário já disparou o submit, evitamos duplicar, mas garantimos o clique
-        if (chatInput && chatInput.value.trim() !== "") {
-          e.preventDefault();
-          executarEnvio();
-        }
-      });
-    }
-
-  } catch (initError) {
-    console.error("Erro fatal ao carregar o script app.js:", initError);
+      // Simula a resposta do assistente na tela para confirmar que o envio funciona
+      setTimeout(() => {
+        adicionarMensagem("Mensagem enviada com sucesso! O núcleo do chat está respondendo.", 'bot');
+      }, 500);
+    });
   }
 });

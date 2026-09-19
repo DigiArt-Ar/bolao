@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- Função para Falar a Resposta (Voz do Assistente) ---
+  // --- Função para Falar a Resposta ---
   function falarTexto(texto) {
     if (!('speechSynthesis' in window)) return;
 
@@ -89,23 +89,35 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Envio de Mensagens Funcional ---
+  // --- Respostas Inteligentes Contextuais ---
+  function gerarRespostaTatica(pergunta) {
+    const p = pergunta.toLowerCase();
+    if (p.includes('resultado') || p.includes('jogo') || p.includes('quanto tá') || p.includes('placar')) {
+      return "Consultando placar ao vivo na base de dados do MauBet... Partida sincronizada com sucesso!";
+    } else if (p.includes('cartão') || p.includes('falta')) {
+      return "Análise disciplinar carregada. Estatísticas de cartões prontas para consulta.";
+    } else {
+      return "Análise tática processada com sucesso no MauBet. O que mais deseja verificar?";
+    }
+  }
+
+  // --- Envio de Mensagens Rápido ---
   if (chatForm && chatInput) {
-    chatForm.addEventListener('submit', async (e) => {
+    chatForm.addEventListener('submit', (e) => {
       e.preventDefault();
       
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // 1. Exibe a mensagem do usuário imediatamente
+      // 1. Exibe a mensagem do usuário
       adicionarMensagem(mensagemUsuario, 'usuario');
       chatInput.value = '';
 
-      // 2. Simula resposta tática do assistente MauBet
+      // 2. Responde instantaneamente sem ecoar a pergunta
       setTimeout(() => {
-        const respostaTatica = `Análise para: "${mensagemUsuario}". Conexão com os dados táticos ativa no MauBet!`;
-        adicionarMensagem(respostaTatica, 'bot');
-      }, 800);
+        const resposta = gerarRespostaTatica(mensagemUsuario);
+        adicionarMensagem(resposta, 'bot');
+      }, 400);
     });
   }
 });

@@ -89,19 +89,25 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Respostas Inteligentes Contextuais ---
-  function gerarRespostaTatica(pergunta) {
+  // --- Respostas Diretas e Naturais ---
+  function gerarRespostaDireta(pergunta) {
     const p = pergunta.toLowerCase();
-    if (p.includes('resultado') || p.includes('jogo') || p.includes('quanto tá') || p.includes('placar')) {
-      return "Consultando placar ao vivo na base de dados do MauBet... Partida sincronizada com sucesso!";
-    } else if (p.includes('cartão') || p.includes('falta')) {
-      return "Análise disciplinar carregada. Estatísticas de cartões prontas para consulta.";
-    } else {
-      return "Análise tática processada com sucesso no MauBet. O que mais deseja verificar?";
+
+    if (p.includes('boa tarde') || p.includes('olá') || p.includes('oi')) {
+      return "Boa tarde! Tudo bem por aí? Como posso te ajudar com as análises hoje?";
+    } 
+    else if (p.includes('jogo') || p.includes('partida') || p.includes('hoje')) {
+      return "Os principais jogos de hoje são:\n1. Flamengo x Palmeiras\n2. Real Madrid x Barcelona\n3. Manchester City x Liverpool\n\nQuer que eu analise o mercado de gols ou de vencedor para algum deles?";
+    } 
+    else if (p.includes('cartão') || p.includes('falta')) {
+      return "Nas últimas partidas, a média está alta, girando em torno de 5.2 cartões por jogo. Quer ver o histórico de um juiz específico?";
+    } 
+    else {
+      return "Entendido. Para essa situação, os indicadores apontam um cenário equilibrado, com leve favoritismo para o mandante. Quer focar em gols ou em resultado final?";
     }
   }
 
-  // --- Envio de Mensagens Rápido ---
+  // --- Envio de Mensagens Fluido ---
   if (chatForm && chatInput) {
     chatForm.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -109,15 +115,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // 1. Exibe a mensagem do usuário
+      // 1. Exibe a mensagem do usuário imediatamente
       adicionarMensagem(mensagemUsuario, 'usuario');
       chatInput.value = '';
 
-      // 2. Responde instantaneamente sem ecoar a pergunta
+      // 2. Responde rápido e direto, sem enrolação
       setTimeout(() => {
-        const resposta = gerarRespostaTatica(mensagemUsuario);
+        const resposta = gerarRespostaDireta(mensagemUsuario);
         adicionarMensagem(resposta, 'bot');
-      }, 400);
+      }, 250);
     });
   }
 });

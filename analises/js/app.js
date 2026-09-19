@@ -3,7 +3,7 @@ import { consultarCopilotoTatico } from './gemini-service.js';
 import { buscarDadosFutebol } from './sports-api.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-  console.log("MauBet - Conexão Real com API e Gemini Ativa.");
+  console.log("MauBet - Sistema de Diagnóstico de Resposta Ativo.");
 
   const chatForm = document.getElementById('chat-form');
   const chatInput = document.getElementById('chat-input');
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  // --- Configuração do Microfone ---
+  // --- Configuração do Microfone (já validada e funcionando) ---
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SpeechRecognition && btnMic) {
     const recognition = new SpeechRecognition();
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Processo de Envio Real Integrado com API e Gemini ---
+  // --- Processo de Envio com Rastreio Real ---
   if (chatForm && chatInput) {
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -68,23 +68,23 @@ document.addEventListener('DOMContentLoaded', () => {
       const mensagemUsuario = chatInput.value.trim();
       if (!mensagemUsuario) return;
 
-      // 1. Fixa a mensagem do usuário na tela imediatamente
+      // 1. Fixa a mensagem do usuário na tela
       adicionarMensagem(mensagemUsuario, 'usuario');
       chatInput.value = '';
 
-      // 2. Cria o balão temporário de carregamento da API
+      // 2. Balão de carregamento
       const idTemp = 'temp-' + Date.now();
       const msgTemp = document.createElement('div');
       msgTemp.classList.add('mensagem', 'bot');
       msgTemp.id = idTemp;
-      msgTemp.textContent = "Buscando dados na API de esportes...";
+      msgTemp.textContent = "Consultando Copiloto Tático...";
       chatMessages.appendChild(msgTemp);
       chatMessages.scrollTop = chatMessages.scrollHeight;
 
-      let respostaFinal = "Não consegui processar a resposta no momento.";
+      let respostaFinal = "";
 
       try {
-        // 3. Tenta buscar os dados reais na RapidAPI
+        // Tenta buscar dados da API de esportes (se houver)
         let dadosExtras = "";
         if (typeof buscarDadosFutebol === 'function') {
           try {
@@ -94,20 +94,27 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        // 4. Envia o contexto obtido para o Gemini processar a análise tática
-        const promptFinal = dadosExtras ? `Contexto da API de Futebol: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
+        const promptFinal = dadosExtras ? `Contexto da API: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` : mensagemUsuario;
         
+        // Chama o serviço do Gemini
         if (typeof consultarCopilotoTatico === 'function') {
+          console.log("Enviando prompt para o Gemini:", promptFinal);
           respostaFinal = await consultarCopilotoTatico(promptFinal);
+          console.log("Resposta recebida do Gemini:", respostaFinal);
         } else {
-          respostaFinal = "Erro: O serviço do Copiloto Tático (Gemini) não está carregado corretamente.";
+          respostaFinal = "Erro: A função consultarCopilotoTatico não foi encontrada no gemini-service.js.";
+        }
+
+        // Se por acaso a resposta vier vazia, avisa claramente
+        if (!respostaFinal || respostaFinal.trim() === "") {
+          respostaFinal = "O Gemini retornou uma resposta vazia. Verifique a chave de API ou o modelo.";
         }
 
       } catch (error) {
-        console.error("Erro no processamento:", error);
-        respostaFinal = "Ocorreu um erro ao consultar os dados na API. Verifique a conexão.";
+        console.error("Erro detalhado na consulta:", error);
+        respostaFinal = "Erro técnico ao consultar a IA: " + (error.message || error);
       } finally {
-        // 5. Remove o balão de carregamento e insere a resposta real da API/Gemini
+        // 3. Remove o balão temporário e exibe o resultado real (sem mensagens fingidas)
         const elementoTemp = document.getElementById(idTemp);
         if (elementoTemp) {
           elementoTemp.remove();

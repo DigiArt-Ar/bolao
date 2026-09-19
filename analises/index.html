@@ -9,35 +9,36 @@
 <body>
 
   <div class="app-container">
-    <!-- Cabeçalho com o nome da marca -->
     <header class="chat-header">
       <h1>MauBet</h1>
       <span class="status-online">● Assistente Ativo</span>
     </header>
 
-    <!-- Área de Exibição das Mensagens -->
     <main id="chat-messages" class="chat-messages">
       <div class="mensagem bot">
         Olá! Sou o assistente de análise esportiva do MauBet. O que vamos analisar hoje?
       </div>
     </main>
 
-    <!-- Formulário de Envio de Mensagem -->
     <footer class="chat-footer">
       <form id="chat-form">
         <input 
           type="text" 
           id="chat-input" 
-          placeholder="Digite sua dúvida ou partida para análise..." 
+          placeholder="Digite ou fale sua dúvida..." 
           autocomplete="off"
           required
         />
+        <!-- Botão de Microfone -->
+        <button type="button" id="btn-mic" class="btn-icon" title="Falar">
+          🎙️
+        </button>
+        <!-- Botão de Enviar -->
         <button type="submit" id="btn-enviar">Enviar</button>
       </form>
     </footer>
   </div>
 
-  <!-- Carregamento do Módulo Principal JavaScript -->
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

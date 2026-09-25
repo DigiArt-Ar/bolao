@@ -1,8 +1,7 @@
-// Serviço de integração com a API do Gemini - 100% Estável (Modelo Corrigido)
+// Serviço de integração com a API do Gemini - URL Corrigida (gemini-2.0-flash)
 
 const GEMINI_API_KEY = "AIzaSyAX-wW-Yabotsy5rZOdMom4Kj3jau8dAb0"; 
-// Alterado para o modelo 1.5-flash, que é o padrão estável suportado na API REST
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = []) {
   if (GEMINI_API_KEY === "SUA_CHAVE_GEMINI_AQUI" || !GEMINI_API_KEY) {

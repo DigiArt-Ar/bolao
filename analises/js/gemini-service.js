@@ -1,4 +1,4 @@
-// Serviço de integração com diagnóstico de erro detalhado
+// Serviço de integração com o modelo correto indicado pela API
 import { GoogleGenAI } from "https://esm.run/@google/genai";
 
 const GEMINI_API_KEY = "AIzaSyAX-wW-Yabotsy5rZOdMom4Kj3jau8dAb0"; 
@@ -23,8 +23,9 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
       "[DADOS PRIVADOS DO FIRESTORE]:\n" +
       contextoFormatado;
 
+    // Atualizado para o modelo exigido pela API do Google
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: perguntaUsuario,
       config: {
         systemInstruction: systemInstruction,
@@ -40,7 +41,6 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
     }
 
   } catch (error) {
-    // CAPTURA O ERRO REAL E O EXIBE NO CHAT PARA ANÁLISE
     console.error("Erro detalhado do Gemini:", error);
     return `❌ ERRO TÉCNICO DETALHADO: ${error.message || JSON.stringify(error)}`;
   }

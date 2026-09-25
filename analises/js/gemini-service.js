@@ -1,4 +1,4 @@
-// Servico de integracao com o Gemini para o Copiloto Tatico
+// Servico de integracao ajustado para bypass de autenticacao no Copiloto Tatico
 const GEMINI_API_KEY = "AQ.Ab8RNKUhiowTuq8eoVKOQTbl_Qt9N_xR3j38DYQD-SlxsiVWw"; 
 
 export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = []) {
@@ -20,7 +20,8 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
       contextoFormatado + "\n\n" +
       "Pergunta do Usuário: " + perguntaUsuario;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Utilizando o endpoint de chat padrao v1 para chaves geradas no AI Studio
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const resposta = await fetch(url, {
       method: 'POST',
@@ -32,11 +33,7 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
           {
             parts: [{ text: systemInstructionText }]
           }
-        ],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 800
-        }
+        ]
       })
     });
 

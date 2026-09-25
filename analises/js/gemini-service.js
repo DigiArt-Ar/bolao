@@ -1,4 +1,4 @@
-// Servico de integracao com o Gemini para a chave do projeto
+// Servico de integracao com o Gemini para o Copiloto Tatico
 const GEMINI_API_KEY = "AQ.Ab8RN6KAN3gJP5QCPqPI4YgpkQiMmQweZQjMc6Fpr_urOkw9qw"; 
 
 export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = []) {
@@ -20,7 +20,8 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
       contextoFormatado + "\n\n" +
       "Pergunta do Usuário: " + perguntaUsuario;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    // Alterado para gemini-1.5-flash com endpoint de chave direta do AI Studio
+    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const resposta = await fetch(url, {
       method: 'POST',

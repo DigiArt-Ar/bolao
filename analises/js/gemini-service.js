@@ -1,4 +1,4 @@
-// Serviço de integração com a API do Gemini via Fetch Puro (100% Compatível com GitHub Pages)
+// Serviço de integração com a API do Gemini - Completo e Corrigido
 
 const GEMINI_API_KEY = "AIzaSyAX-wW-Yabotsy5rZOdMom4Kj3jau8dAb0"; 
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
@@ -66,6 +66,6 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
 
   } catch (error) {
     console.error("Erro na comunicação com o Gemini:", error);
-    return "Erro de comunicação com a Inteligência Tática. Verifique a chave de API e a conexão com a internet.";
+    throw error; // Repassa o erro para o main.js tratar corretamente
   }
 }

@@ -24,9 +24,9 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
       "[DADOS PRIVADOS DO FIRESTORE]:\n" +
       contextoFormatado;
 
-    // Chamada oficial estruturada utilizando o modelo padrão da categoria Flash
+    // Chamada oficial corrigida com o modelo suportado pelo SDK
     const response = await ai.models.generateContent({
-      model: 'gemini-3.8-flash',
+      model: 'gemini-2.5-flash',
       contents: perguntaUsuario,
       config: {
         systemInstruction: systemInstruction,

@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
     btnMic.style.display = 'none';
   }
 
-  // --- Envio de Mensagem com Importação Dinâmica (Não trava o app) ---
+  // --- Envio de Mensagem Integrado com Gemini e Firestore ---
   if (chatForm && chatInput) {
     chatForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -80,40 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
       let respostaFinal = "Não consegui processar a resposta no momento.";
 
       try {
-        // Tenta importar a API de futebol dinamicamente
-        let dadosExtras = "";
+        // Tenta buscar dados do Firestore se o serviço estiver disponível
+        let dadosFirestore = [];
         try {
-          const sportsApi = await import('./sports-api.js');
-          if (sportsApi && typeof sportsApi.buscarDadosFutebol === 'function') {
-            const resultadoApi = await sportsApi.buscarDadosFutebol(mensagemUsuario);
-            if (resultadoApi) {
-              dadosExtras = JSON.stringify(resultadoApi, null, 2);
-            }
+          const firebaseService = await import('./firebase-service.js');
+          if (firebaseService && typeof firebaseService.buscarDadosHistorico === 'function') {
+            dadosFirestore = await firebaseService.buscarDadosHistorico();
           }
-        } catch (apiErr) {
-          console.warn("Aviso: Não foi possível carregar a sports-api.js", apiErr);
+        } catch (fbErr) {
+          console.warn("Aviso: Histórico do Firestore não carregado nesta sessão.", fbErr);
         }
 
-        // Tenta importar o Gemini dinamicamente
-        const promptFinal = dadosExtras 
-          ? `Contexto da API de Futebol: ${dadosExtras}\n\nPergunta do usuário: ${mensagemUsuario}` 
-          : mensagemUsuario;
-
-        try {
-          const geminiService = await import('./gemini-service.js');
-          if (geminiService && typeof geminiService.consultarCopilotoTatico === 'function') {
-            respostaFinal = await geminiService.consultarCopilotoTatico(promptFinal);
-          } else {
-            respostaFinal = "Erro: Função consultarCopilotoTatico não encontrada no gemini-service.js.";
-          }
-        } catch (geminiErr) {
-          console.error("Erro ao carregar gemini-service.js:", geminiErr);
-          respostaFinal = "Erro ao conectar com o serviço de IA. Verifique os arquivos no GitHub.";
+        // Importa e chama o serviço do Gemini diretamente
+        const geminiService = await import('./gemini-service.js');
+        if (geminiService && typeof geminiService.consultarCopilotoTatico === 'function') {
+          respostaFinal = await geminiService.consultarCopilotoTatico(mensagemUsuario, dadosFirestore);
+        } else {
+          respostaFinal = "Erro: Função consultarCopilotoTatico não encontrada.";
         }
 
       } catch (error) {
         console.error("Erro geral no envio:", error);
-        respostaFinal = "Ocorreu um erro inesperado ao processar sua pergunta.";
+        respostaFinal = "Erro de comunicação com a Inteligência Tática. Verifique a chave de API e a conexão com a internet.";
       } finally {
         // 3. Remove o balão temporário e exibe a resposta final
         const elementoTemp = document.getElementById(idTemp);

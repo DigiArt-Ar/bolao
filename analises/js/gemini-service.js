@@ -1,15 +1,14 @@
-// Serviço de integração oficial com o Gemini via SDK ESM
+// Serviço de integração com diagnóstico de erro detalhado
 import { GoogleGenAI } from "https://esm.run/@google/genai";
 
 const GEMINI_API_KEY = "AIzaSyAX-wW-Yabotsy5rZOdMom4Kj3jau8dAb0"; 
 
 export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = []) {
   if (!GEMINI_API_KEY || GEMINI_API_KEY.includes("SUA_CHAVE")) {
-    return "⚠️ **Atenção:** Configure sua chave de API válida do Gemini no arquivo `js/gemini-service.js`.";
+    return "⚠️ Atenção: Configure sua chave de API do Gemini.";
   }
 
   try {
-    // Inicializa o SDK oficial atualizado
     const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
     const contextoFormatado = JSON.stringify(dadosFirestore, null, 2);
@@ -24,7 +23,6 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
       "[DADOS PRIVADOS DO FIRESTORE]:\n" +
       contextoFormatado;
 
-    // Chamada oficial corrigida com o modelo suportado pelo SDK
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: perguntaUsuario,
@@ -38,11 +36,12 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
     if (response && response.text) {
       return response.text;
     } else {
-      return "Não foi possível gerar a resposta no momento. Tente novamente.";
+      return "A API retornou uma resposta vazia.";
     }
 
   } catch (error) {
-    console.error("Erro na comunicação com o Gemini via SDK:", error);
-    return "Erro de comunicação com a Inteligência Tática. Verifique a chave de API e a conexão com a internet.";
+    // CAPTURA O ERRO REAL E O EXIBE NO CHAT PARA ANÁLISE
+    console.error("Erro detalhado do Gemini:", error);
+    return `❌ ERRO TÉCNICO DETALHADO: ${error.message || JSON.stringify(error)}`;
   }
 }

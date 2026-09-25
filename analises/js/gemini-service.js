@@ -1,7 +1,8 @@
-// Serviço de integração com a API do Gemini - Completo e Corrigido
+// Serviço de integração com a API do Gemini - 100% Estável (Modelo Corrigido)
 
 const GEMINI_API_KEY = "AIzaSyAX-wW-Yabotsy5rZOdMom4Kj3jau8dAb0"; 
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+// Alterado para o modelo 1.5-flash, que é o padrão estável suportado na API REST
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = []) {
   if (GEMINI_API_KEY === "SUA_CHAVE_GEMINI_AQUI" || !GEMINI_API_KEY) {
@@ -66,6 +67,6 @@ export async function consultarCopilotoTatico(perguntaUsuario, dadosFirestore = 
 
   } catch (error) {
     console.error("Erro na comunicação com o Gemini:", error);
-    throw error; // Repassa o erro para o main.js tratar corretamente
+    throw error;
   }
 }
